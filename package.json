@@ -1,0 +1,39 @@
+{
+  "name": "archon-soft-web",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "qa": "node scripts/qa.mjs",
+    "qa:interactions": "node scripts/interactions.mjs",
+    "qa:perf": "node scripts/perf.mjs",
+    "qa:release": "node scripts/release.mjs",
+    "qa:form": "node scripts/form.mjs",
+    "verify": "npm run typecheck && npm run lint && npm run build",
+    "assets": "node scripts/prepare-assets.mjs"
+  },
+  "dependencies": {
+    "geist": "^1.7.2",
+    "lenis": "1.3.26",
+    "next": "15.5.25",
+    "react": "19.1.1",
+    "react-dom": "19.1.1"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.7",
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/node": "22.13.5",
+    "@types/react": "19.1.10",
+    "@types/react-dom": "19.1.7",
+    "eslint": "9.24.0",
+    "eslint-config-next": "15.5.25",
+    "playwright": "^1.62.1",
+    "sharp": "^0.35.4",
+    "tailwindcss": "4.3.3",
+    "typescript": "5.9.3"
+  }
+}
