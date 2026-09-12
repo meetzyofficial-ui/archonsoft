@@ -6,7 +6,7 @@ const browser = await chromium.launch({ headless: false, channel: "chrome", args
   return chromium.launch({ headless: false, args: ["--window-size=1600,950"] });
 });
 const page = await browser.newPage({ viewport: { width: 1600, height: 900 } });
-await page.goto("http://localhost:3210/en", { waitUntil: "networkidle" });
+await page.goto((process.env.ARCHON_BASE ?? "http://localhost:3210") + "/en", { waitUntil: "networkidle" });
 const gpu = await page.evaluate(() => {
   const c = document.createElement("canvas");
   const gl = c.getContext("webgl2") || c.getContext("webgl");

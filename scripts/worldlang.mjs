@@ -1,7 +1,7 @@
 /** The world's language: Turkish by default, English on request, remembered, switchable in the HUD. */
 import { chromium } from "playwright";
 import { enterWorld } from "./lib/enter.mjs";
-const BASE = "http://localhost:3210";
+const BASE = process.env.ARCHON_BASE ?? "http://localhost:3210";
 let passed = 0, failed = 0;
 const check = (name, ok, note = "") => { console.log(`${ok ? "PASS" : "FAIL"}  ${name}${note ? `  — ${note}` : ""}`); ok ? passed++ : failed++; };
 const browser = await chromium.launch({ args: ["--enable-unsafe-swiftshader", "--use-gl=angle", "--use-angle=swiftshader"] });

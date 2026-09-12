@@ -17,7 +17,7 @@ const text = async () => (await page.locator(".world-overlay").innerText()).repl
 const pose = async () => (await text()).match(/([NSEW]+) ([+−]\d+) ([+−]\d+)( · \+\d+)?/);
 const hold = async (key, ms) => { await page.keyboard.down(key); await page.waitForTimeout(ms); await page.keyboard.up(key); };
 
-await page.goto("http://localhost:3210/tr", { waitUntil: "networkidle" });
+await page.goto((process.env.ARCHON_BASE ?? "http://localhost:3210") + "/tr", { waitUntil: "networkidle" });
 await enterWorld(page, "tr", 6000);
 await page.mouse.click(720, 450);
 await page.waitForTimeout(400);

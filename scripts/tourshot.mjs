@@ -8,7 +8,7 @@ const page = await ctx.newPage();
 const errors = [];
 page.on("pageerror", (e) => errors.push(String(e)));
 page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
-await page.goto("http://localhost:3210/en", { waitUntil: "networkidle" });
+await page.goto((process.env.ARCHON_BASE ?? "http://localhost:3210") + "/en", { waitUntil: "networkidle" });
 await page.waitForTimeout(1500);
 fs.mkdirSync(".qa/world", { recursive: true });
 console.log("overlay text:", (await page.locator(".world-overlay").innerText().catch(() => "")).replace(/\s+/g, " ").slice(0, 300));

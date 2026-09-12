@@ -3,6 +3,12 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // The share cards read their fonts from disk. Traced by name here so the
+  // files ship with the function on Vercel — a route that renders on demand
+  // otherwise finds an empty directory and answers 500.
+  outputFileTracingIncludes: {
+    "/**": ["./src/assets/og/**"],
+  },
   images: {
     // Anything resolving its own URL through `getImageProps` — the exploded
     // assembly, and the world's WebGL textures — asks for a quality Next does
