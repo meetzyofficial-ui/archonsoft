@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { guideStore } from "@/components/world/npc/Guides";
 import { hostStore } from "@/components/world/npc/Host";
 import { teleportStore } from "@/components/world/systems/teleport";
+import { touchInput } from "@/components/world/systems/touch";
+import { interactables } from "@/components/world/systems/focus";
 import { WORLD_DESTINATIONS } from "@/data/world-destinations";
 import { discovery } from "@/components/world/systems/discovery";
 import { focusStore, poseStore, zoneStore } from "@/components/world/systems/focus";
@@ -45,6 +47,7 @@ export function WorldUI({
   locale,
   onLang,
   mode,
+  touch = false,
   tourZone,
   onTour,
   onOpen,
@@ -60,6 +63,8 @@ export function WorldUI({
   locale: Locale;
   onLang: (lang: Locale) => void;
   mode: "explore" | "tour";
+  /** Driven by thumbs: the stick, the look-drag and the jump button. */
+  touch?: boolean;
   tourZone: ZoneId;
   onTour: (zone: ZoneId) => void;
   onOpen: (display: PreparedDisplay) => void;
@@ -225,18 +230,66 @@ export function WorldUI({
         {focus ? (
           <>
             {!greeting ? <p className="mono-label text-[var(--fg-dim)]">{focus.label}</p> : null}
-            <p className="mono-label flex items-center gap-3 text-[var(--fg)]">
-              <span className="inline-flex min-w-7 items-center justify-center border border-[var(--line-strong)] px-2 py-1">
-                E
-              </span>
-              {focus.action}
-            </p>
+            {touch ? (
+              /* On glass the prompt is the button. */
+              <button
+                type="button"
+                data-touch-act
+                onPointerDown={(event) => event.stopPropagation()}
+                onClick={() => interactables.get(focus.id)?.activate()}
+                className="mono-label pointer-events-auto flex items-center gap-3 border border-[rgba(255,244,232,0.35)] bg-[rgba(10,18,36,0.55)] px-5 py-3 text-[var(--fg)] backdrop-blur"
+              >
+                {focus.action}
+              </button>
+            ) : (
+              <p className="mono-label flex items-center gap-3 text-[var(--fg)]">
+                <span className="inline-flex min-w-7 items-center justify-center border border-[var(--line-strong)] px-2 py-1">
+                  E
+                </span>
+                {focus.action}
+              </p>
+            )}
           </>
         ) : null}
       </div>
 
       {/* The rail: every destination, one step away. On the tour it moves
           the camera; walking, it teleports the explorer. */}
+      {/* On a phone the rail is a column of numbers, thumb-sized, up the left
+          edge under the top row; tapping one teleports. */}
+      <nav
+        aria-label={world.destinations}
+        data-rail-compact
+        className={cn(
+          "pointer-events-auto absolute top-[7.5rem] left-[max(var(--spacing-gutter),env(safe-area-inset-left))] flex flex-col gap-2 sm:hidden",
+          "transition-opacity duration-500",
+          quiet ? "opacity-40" : "opacity-100",
+        )}
+      >
+        {WORLD_DESTINATIONS.map((dest) => {
+          const active = mode === "tour" ? dest.zone === tourZone : teleport.current === dest.id;
+          return (
+            <button
+              key={dest.id}
+              type="button"
+              data-destination={dest.id}
+              aria-label={t(dest.name, locale)}
+              aria-current={active ? "true" : undefined}
+              onPointerDown={(event) => event.stopPropagation()}
+              onClick={() => (mode === "tour" ? onTour(dest.zone) : teleportStore.request(dest.id))}
+              className={cn(
+                "mono-micro flex size-11 items-center justify-center rounded-full border backdrop-blur transition-colors",
+                active
+                  ? "border-[var(--accent)] bg-[rgba(10,18,36,0.6)] text-[var(--fg)] shadow-[0_0_10px_rgba(154,214,255,0.35)]"
+                  : "border-[rgba(255,244,232,0.22)] bg-[rgba(10,18,36,0.42)] text-[var(--fg-dim)]",
+              )}
+              style={{ fontVariantNumeric: "tabular-nums" }}
+            >
+              {String(dest.number).padStart(2, "0")}
+            </button>
+          );
+        })}
+      </nav>
       <nav
         aria-label={world.destinations}
         data-rail
@@ -310,17 +363,26 @@ export function WorldUI({
         </div>
       ) : null}
 
+      {/* Thumbs: the look layer under everything, the stick and the jump
+          button over it. */}
+      {mode === "explore" && touch ? <TouchControls jumpLabel={world.jump.split("—").pop()?.trim() ?? "JUMP"} /> : null}
+
       {/* Bottom. Move on the left, found on the right. */}
       {mode === "explore" ? (
-        <div className="frame absolute inset-x-0 bottom-0 flex items-end justify-between pb-6">
+        <div
+          className="frame absolute inset-x-0 bottom-0 flex items-end justify-between pb-6"
+          style={touch ? { paddingBottom: "calc(env(safe-area-inset-bottom) + 8.25rem)" } : undefined}
+        >
           <div>
-            <p className="mono-micro text-[var(--fg-mute)] opacity-80">
-              {payload.copy.move} · {world.jump}
-            </p>
-            {host.following ? (
-              <p className="mono-micro mt-1 text-[var(--accent)]">{world.host.label} — {world.host.following}</p>
+            {!touch ? (
+              <p className="mono-micro text-[var(--fg-mute)] opacity-80">
+                {payload.copy.move} · {world.jump}
+              </p>
             ) : null}
-            {!locked ? (
+            {host.following ? (
+              <p className={cn("mono-micro mt-1 text-[var(--accent)]", touch && "ml-40")}>{world.host.label} — {world.host.following}</p>
+            ) : null}
+            {!locked && !touch ? (
               <p className="mono-micro mt-2 text-[var(--fg-dim)]">{payload.copy.look}</p>
             ) : null}
           </div>
@@ -837,5 +899,138 @@ export function HostCard({
         </div>
       </div>
     </div>
+  );
+}
+
+
+/**
+ * Touch controls.
+ *
+ * A look layer over the whole frame: any finger that is not on a control
+ * turns the camera by how far it moves. A stick at the bottom left — a base
+ * and a knob, analog, dead-zoned, running at the rim — that follows the
+ * finger and snaps back the instant it lifts. A jump button at the bottom
+ * right, one jump per press. All three work at once: every finger is its own
+ * pointer, the stick and the button capture theirs, and the look layer
+ * ignores any pointer that began on a control. Safe-area insets keep both
+ * controls clear of the home indicator and the corners.
+ */
+function TouchControls({ jumpLabel }: { jumpLabel: string }) {
+  const base = useRef<HTMLDivElement>(null);
+  const knob = useRef<HTMLDivElement>(null);
+  const stickPointer = useRef<number | null>(null);
+  const lookPointers = useRef(new Map<number, { x: number; y: number }>());
+  const RADIUS = 46;
+
+  useEffect(() => {
+    touchInput.active = true;
+    return () => {
+      touchInput.active = false;
+      touchInput.x = 0;
+      touchInput.y = 0;
+    };
+  }, []);
+
+  const setStick = (clientX: number, clientY: number) => {
+    const el = base.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    let dx = clientX - (rect.left + rect.width / 2);
+    let dy = clientY - (rect.top + rect.height / 2);
+    const len = Math.hypot(dx, dy);
+    if (len > RADIUS) {
+      dx = (dx / len) * RADIUS;
+      dy = (dy / len) * RADIUS;
+    }
+    if (knob.current) knob.current.style.transform = `translate(${dx}px, ${dy}px)`;
+    const mag = Math.min(1, len / RADIUS);
+    /* A dead zone in the middle, so a resting thumb does not creep. */
+    const live = mag < 0.12 ? 0 : (mag - 0.12) / 0.88;
+    touchInput.x = len > 0 ? (dx / Math.max(len, 1e-6)) * live * Math.min(1, len / RADIUS) : 0;
+    touchInput.y = len > 0 ? (-dy / Math.max(len, 1e-6)) * live * Math.min(1, len / RADIUS) : 0;
+  };
+  const releaseStick = () => {
+    stickPointer.current = null;
+    touchInput.x = 0;
+    touchInput.y = 0;
+    if (knob.current) knob.current.style.transform = "translate(0px, 0px)";
+  };
+
+  return (
+    <>
+      {/* The look layer. */}
+      <div
+        data-touch-look
+        className="pointer-events-auto absolute inset-0 -z-10"
+        style={{ touchAction: "none" }}
+        onPointerDown={(event) => {
+          if (event.pointerType === "mouse") return;
+          lookPointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+        }}
+        onPointerMove={(event) => {
+          const last = lookPointers.current.get(event.pointerId);
+          if (!last) return;
+          touchInput.lookDx += event.clientX - last.x;
+          touchInput.lookDy += event.clientY - last.y;
+          lookPointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+        }}
+        onPointerUp={(event) => lookPointers.current.delete(event.pointerId)}
+        onPointerCancel={(event) => lookPointers.current.delete(event.pointerId)}
+      />
+      {/* The stick. */}
+      <div
+        ref={base}
+        data-joystick
+        className="pointer-events-auto absolute z-10 flex size-[132px] items-center justify-center rounded-full border border-[rgba(255,244,232,0.22)] bg-[rgba(10,18,36,0.38)] backdrop-blur"
+        style={{
+          left: "calc(env(safe-area-inset-left) + 1.25rem)",
+          bottom: "calc(env(safe-area-inset-bottom) + 1.5rem)",
+          touchAction: "none",
+        }}
+        onPointerDown={(event) => {
+          event.stopPropagation();
+          if (stickPointer.current !== null) return;
+          stickPointer.current = event.pointerId;
+          event.currentTarget.setPointerCapture(event.pointerId);
+          setStick(event.clientX, event.clientY);
+        }}
+        onPointerMove={(event) => {
+          if (event.pointerId !== stickPointer.current) return;
+          setStick(event.clientX, event.clientY);
+        }}
+        onPointerUp={(event) => {
+          if (event.pointerId === stickPointer.current) releaseStick();
+        }}
+        onPointerCancel={(event) => {
+          if (event.pointerId === stickPointer.current) releaseStick();
+        }}
+        onLostPointerCapture={releaseStick}
+      >
+        <span aria-hidden="true" className="absolute inset-3 rounded-full border border-[rgba(255,244,232,0.1)]" />
+        <div
+          ref={knob}
+          className="size-14 rounded-full border border-[rgba(154,214,255,0.55)] bg-[rgba(154,214,255,0.18)] shadow-[0_0_14px_rgba(154,214,255,0.25)] transition-transform duration-75"
+        />
+      </div>
+      {/* The jump button. */}
+      <button
+        type="button"
+        data-jump
+        aria-label={jumpLabel}
+        className="pointer-events-auto absolute z-10 flex size-[84px] items-center justify-center rounded-full border border-[rgba(255,244,232,0.3)] bg-[rgba(10,18,36,0.42)] backdrop-blur active:border-[var(--accent)] active:bg-[rgba(154,214,255,0.22)]"
+        style={{
+          right: "calc(env(safe-area-inset-right) + 1.25rem)",
+          bottom: "calc(env(safe-area-inset-bottom) + 1.75rem)",
+          touchAction: "none",
+        }}
+        onPointerDown={(event) => {
+          event.stopPropagation();
+          event.preventDefault();
+          touchInput.jump = true;
+        }}
+      >
+        <span className="mono-micro text-[var(--fg)]">{jumpLabel}</span>
+      </button>
+    </>
   );
 }

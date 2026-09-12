@@ -80,7 +80,7 @@ await page.waitForTimeout(1400);
 await page.screenshot({ path: ".qa/world/life-dppano.png" });
 const p2 = await pose();
 check("2 teleports to DP Pano", p2 && Number(p2[2].replace("−", "-")) > 36 && Number(p2[3].replace("−", "-")) < -60, p2?.[0]);
-check("the rail marks the destination", (await page.locator('[data-destination="dppano"][aria-current="true"]').count()) === 1);
+check("the rail marks the destination", (await page.locator('[data-rail] [data-destination="dppano"][aria-current="true"]').count()) === 1);
 await page.keyboard.press("5");
 await page.waitForTimeout(1600);
 const p3 = await pose();

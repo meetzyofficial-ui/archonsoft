@@ -59,17 +59,23 @@ function readLang(): Locale {
 export function ArchonWorld({
   copies,
   payloads,
-  mode,
+  touch,
+  compact,
   onExit,
 }: {
   locale: Locale;
   copies: Record<Locale, WorldCopy>;
   payloads: Record<Locale, WorldPayload>;
-  /** Walking, or the guided tour a touch device gets. */
-  mode: "explore" | "tour";
+  /** Driven by thumbs rather than a keyboard and a captured mouse. */
+  touch: boolean;
+  /** The smaller scene: fewer people, lower pixel ratio, staged build. */
+  compact: boolean;
   onExit: () => void;
 }) {
   const reduced = usePrefersReducedMotion();
+  /* Everyone walks; a touch visitor who asked for reduced motion is taken
+     round by the tour instead. */
+  const mode: "explore" | "tour" = reduced && touch ? "tour" : "explore";
   const [stage, setStage] = useState<Stage>("opening");
   const [progress, setProgress] = useState(0);
   const [ready, setReady] = useState(false);
@@ -334,6 +340,7 @@ export function ArchonWorld({
           <WorldScene
             payload={payload}
             mode={sceneMode}
+            compact={compact}
             tourZone={tourZone}
             reduced={reduced}
             onOpen={inspect}
@@ -466,6 +473,7 @@ export function ArchonWorld({
           locale={lang}
           onLang={chooseLang}
           mode={mode}
+          touch={touch}
           tourZone={tourZone}
           onTour={setTourZone}
           onOpen={inspect}

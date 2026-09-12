@@ -213,17 +213,44 @@ const hold = async (page, key, ms) => {
 
   const overlay = page.locator(".world-overlay");
   const text = await overlay.innerText();
-  check("a touch device gets the guided tour, not WASD", !/W\s?A\s?S\s?D/i.test(text));
-  check("every district is reachable by tapping", /ARCHIVE/i.test(text) && /SYSTEMS/i.test(text));
+  check("a touch device walks with a stick, not WASD", !/W\s?A\s?S\s?D/i.test(text) && (await page.locator("[data-joystick]").count()) === 1);
+  check("and has a jump button", (await page.locator("[data-jump]").count()) === 1);
+  check("every destination is a thumb away", (await page.locator("[data-rail-compact] [data-destination]").count()) === 6);
 
-  await page.getByRole("button", { name: "Shipped", exact: true }).click();
-  await page.waitForTimeout(3000);
-  check("the district changes", /Meetzy/i.test(await overlay.innerText()));
+  /* The stick walks: drag the knob up and hold. */
+  const stick = await page.locator("[data-joystick]").boundingBox();
+  const before = await page.evaluate(() => window.__archonBody?.().z);
+  await page.touchscreen.tap(stick.x + stick.width / 2, stick.y + stick.height / 2);
+  const cdp = await ctx.newCDPSession(page);
+  const cx = stick.x + stick.width / 2;
+  const cy = stick.y + stick.height / 2;
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: cx, y: cy, id: 1 }] });
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x: cx, y: cy - 40, id: 1 }] });
+  await page.waitForTimeout(1800);
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+  await page.waitForTimeout(300);
+  const after = await page.evaluate(() => window.__archonBody?.().z);
+  check("pushing the stick forward walks the explorer", typeof after === "number" && after < before - 1, `${before} → ${after}`);
+  check("letting go stops it", Math.abs((await page.evaluate(() => window.__archonBody?.().pace)) ?? 1) < 0.05);
 
-  await page.getByRole("button", { name: /^Meetzy$/ }).first().click();
-  await page.waitForTimeout(700);
-  check("and the work in it can be opened", (await page.getByRole("dialog").count()) === 1);
-  check("with the real project behind it", /2,000/.test(await page.getByRole("dialog").innerText()));
+  /* The jump button. */
+  const jump = await page.locator("[data-jump]").boundingBox();
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: jump.x + jump.width / 2, y: jump.y + jump.height / 2, id: 2 }] });
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+  /* The software renderer runs a handful of frames a second and the wind-up
+     is a tenth of a second of clamped frame time; sample until the body is
+     off the deck. */
+  let lift = 0;
+  for (let i = 0; i < 12 && lift <= 0.2; i += 1) {
+    await page.waitForTimeout(150);
+    lift = (await page.evaluate(() => window.__archonBody?.().lift)) ?? 0;
+  }
+  check("the jump button jumps", lift > 0.2, `lift ${lift}`);
+
+  /* A destination tap teleports, and the district is announced. */
+  await page.locator('[data-rail-compact] [data-destination="meetzy"]').tap();
+  await page.waitForTimeout(1800);
+  check("tapping a destination teleports", /Shipped|Yayında/i.test(await overlay.innerText()) || (await page.evaluate(() => window.__archonBody?.().z)) < -30);
 
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,

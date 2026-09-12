@@ -9,6 +9,7 @@ import { discovery } from "@/components/world/systems/discovery";
 import { focusStore, interactables, poseStore, zoneStore } from "@/components/world/systems/focus";
 import { guideStore } from "@/components/world/npc/Guides";
 import { teleportStore } from "@/components/world/systems/teleport";
+import { touchInput } from "@/components/world/systems/touch";
 import { destinationByKey, WORLD_DESTINATIONS } from "@/data/world-destinations";
 import { COLLIDERS, SPAWN, floorAt, zoneAt } from "@/data/world-map";
 import { WORLD_OBSTACLES } from "@/data/world-obstacles";
@@ -46,6 +47,9 @@ const TELEPORT_IN = 0.46;
 const ACCELERATION = 34;
 const DAMPING = 11;
 const LOOK = 0.0021;
+/* A thumb drag turns the view about as far as a mouse move of the same
+   length: a little more, because a thumb has less room. */
+const TOUCH_LOOK = 0.0042;
 const PITCH_MIN = -0.55;
 const PITCH_MAX = 0.62;
 
@@ -267,11 +271,32 @@ export function Explorer({ active }: { active: boolean }) {
     const delta = Math.min(raw, 0.1);
     const keys = here.keys;
 
-    const forward =
+    /* Touch: the look deltas turn the view, the joystick walks, the button
+       jumps — the same loop the keyboard drives. */
+    if (touchInput.active) {
+      const [dx, dy] = touchInput.takeLook();
+      if (dx || dy) {
+        here.yaw -= dx * TOUCH_LOOK;
+        here.pitch = THREE.MathUtils.clamp(here.pitch + dy * TOUCH_LOOK, PITCH_MIN, PITCH_MAX);
+      }
+      if (touchInput.jump) {
+        touchInput.jump = false;
+        if (!here.airborne && here.windup <= 0 && !here.teleport) here.windup = JUMP_WINDUP;
+      }
+    }
+    const stick = touchInput.active ? Math.min(1, Math.hypot(touchInput.x, touchInput.y)) : 0;
+
+    let forward =
       (keys.has("w") || keys.has("arrowup") ? 1 : 0) - (keys.has("s") || keys.has("arrowdown") ? 1 : 0);
-    const strafe =
+    let strafe =
       (keys.has("d") || keys.has("arrowright") ? 1 : 0) - (keys.has("a") || keys.has("arrowleft") ? 1 : 0);
-    const running = keys.has("shift");
+    let running = keys.has("shift");
+    if (stick > 0.08 && !forward && !strafe) {
+      forward = touchInput.y;
+      strafe = touchInput.x;
+      /* Pushed to the rim, the stick runs. */
+      running = stick > 0.86;
+    }
 
     FORWARD.set(-Math.sin(here.yaw), 0, -Math.cos(here.yaw));
     RIGHT.set(Math.cos(here.yaw), 0, -Math.sin(here.yaw));
@@ -280,7 +305,9 @@ export function Explorer({ active }: { active: boolean }) {
     let targetZ = FORWARD.z * forward + RIGHT.z * strafe;
     const length = Math.hypot(targetX, targetZ);
     if (length > 0) {
-      const speed = running ? RUN : WALK;
+      /* Analog: a half-pushed stick walks at half pace. */
+      const analog = stick > 0.08 && !keys.has("w") && !keys.has("a") && !keys.has("s") && !keys.has("d") ? Math.min(1, stick / 0.86) : 1;
+      const speed = (running ? RUN : WALK) * analog;
       targetX = (targetX / length) * speed;
       targetZ = (targetZ / length) * speed;
     }

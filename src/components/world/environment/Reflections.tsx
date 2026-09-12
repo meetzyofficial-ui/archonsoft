@@ -45,11 +45,14 @@ export function Reflections({ compact }: { compact: boolean }) {
       scene.environmentIntensity = 0.85;
     };
 
-    const first = window.setTimeout(capture, 1400);
-    const second = window.setTimeout(capture, 5200);
+    /* A phone captures once, later, at 64px; a desktop twice. Either way it
+       happens during the opening, behind the interface, not on a frame the
+       visitor is steering. */
+    const first = window.setTimeout(capture, compact ? 3000 : 1400);
+    const second = compact ? 0 : window.setTimeout(capture, 5200);
     return () => {
       window.clearTimeout(first);
-      window.clearTimeout(second);
+      if (second) window.clearTimeout(second);
       scene.environment = null;
       env?.dispose();
       target.dispose();

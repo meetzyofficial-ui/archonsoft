@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { Robot } from "@/components/world/avatar/Robot";
 import {
@@ -44,6 +44,7 @@ export type WorldMode = "explore" | "tour" | "overture";
 export function WorldScene({
   payload,
   mode,
+  compact,
   tourZone,
   reduced,
   onOpen,
@@ -54,6 +55,8 @@ export function WorldScene({
 }: {
   payload: WorldPayload;
   mode: WorldMode;
+  /** The smaller scene, for a phone or a narrow window. */
+  compact: boolean;
   /** Which district the guided tour is standing in. Ignored while exploring. */
   tourZone: ZoneId;
   reduced: boolean;
@@ -64,12 +67,20 @@ export function WorldScene({
   onReady?: () => void;
 }) {
   /* A phone gets the guided tour, fewer particles and no dust. */
-  const compact = mode === "tour";
+  /* The pixel ratio follows the device: a phone with four cores and little
+     memory renders at 1×, a strong one at 1.25×, a desktop up to 1.5×. */
+  const dpr = useMemo<[number, number]>(() => {
+    if (!compact) return [1, 1.5];
+    if (typeof navigator === "undefined") return [1, 1];
+    const cores = navigator.hardwareConcurrency ?? 4;
+    const memory = (navigator as unknown as { deviceMemory?: number }).deviceMemory ?? 4;
+    return cores >= 6 && memory >= 6 ? [1, 1.25] : [1, 1];
+  }, [compact]);
   return (
     <Canvas
       /* Capped so a high-density display does not render four times the pixels
          a scene made mostly of flat surfaces needs. */
-      dpr={compact ? [1, 1.25] : [1, 1.5]}
+      dpr={dpr}
       gl={{ antialias: true, powerPreference: "high-performance", alpha: false }}
       /* A long lens. Wide angles exaggerate convergence and make a large room
          look like a small one seen from close up; architecture is photographed
@@ -207,13 +218,17 @@ function World({
       <Hub texture={texture} locale={payload.locale} />
       <Gallery texture={texture} />
       <Shipped texture={texture} installations={payload.installations} />
-      <Boards
-        texture={texture}
-        installation={payload.installations.find((one) => one.id === "dppano")}
-      />
-      <Labs texture={texture} />
-      <Systems texture={texture} />
-      <Archive texture={texture} />
+      {/* The far districts a frame or two after the hub, so the first frame
+          carries the plaza, the landmark and the people at the arrival. */}
+      <Staged frames={compact ? 2 : 1}>
+        <Boards
+          texture={texture}
+          installation={payload.installations.find((one) => one.id === "dppano")}
+        />
+        <Labs texture={texture} />
+        <Systems texture={texture} />
+        <Archive texture={texture} />
+      </Staged>
 
       {payload.displays.map((display) => (
         <Display key={display.id} display={display} texture={texture} onOpen={open} />
@@ -228,10 +243,10 @@ function World({
       {/* The host by the arrival, at once; the population and the animals a
           few frames later, so the first frame is not held up building them. */}
       <Host label={host.label} action={host.action} onTalk={onHost} />
-      <Staged frames={3}>
+      <Staged frames={compact ? 5 : 3}>
         <Crowd compact={compact} />
       </Staged>
-      <Staged frames={6}>
+      <Staged frames={compact ? 8 : 6}>
         <Animals compact={compact} />
       </Staged>
     </>

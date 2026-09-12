@@ -36,6 +36,9 @@ const GUNMETAL = { color: "#3b4453", roughness: 0.42, metalness: 0.85, envMapInt
 const TITANIUM = { color: "#8b95a4", roughness: 0.38, metalness: 0.9, envMapIntensity: 1.3 } as const;
 const SILVER = { color: "#b7c1cc", roughness: 0.3, metalness: 0.92, envMapIntensity: 1.4 } as const;
 const ARMOUR = { color: "#e9edf1", roughness: 0.34, metalness: 0.14, envMapIntensity: 1.2 } as const;
+/* Dark titanium: the main plating. Metal, a little rough, so the ceramic
+   and silver read as trims laid over it. */
+const DARK_TI = { color: "#56606f", roughness: 0.4, metalness: 0.82, envMapIntensity: 1.25 } as const;
 const GRAPHITE = { color: "#1b222c", roughness: 0.58, metalness: 0.55 } as const;
 const CAVITY = { color: "#080d14", roughness: 0.8, metalness: 0.3 } as const;
 const VISOR = { color: "#08111f", roughness: 0.06, metalness: 0.75, envMapIntensity: 1.6 } as const;
@@ -66,9 +69,6 @@ function Head() {
     { geometry: new THREE.BoxGeometry(0.22, 0.05, 0.1), at: V3(0, 0.185, 0.085), turn: V3(0.35, 0, 0) },
     /* The crown ridge, front to back. */
     { geometry: new THREE.BoxGeometry(0.03, 0.035, 0.2), at: V3(0, 0.255, -0.02), turn: V3(0.15, 0, 0) },
-    /* Temple plates. */
-    { geometry: new THREE.SphereGeometry(0.075, 12, 10), at: V3(-0.108, 0.09, 0.02), turn: V3(0, -0.3, 0.15), scale: V3(0.5, 1, 1.1) },
-    { geometry: new THREE.SphereGeometry(0.075, 12, 10), at: V3(0.108, 0.09, 0.02), turn: V3(0, 0.3, -0.15), scale: V3(0.5, 1, 1.1) },
   ];
   const dark = () => [
     /* The visor recess, and the jaw: a graphite lower face with a chin guard. */
@@ -95,9 +95,14 @@ function Head() {
     () => [-0.03, 0, 0.03].map((x) => ({ geometry: new THREE.PlaneGeometry(0.008, 0.028), at: V3(x, 0.0, 0.117) })),
     [],
   );
+  const temples = () => [
+    { geometry: new THREE.SphereGeometry(0.075, 12, 10), at: V3(-0.108, 0.09, 0.02), turn: V3(0, -0.3, 0.15), scale: V3(0.5, 1, 1.1) },
+    { geometry: new THREE.SphereGeometry(0.075, 12, 10), at: V3(0.108, 0.09, 0.02), turn: V3(0, 0.3, -0.15), scale: V3(0.5, 1, 1.1) },
+  ];
   return (
     <>
-      <Piece parts={shell} material={ARMOUR} />
+      <Piece parts={shell} material={DARK_TI} />
+      <Piece parts={temples} material={ARMOUR} />
       <Piece parts={dark} material={GRAPHITE} />
       <Piece parts={trims} material={TITANIUM} />
       {/* The visor glass, and the depth behind it. */}
@@ -109,7 +114,12 @@ function Head() {
         <sphereGeometry args={[0.11, 12, 10]} />
         <meshStandardMaterial {...CAVITY} />
       </mesh>
-      {/* The eyes: two bars of cyan behind the glass. */}
+      {/* The eyes: two bars of cyan behind the glass, and the glass lit
+          faintly around them. */}
+      <mesh position={[0, 0.112, 0.15]}>
+        <planeGeometry args={[0.16, 0.05]} />
+        <meshBasicMaterial color={CYAN} transparent opacity={0.16} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
+      </mesh>
       <mesh geometry={eyes} name="eyes">
         <meshBasicMaterial color={CYAN} transparent opacity={0.9} toneMapped={false} />
       </mesh>
@@ -117,10 +127,10 @@ function Head() {
       <mesh geometry={slits}>
         <meshBasicMaterial color={AMBER} transparent opacity={0.55} toneMapped={false} />
       </mesh>
-      {/* Ear-module lights. */}
+      {/* Ear-module lights, turning very slowly: a servo at work. */}
       {[-1, 1].map((side) => (
-        <mesh key={side} position={[side * 0.162, 0.1, 0]} rotation={[0, 0, Math.PI / 2]}>
-          <cylinderGeometry args={[0.028, 0.028, 0.006, 12]} />
+        <mesh key={side} name="ear" position={[side * 0.162, 0.1, 0]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.028, 0.028, 0.006, 6]} />
           <Glow colour={BLUE} opacity={0.7} />
         </mesh>
       ))}
@@ -131,10 +141,12 @@ function Head() {
 /* ----------------------------------------------------------------- torso */
 
 function Chest() {
-  const armour = () => [
-    /* The chest plate: chamfered, wider at the collarbone, and two pectoral
-       plates over it. */
+  /* The chest plate: chamfered, wider at the collarbone — dark titanium —
+     with two ceramic pectoral plates laid over it. */
+  const plate = () => [
     { geometry: new THREE.CylinderGeometry(0.29, 0.235, 0.38, 8), at: V3(0, 0.02, 0.05), turn: V3(0.08, Math.PI / 8, 0), scale: V3(1, 1, 0.58) },
+  ];
+  const armour = () => [
     { geometry: new THREE.BoxGeometry(0.2, 0.18, 0.04), at: V3(-0.13, 0.06, 0.175), turn: V3(0.1, -0.15, 0) },
     { geometry: new THREE.BoxGeometry(0.2, 0.18, 0.04), at: V3(0.13, 0.06, 0.175), turn: V3(0.1, 0.15, 0) },
   ];
@@ -166,10 +178,16 @@ function Chest() {
   return (
     <>
       <Piece parts={metal} material={GUNMETAL} />
+      <Piece parts={plate} material={DARK_TI} />
       <Piece parts={armour} material={ARMOUR} />
       <Piece parts={silver} material={SILVER} />
       <Piece parts={dark} material={GRAPHITE} />
       <Piece parts={seams} material={CAVITY} />
+      {/* A violet pinstripe along the belt: the one cool-warm detail. */}
+      <mesh position={[0, -0.14, 0.168]}>
+        <planeGeometry args={[0.3, 0.006]} />
+        <Glow colour={VIOLET} opacity={0.55} />
+      </mesh>
       {/* The mark on the back, violet, quiet. */}
       {[0, 1, 2].map((i) => (
         <mesh key={i} position={[-0.06 + (0.12 - i * 0.03) / 2, 0.1 - i * 0.045, -0.155]} rotation={[0, Math.PI, 0]}>
@@ -226,6 +244,11 @@ function Hand({ side }: { side: number }) {
         <boxGeometry args={[0.09, 0.09, 0.016]} />
         <meshStandardMaterial {...ARMOUR} />
       </mesh>
+      {/* The palm core. */}
+      <mesh position={[0, -0.045, 0.027]}>
+        <circleGeometry args={[0.014, 10]} />
+        <Glow colour={CYAN} opacity={0.6} />
+      </mesh>
       <group name="fingers" position={[0, -0.1, 0]}>
         <mesh geometry={fingers} position={[0, -0.1, 0]}>
           <meshStandardMaterial {...GRAPHITE} />
@@ -257,11 +280,15 @@ function Forearm({ side }: { side: number }) {
   const silver = () => [
     { geometry: new THREE.BoxGeometry(0.03, 0.2, 0.1), at: V3(side * 0.06, -0.14, 0) },
     { geometry: new THREE.TorusGeometry(0.058, 0.012, 6, 16), at: V3(0, -0.31, 0), turn: V3(Math.PI / 2, 0, 0) },
+    /* The elbow piston, behind the joint. */
+    { geometry: new THREE.CylinderGeometry(0.014, 0.014, 0.16, 8), at: V3(0, -0.1, -0.07), turn: V3(0.3, 0, 0) },
   ];
+  const rail = () => [{ geometry: new THREE.BoxGeometry(0.02, 0.22, 0.03), at: V3(0, -0.16, 0.075) }];
   return (
     <>
       <Piece parts={metal} material={GRAPHITE} />
-      <Piece parts={armour} material={ARMOUR} />
+      <Piece parts={armour} material={DARK_TI} />
+      <Piece parts={rail} material={ARMOUR} />
       <Piece parts={silver} material={SILVER} />
       {/* Wrist accent. */}
       <mesh position={[0, -0.3, 0.062]}>
@@ -280,11 +307,17 @@ function Thigh({ side }: { side: number }) {
   ];
   const armour = () => [{ geometry: new THREE.BoxGeometry(0.17, 0.36, 0.09), at: V3(0, -0.22, 0.075), turn: V3(0.08, 0, 0) }];
   const side_ = () => [{ geometry: new THREE.BoxGeometry(0.05, 0.3, 0.16), at: V3(side * 0.1, -0.24, 0), turn: V3(0, 0, side * 0.1) }];
+  /* A piston down the back of the thigh. */
+  const piston = () => [
+    { geometry: new THREE.CylinderGeometry(0.02, 0.02, 0.3, 8), at: V3(0, -0.24, -0.09) },
+    { geometry: new THREE.CylinderGeometry(0.032, 0.032, 0.08, 8), at: V3(0, -0.1, -0.09) },
+  ];
   return (
     <>
       <Piece parts={metal} material={GUNMETAL} />
-      <Piece parts={armour} material={ARMOUR} />
-      <Piece parts={side_} material={TITANIUM} />
+      <Piece parts={armour} material={DARK_TI} />
+      <Piece parts={side_} material={ARMOUR} />
+      <Piece parts={piston} material={SILVER} />
     </>
   );
 }
@@ -297,7 +330,6 @@ function Shin({ side }: { side: number }) {
   ];
   const armour = () => [
     { geometry: new THREE.SphereGeometry(0.075, 10, 10), at: V3(0, 0.01, 0.06), turn: V3(0.3, 0, 0), scale: V3(1, 1.2, 0.7) },
-    { geometry: new THREE.BoxGeometry(0.15, 0.36, 0.09), at: V3(0, -0.25, 0.06), turn: V3(-0.06, 0, 0) },
   ];
   const metal = () => [
     /* The knee piston, its housing, and the calf behind. */
@@ -305,10 +337,12 @@ function Shin({ side }: { side: number }) {
     { geometry: new THREE.CylinderGeometry(0.03, 0.03, 0.006, 12), at: V3(side * 0.092, 0, 0), turn: V3(0, 0, Math.PI / 2) },
     { geometry: new THREE.SphereGeometry(0.07, 10, 10), at: V3(0, -0.2, -0.06), scale: V3(1, 1.6, 0.9) },
   ];
+  const shinPlate = () => [{ geometry: new THREE.BoxGeometry(0.15, 0.36, 0.09), at: V3(0, -0.25, 0.06), turn: V3(-0.06, 0, 0) }];
   return (
     <>
       <Piece parts={dark} material={GRAPHITE} />
       <Piece parts={armour} material={ARMOUR} />
+      <Piece parts={shinPlate} material={DARK_TI} />
       <Piece parts={metal} material={TITANIUM} />
       {/* The shin light, and an amber tell at the knee. */}
       <mesh position={[0, -0.25, 0.106]}>
@@ -342,6 +376,16 @@ function Foot() {
       <Piece parts={dark} material={GRAPHITE} />
       <Piece parts={armour} material={ARMOUR} />
       <Piece parts={silver} material={SILVER} />
+      {/* A cyan line under the sole, and the thruster flare that opens in
+          the air. */}
+      <mesh position={[0, -0.112, 0.05]} rotation={[Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[0.14, 0.3]} />
+        <Glow colour={CYAN} opacity={0.35} />
+      </mesh>
+      <mesh name="flare" position={[0, -0.13, 0.02]} rotation={[Math.PI / 2, 0, 0]} scale={[1, 1, 1]}>
+        <circleGeometry args={[0.14, 16]} />
+        <meshBasicMaterial color={CYAN} transparent opacity={0} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} side={THREE.DoubleSide} />
+      </mesh>
     </>
   );
 }
@@ -422,6 +466,8 @@ export function Robot() {
   const time = useRef(0);
   const fingerGroups = useRef<THREE.Object3D[] | null>(null);
   const eyes = useRef<THREE.Object3D | null>(null);
+  const flares = useRef<THREE.Object3D[] | null>(null);
+  const ears = useRef<THREE.Object3D[] | null>(null);
 
   /* The core: three left-aligned bars of cyan light let into the chest,
      in one piece; a blue hexagon of light behind them. */
@@ -502,8 +548,23 @@ export function Robot() {
       });
       fingerGroups.current = found;
       eyes.current = node.getObjectByName("eyes") ?? null;
+      const fl: THREE.Object3D[] = [];
+      const er: THREE.Object3D[] = [];
+      node.traverse((part) => {
+        if (part.name === "flare") fl.push(part);
+        if (part.name === "ear") er.push(part);
+      });
+      flares.current = fl;
+      ears.current = er;
     }
-    for (const f of fingerGroups.current) f.rotation.x = s.curl;
+    for (const f of fingerGroups.current) f.rotation.x = s.curl + Math.sin(t * 2.7) * 0.03 * still;
+    /* The thruster flares under the boots open in the air. */
+    for (const flare of flares.current ?? []) {
+      const m = (flare as THREE.Mesh).material as THREE.MeshBasicMaterial;
+      m.opacity = air * (0.35 + Math.sin(t * 30) * 0.1) + body.glow * 0.3;
+      flare.scale.setScalar(1 + air * 1.2);
+    }
+    for (const ear of ears.current ?? []) ear.rotation.x = Math.sin(t * 0.8) * 0.4;
     if (armL.current) armL.current.rotation.x = -Math.sin(phase - 0.18) * armAmp * 0.94 * active * calm;
     if (armR.current) armR.current.rotation.x = swing * armAmp * active * calm;
     if (foreL.current) foreL.current.rotation.x = -0.32 - Math.max(0, swing) * 0.4 * active - s.run * 0.5 - s.attend * 0.15;

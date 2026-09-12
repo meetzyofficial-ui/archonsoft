@@ -35,19 +35,21 @@ function hasWebGL(): boolean {
 }
 
 /**
- * Walking, or the tour.
+ * How the visitor drives.
  *
- * A world you walk needs a keyboard and a mouse that can be captured. On a
- * touch screen it needs neither of those and putting a virtual joystick there
- * would produce something worse than both the walking version and the ordinary
- * site — so a touch device gets the guided tour instead: the same building,
- * moved through by tapping a district and looked around by dragging.
+ * A keyboard and a mouse that can be captured walk the world directly. A
+ * touch screen walks it too, through an on-screen stick, a look-drag and a
+ * jump button; it also gets the compact scene — fewer people, a lower pixel
+ * ratio, staged construction — because the device is smaller in every
+ * sense. The guided tour survives for the visitor who has asked for reduced
+ * motion on a touch device.
  */
-function pickMode(): "explore" | "tour" {
-  if (typeof window === "undefined") return "tour";
+function pickInput(): { touch: boolean; compact: boolean } {
+  if (typeof window === "undefined") return { touch: true, compact: true };
   const fine = window.matchMedia?.("(pointer: fine)").matches;
   const wide = window.innerWidth >= 1024;
-  return fine && wide ? "explore" : "tour";
+  const touch = !(fine && wide);
+  return { touch, compact: touch || window.innerWidth < 900 };
 }
 
 export function WorldGate({
@@ -68,12 +70,12 @@ export function WorldGate({
 
   const [open, setOpen] = useState(true);
   const [available, setAvailable] = useState(true);
-  const [mode, setMode] = useState<"explore" | "tour">("tour");
+  const [input, setInput] = useState<{ touch: boolean; compact: boolean }>({ touch: true, compact: true });
 
   useEffect(() => {
     const capable = hasWebGL();
     setAvailable(capable);
-    setMode(pickMode());
+    setInput(pickInput());
 
     /* `/world` redirects here asking for the world. Somebody who typed that
        address, or followed a link to it, has already said what they want —
@@ -119,7 +121,7 @@ export function WorldGate({
 
   if (open) {
     return (
-      <ArchonWorld locale={locale} copies={copies} payloads={payloads} mode={mode} onExit={close} />
+      <ArchonWorld locale={locale} copies={copies} payloads={payloads} touch={input.touch} compact={input.compact} onExit={close} />
     );
   }
 
