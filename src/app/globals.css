@@ -1,132 +1,281 @@
 @import "tailwindcss";
 
 /* ------------------------------------------------------------------ */
-/*  ARCHON SOFT — design system                                        */
+/*  ARCHON SOFT                                                        */
 /*                                                                     */
-/*  Built on the real brand kit, not an invented one:                  */
-/*    Ink #0B0F1A · White #FFFFFF · Blue #4F86FF · Violet #7A5CFF      */
-/*    Wordmark face: Space Grotesk                                     */
+/*  The previous system was a near-black page with a warm off-white     */
+/*  type, one grotesk carrying every size, square corners and a scale   */
+/*  that ran from ten pixels straight to a sixth of the viewport. It is */
+/*  gone — tokens, faces, rhythm and all.                               */
 /*                                                                     */
-/*  One discipline runs through the whole thing: Archon is monochrome  */
-/*  and the products bring the colour. The blue appears only at        */
-/*  hairline scale — indices, active states, focus, one rule at a time */
-/*  — and the blue-to-violet gradient is reserved for the keystone in  */
-/*  the mark, exactly as the brand book prescribes. Everything with    */
-/*  real colour on this site is a real product screen.                 */
+/*  What replaces it: the page is daylight. A cool white ground with a  */
+/*  baby-blue bloom drifting through it and a breath of terracotta at   */
+/*  the edges, one atmosphere behind the whole site rather than a       */
+/*  background per section. Sections are transparent; only the world    */
+/*  entry closes the light.                                             */
+/*                                                                     */
+/*  Type is editorial: a light optical serif for everything that is     */
+/*  read as a statement, a precise grotesk for everything that is read  */
+/*  as interface, a mono for everything that is read as data. The scale */
+/*  is deliberately narrow — no size on this site is a sixth of the     */
+/*  screen except the studio's own name, once, at the top of the home   */
+/*  page.                                                               */
 /* ------------------------------------------------------------------ */
 
+/* The display face: Newsreader, optical size pinned to its display cut.
+   Everything set as a statement is in this. */
 @font-face {
-  font-family: "Space Grotesk";
+  font-family: "Newsreader";
   font-style: normal;
-  font-weight: 400 700;
+  font-weight: 200 500;
   font-display: swap;
-  src: url("/fonts/space-grotesk-latin.woff2") format("woff2");
+  src: url("/fonts/newsreader-latin.woff2") format("woff2");
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
     U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
     U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
-  font-family: "Space Grotesk";
+  font-family: "Newsreader";
   font-style: normal;
-  font-weight: 400 700;
+  font-weight: 200 500;
   font-display: swap;
-  src: url("/fonts/space-grotesk-latin-ext.woff2") format("woff2");
+  src: url("/fonts/newsreader-latin-ext.woff2") format("woff2");
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
     U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
     U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 
-@theme {
-  /* --- Brand palette, from the ARCHONSOFT brand kit --- */
-  --color-ink: #0b0f1a;
-  --color-ink-2: #101623;
-  --color-ink-3: #18202f;
-  --color-paper: #ffffff;
-  --color-paper-2: #f2f4f7;
-  --color-blue: #4f86ff;
-  --color-violet: #7a5cff;
-  /* Darkened so the accent still clears AA on white. */
-  --color-blue-deep: #2a5fd6;
+/* The interface face: Instrument Sans. Running text, controls, navigation. */
+@font-face {
+  font-family: "Instrument Sans";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/instrument-sans-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Instrument Sans";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/instrument-sans-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
 
-  /* --- Type --- */
-  --font-display: "Space Grotesk", var(--font-geist-sans), ui-sans-serif,
-    system-ui, sans-serif;
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
-    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+/* ------------------------------------------------------------------ */
+/*  Metric-matched fallbacks.                                          */
+/*                                                                     */
+/*  `font-display: swap` paints the page in a system face and then     */
+/*  swaps — and if the two faces are not the same width, the swap      */
+/*  re-wraps every line it touches. On the capabilities page that cost  */
+/*  a heading one of its three lines, moved everything below it up      */
+/*  fifty-six pixels, and put a quarter of the site's layout-shift      */
+/*  budget on one font load.                                            */
+/*                                                                     */
+/*  The numbers are measured, not guessed: Newsreader sets at 95.17%    */
+/*  of Georgia's width and Instrument Sans at 103.06% of Arial's, both  */
+/*  read off the compiled fonts in a browser. The ascent and descent    */
+/*  overrides are the real faces' own metrics divided by that scale, so */
+/*  the fallback occupies the same box in both directions and the swap  */
+/*  changes the letterforms and nothing else.                           */
+/* ------------------------------------------------------------------ */
+@font-face {
+  font-family: "Newsreader Fallback";
+  src: local("Georgia"), local("Times New Roman"), local("Liberation Serif"),
+    local("DejaVu Serif");
+  size-adjust: 95.17%;
+  ascent-override: 77.23%;
+  descent-override: 27.84%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Instrument Sans Fallback";
+  src: local("Arial"), local("Helvetica Neue"), local("Liberation Sans"),
+    local("DejaVu Sans");
+  size-adjust: 103.06%;
+  ascent-override: 94.12%;
+  descent-override: 24.26%;
+  line-gap-override: 0%;
+}
+
+@theme {
+  /* ------------------------------------------------------------------ */
+  /*  COLOUR — daylight                                                  */
+  /*                                                                     */
+  /*  Five families and one rule about them: white and its two cool       */
+  /*  tints are the air, blue is the weather, clay is a single warm       */
+  /*  note that appears perhaps twice on a page, and ink is the type.     */
+  /*  Nothing here is saturated; the most colourful thing on any screen   */
+  /*  is a real product photograph.                                       */
+  /* ------------------------------------------------------------------ */
+  --color-paper: #fbfcff;
+  --color-paper-2: #f4f8fe;
+  --color-haze: #e8f2fe;
+  --color-sky: #b9e1ff;
+  --color-sky-deep: #8cc6ef;
+  --color-cream: #fff8f2;
+  --color-clay: #f0dbcf;
+  --color-clay-deep: #a8543a;
+  --color-ink: #101722;
+  --color-ink-2: #1b2532;
+  --color-slate: #55637a;
+  --color-blue-ink: #35618a;
+
+  /* ------------------------------------------------------------------ */
+  /*  TYPE                                                               */
+  /*                                                                     */
+  /*  Three faces, three jobs, no overlap. The serif never sets a label,  */
+  /*  the grotesk never sets a statement, and the mono never sets a       */
+  /*  sentence.                                                           */
+  /* ------------------------------------------------------------------ */
+  --font-display: "Newsreader", "Newsreader Fallback", Georgia, serif;
+  --font-sans: "Instrument Sans", "Instrument Sans Fallback", ui-sans-serif,
+    system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo,
     Consolas, monospace;
 
-  /* Fluid display scale, capped against viewport height as well as width so
-     the opening always fits its call to action. */
-  --text-mega: clamp(3.25rem, min(14vw, 17vh), 13rem);
-  --text-mega--line-height: 0.86;
-  --text-mega--letter-spacing: -0.045em;
+  /* The opening statement. One element on the site is allowed this. */
+  --text-display: clamp(2.75rem, 6.4vw, 7.25rem);
+  --text-display--line-height: 0.94;
+  --text-display--letter-spacing: -0.03em;
 
-  --text-d1: clamp(2.5rem, 7.4vw, 7rem);
-  --text-d1--line-height: 0.92;
-  --text-d1--letter-spacing: -0.038em;
+  /* A section's argument. */
+  --text-section: clamp(2.25rem, 4.4vw, 4.5rem);
+  --text-section--line-height: 1;
+  --text-section--letter-spacing: -0.025em;
 
-  --text-d2: clamp(2rem, 5vw, 4.5rem);
-  --text-d2--line-height: 0.98;
-  --text-d2--letter-spacing: -0.032em;
+  /* A project's name — 40px on a phone, 68px on a desktop, and no more.
+     The old system set this at 8.4vw and it swallowed the page. */
+  --text-project: clamp(2.125rem, 3.6vw, 4.25rem);
+  --text-project--line-height: 1.02;
+  --text-project--letter-spacing: -0.024em;
 
-  --text-d3: clamp(1.55rem, 3.2vw, 2.75rem);
-  --text-d3--line-height: 1.06;
-  --text-d3--letter-spacing: -0.024em;
+  --text-head: clamp(1.625rem, 2.7vw, 2.875rem);
+  --text-head--line-height: 1.08;
+  --text-head--letter-spacing: -0.02em;
 
-  --text-lead: clamp(1.0625rem, 1.45vw, 1.375rem);
-  --text-lead--line-height: 1.5;
-  --text-lead--letter-spacing: -0.012em;
+  --text-sub: clamp(1.3125rem, 1.85vw, 1.75rem);
+  --text-sub--line-height: 1.16;
+  --text-sub--letter-spacing: -0.014em;
 
-  --text-body: clamp(0.9375rem, 1.02vw, 1.0625rem);
-  --text-body--line-height: 1.65;
-  --text-body--letter-spacing: -0.004em;
+  /* The one place the serif is set as running text: a standfirst, a pull
+     quote, the sentence that carries a section. */
+  --text-quote: clamp(1.125rem, 1.35vw, 1.375rem);
+  --text-quote--line-height: 1.42;
+  --text-quote--letter-spacing: -0.008em;
 
-  --text-label: 0.6875rem;
-  --text-label--line-height: 1.1;
-  --text-label--letter-spacing: 0.15em;
+  --text-lead: clamp(1.0625rem, 1.1vw, 1.1875rem);
+  --text-lead--line-height: 1.56;
+  --text-lead--letter-spacing: -0.006em;
+
+  --text-body: clamp(0.9375rem, 0.92vw, 1.0625rem);
+  --text-body--line-height: 1.62;
+  --text-body--letter-spacing: 0em;
+
+  /* Data. The whole information layer runs in these two, and neither of
+     them is ever larger than twelve pixels. */
+  --text-meta: 0.6875rem;
+  --text-meta--line-height: 1.2;
+  --text-meta--letter-spacing: 0.12em;
+
+  --text-micro: 0.625rem;
+  --text-micro--line-height: 1.1;
+  --text-micro--letter-spacing: 0.18em;
+
+  /* ------------------------------------------------------------------ */
+  /*  GEOMETRY                                                           */
+  /*  Restrained, not absent. A 3px softening on plates and controls, a   */
+  /*  real curve only on a handset.                                      */
+  /* ------------------------------------------------------------------ */
+  --radius-none: 0px;
+  --radius-hair: 3px;
+  --radius-soft: 6px;
+  --radius-device: 0.875rem;
 
   /* --- Motion --- */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
   --ease-out-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --duration-quick: 220ms;
+  --duration-move: 700ms;
+  --duration-scene: 1200ms;
 
-  /* --- Layout --- */
-  --spacing-gutter: clamp(1.25rem, 4vw, 4.5rem);
+  /* --- Layout ---
+     A wider gutter than before. Negative space is the loudest thing in
+     this design and the frame is where most of it is spent. */
+  --spacing-gutter: clamp(1.5rem, 6vw, 8rem);
+  --link-pad: 0.5rem;
   --breakpoint-3xl: 1800px;
 }
 
 /* ------------------------------------------------------------------ */
-/*  Colour schemes — chapters invert by setting data-scheme.           */
+/*  Schemes.                                                           */
+/*                                                                     */
+/*  `paper` is the site and paints nothing — the atmosphere behind the  */
+/*  page shows through it, which is what makes the whole site one       */
+/*  continuous field instead of a stack of coloured blocks. `haze` is   */
+/*  the same air, slightly thickened, for a chapter that needs to sit   */
+/*  apart. `ink` is night, and exists for one thing: the way into the   */
+/*  world.                                                             */
 /* ------------------------------------------------------------------ */
 @layer base {
   :root,
-  [data-scheme="dark"] {
-    --bg: var(--color-ink);
-    --bg-raise: var(--color-ink-2);
-    --bg-raise-2: var(--color-ink-3);
-    --fg: var(--color-paper);
-    --fg-dim: color-mix(in oklab, var(--color-paper) 66%, transparent);
-    --fg-mute: color-mix(in oklab, var(--color-paper) 52%, transparent);
-    --line: color-mix(in oklab, var(--color-paper) 13%, transparent);
-    --line-strong: color-mix(in oklab, var(--color-paper) 28%, transparent);
-    --accent: var(--color-blue);
-    --selection-bg: var(--color-blue);
+  [data-scheme="paper"] {
+    --surface: transparent;
+    --bg: var(--color-paper);
+    --bg-raise: var(--color-paper-2);
+    --bg-deep: var(--color-haze);
+    --fg: var(--color-ink);
+    --fg-dim: #33404f;
+    --fg-mute: var(--color-slate);
+    --line: color-mix(in oklab, var(--color-ink) 11%, transparent);
+    --line-strong: color-mix(in oklab, var(--color-ink) 22%, transparent);
+    /* The studio's own accent, and the only one the chrome ever uses.
+       Product and concept colours are not allowed to take this token: they
+       were chosen for dark product interfaces, they measure around 3:1 at ten
+       pixels on paper, and the rule this identity runs on is that the only
+       colour on a page comes from inside a real screenshot. */
+    --accent: var(--color-clay-deep);
+    --accent-cool: var(--color-blue-ink);
+    --selection-bg: var(--color-sky);
     --selection-fg: var(--color-ink);
   }
 
-  [data-scheme="light"] {
-    --bg: var(--color-paper);
-    --bg-raise: var(--color-paper-2);
-    --bg-raise-2: #e6e9ee;
+  [data-scheme="haze"] {
+    --surface: color-mix(in oklab, var(--color-haze) 62%, transparent);
+    --bg: var(--color-haze);
+    --bg-raise: #dcebfd;
+    --bg-deep: #d2e5fb;
     --fg: var(--color-ink);
-    --fg-dim: color-mix(in oklab, var(--color-ink) 74%, transparent);
-    --fg-mute: color-mix(in oklab, var(--color-ink) 62%, transparent);
-    --line: color-mix(in oklab, var(--color-ink) 14%, transparent);
-    --line-strong: color-mix(in oklab, var(--color-ink) 30%, transparent);
-    --accent: var(--color-blue-deep);
+    --fg-dim: #2f3d4d;
+    --fg-mute: #4f5d73;
+    --line: color-mix(in oklab, var(--color-ink) 13%, transparent);
+    --line-strong: color-mix(in oklab, var(--color-ink) 24%, transparent);
+    --accent: var(--color-clay-deep);
+    --accent-cool: var(--color-blue-ink);
     --selection-bg: var(--color-ink);
     --selection-fg: var(--color-paper);
+  }
+
+  [data-scheme="ink"] {
+    --surface: var(--color-ink);
+    --bg: var(--color-ink);
+    --bg-raise: var(--color-ink-2);
+    --bg-deep: #0a0f17;
+    --fg: var(--color-paper);
+    --fg-dim: color-mix(in oklab, var(--color-paper) 74%, transparent);
+    --fg-mute: color-mix(in oklab, var(--color-paper) 60%, transparent);
+    --line: color-mix(in oklab, var(--color-paper) 14%, transparent);
+    --line-strong: color-mix(in oklab, var(--color-paper) 28%, transparent);
+    --accent: #e5a184;
+    --accent-cool: var(--color-sky);
+    --selection-bg: var(--color-sky);
+    --selection-fg: var(--color-ink);
   }
 
   * {
@@ -137,7 +286,15 @@
   html {
     -webkit-text-size-adjust: 100%;
     scroll-behavior: smooth;
-    background-color: var(--color-ink);
+    background-color: var(--color-paper);
+    color-scheme: light;
+    /* The atmosphere and the sculpture are fixed and deliberately larger than
+       the viewport, and a fixed element's containing block is the viewport —
+       so clipping the body does not reach them and they were adding eight
+       pixels of sideways scroll on a phone. `clip`, not `hidden`: it stops the
+       overflow without turning the root into a scroll container, which is what
+       would break every sticky element on the site. */
+    overflow-x: clip;
   }
 
   html.lenis,
@@ -152,7 +309,10 @@
   }
 
   body {
-    background-color: var(--color-ink);
+    /* Deliberately transparent. `html` carries the ground colour, which the
+       canvas takes; the atmosphere and the sculpture then paint over that
+       canvas at negative z-index. A background here would be painted after
+       both of them and hide the entire light. */
     color: var(--fg);
     font-family: var(--font-sans);
     font-size: var(--text-body);
@@ -172,13 +332,14 @@
   :focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 3px;
-    border-radius: 1px;
+    border-radius: var(--radius-hair);
   }
   :focus:not(:focus-visible) {
     outline: none;
   }
 
-  /* Display type is the wordmark's own face; everything else is Geist. */
+  /* Headings are the serif, set light. The weight is the art direction:
+     at 300 a 64px line reads as a printed page rather than as a banner. */
   h1,
   h2,
   h3,
@@ -186,7 +347,7 @@
   h5,
   h6 {
     font-family: var(--font-display);
-    font-weight: 500;
+    font-weight: 300;
     text-wrap: balance;
   }
 
@@ -221,30 +382,84 @@
 /*  Utilities                                                          */
 /* ------------------------------------------------------------------ */
 @utility scheme-surface {
-  background-color: var(--bg);
+  background-color: var(--surface);
   color: var(--fg);
 }
 
-/* The measured page frame. Rules sit exactly on the gutter. */
+/* The measured page frame. */
 @utility frame {
   width: 100%;
   margin-inline: auto;
   padding-inline: var(--spacing-gutter);
-  max-width: 1800px;
+  max-width: 1680px;
+}
+
+/* A narrower measure inside the frame, for anything that is read rather
+   than looked at. */
+@utility column {
+  max-width: 34rem;
 }
 
 @utility display {
   font-family: var(--font-display);
-  font-weight: 500;
+  font-weight: 300;
 }
 
+/* Every statement size is the serif; declared once so a heading cannot
+   silently fall back to the interface face. */
+.text-display,
+.text-section,
+.text-project,
+.text-head,
+.text-sub,
+.text-quote {
+  font-family: var(--font-display);
+  font-weight: 300;
+}
+
+/* Eleven-pixel data, uppercase, on a rule. */
 @utility mono-label {
   font-family: var(--font-mono);
-  font-size: var(--text-label);
-  line-height: var(--text-label--line-height);
-  letter-spacing: var(--text-label--letter-spacing);
+  font-size: var(--text-meta);
+  line-height: var(--text-meta--line-height);
+  letter-spacing: var(--text-meta--letter-spacing);
   text-transform: uppercase;
   font-weight: 400;
+}
+
+/* Ten-pixel data. The finest print on the site. */
+@utility mono-micro {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  line-height: var(--text-micro--line-height);
+  letter-spacing: var(--text-micro--letter-spacing);
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+/* A row of controls that runs off the side rather than wrapping. Wrapping is
+   what makes a filter bar change height when a font swaps in. */
+@utility scroll-row {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scroll-row::-webkit-scrollbar {
+  display: none;
+}
+.scroll-row {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    #000 0,
+    #000 calc(100% - 2.5rem),
+    transparent 100%
+  );
+  mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 2.5rem), transparent 100%);
+}
+@media (min-width: 1024px) {
+  .scroll-row {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
 }
 
 @utility hairline-t {
@@ -255,16 +470,160 @@
 }
 
 /* ------------------------------------------------------------------ */
+/*  ATMOSPHERE                                                         */
+/*                                                                     */
+/*  One fixed field behind the entire document. Four very large radial  */
+/*  blooms — a white core, baby blue at the shoulders, a breath of      */
+/*  cream and one of clay — drifting on a two-minute cycle and leaning  */
+/*  a few pixels toward the pointer. It is meant to be felt rather than */
+/*  seen: at any instant it should be hard to say what moved.           */
+/*                                                                     */
+/*  It composites on its own layer and animates only `transform`, so    */
+/*  the cost of the whole thing is one texture upload at load.          */
+/* ------------------------------------------------------------------ */
+.atmosphere {
+  position: fixed;
+  inset: -20vmax;
+  z-index: -3;
+  pointer-events: none;
+  background-color: var(--color-paper);
+}
+.atmosphere__field {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+  transform: translate3d(
+    calc(var(--ax, 0) * 1px),
+    calc(var(--ay, 0) * 1px),
+    0
+  );
+  transition: transform 1.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.atmosphere__bloom {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform;
+}
+.atmosphere__bloom--a {
+  inset: -10% 20% 35% -15%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in oklab, var(--color-sky) 96%, transparent) 0%,
+    color-mix(in oklab, var(--color-sky) 46%, transparent) 44%,
+    transparent 72%
+  );
+  animation: bloom-drift-a 118s ease-in-out infinite;
+}
+.atmosphere__bloom--b {
+  inset: 18% -20% -18% 34%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in oklab, var(--color-sky) 74%, transparent) 0%,
+    color-mix(in oklab, var(--color-haze) 60%, transparent) 46%,
+    transparent 74%
+  );
+  animation: bloom-drift-b 146s ease-in-out infinite;
+}
+.atmosphere__bloom--c {
+  inset: 46% 8% -24% -6%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in oklab, var(--color-clay) 78%, transparent) 0%,
+    color-mix(in oklab, var(--color-cream) 62%, transparent) 48%,
+    transparent 74%
+  );
+  animation: bloom-drift-c 172s ease-in-out infinite;
+}
+.atmosphere__bloom--d {
+  inset: -22% -8% 40% 30%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in oklab, var(--color-cream) 96%, transparent) 0%,
+    transparent 68%
+  );
+  animation: bloom-drift-a 134s ease-in-out infinite reverse;
+}
+/* The core: a soft white lift through the middle of the viewport, so type
+   always has clean air under it however the blooms have drifted. */
+.atmosphere__core {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 62% 46% at 46% 40%,
+    color-mix(in oklab, #ffffff 60%, transparent) 0%,
+    color-mix(in oklab, #ffffff 24%, transparent) 46%,
+    transparent 76%
+  );
+}
+
+@keyframes bloom-drift-a {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(5%, 4%, 0) scale(1.14);
+  }
+}
+@keyframes bloom-drift-b {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1.05);
+  }
+  50% {
+    transform: translate3d(-6%, -3%, 0) scale(0.94);
+  }
+}
+@keyframes bloom-drift-c {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(0.96);
+  }
+  50% {
+    transform: translate3d(4%, -5%, 0) scale(1.1);
+  }
+}
+
+/* The sculpture's canvas sits between the light and the page. */
+.sculpture {
+  position: fixed;
+  inset: -6vmax;
+  z-index: -2;
+  pointer-events: none;
+  opacity: 0;
+  /* Out of focus, on purpose — but done by rendering the canvas at a
+     fraction of the device resolution and letting the browser scale it up,
+     not with a filter. A 22px blur on a full-viewport canvas is a full-screen
+     GPU pass every frame, and it cost more than everything else on the page
+     put together. What is left here is a hair of softening on the upscale. */
+  filter: blur(10px);
+  transition: opacity 2.4s var(--ease-out-soft);
+}
+.sculpture[data-ready="true"] {
+  opacity: 0.72;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atmosphere__bloom {
+    animation: none !important;
+  }
+  .atmosphere__field {
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /*  Motion primitives — CSS side, driven by a data attribute so the    */
 /*  markup is identical with JS on or off.                             */
 /* ------------------------------------------------------------------ */
 @layer components {
   .reveal-fade {
     opacity: 0;
-    transform: translate3d(0, 1.5rem, 0);
+    transform: translate3d(0, 1.25rem, 0);
     transition:
-      opacity 0.9s var(--ease-out-expo),
-      transform 0.9s var(--ease-out-expo);
+      opacity 1s var(--ease-out-expo),
+      transform 1s var(--ease-out-expo);
   }
   [data-revealed="true"].reveal-fade,
   [data-revealed="true"] .reveal-fade {
@@ -272,11 +631,11 @@
     transform: none;
   }
 
-  /* Rises into place without ever leaving the paint, so it can be the largest
-     contentful paint the moment the server markup lands. */
+  /* Rises into place without ever leaving the paint, so it can be the
+     largest contentful paint the moment the server markup lands. */
   .reveal-rise {
-    transform: translate3d(0, 1.5rem, 0);
-    transition: transform 900ms var(--ease-out-expo);
+    transform: translate3d(0, 1.25rem, 0);
+    transition: transform 1s var(--ease-out-expo);
   }
   [data-revealed="true"] .reveal-rise,
   [data-revealed="true"].reveal-rise {
@@ -292,27 +651,31 @@
     clip-path: inset(0 0 0 0);
   }
 
-  /* Vertical rules that draw down from the top. */
   .reveal-rule {
-    transform: scaleY(0);
-    transform-origin: top;
-    transition: transform 1.4s var(--ease-out-expo);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 1.5s var(--ease-out-expo);
   }
   [data-revealed="true"] .reveal-rule {
-    transform: scaleY(1);
+    transform: scaleX(1);
   }
 
-  /* Rule that redraws from the leading edge on hover. */
+  /* The one hover this site has: a rule that redraws from the leading
+     edge. No fills, no pills, no magnetism. */
   .link-rule {
     position: relative;
     display: inline-block;
+    padding-block: var(--link-pad);
+    margin-block: calc(var(--link-pad) * -1);
   }
   .link-rule::after {
     content: "";
     position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -0.14em;
+    /* Widened links pull this back in so the rule still sits under the word
+       rather than under the hit area. */
+    left: var(--rule-inset, 0px);
+    right: var(--rule-inset, 0px);
+    bottom: calc(var(--link-pad) - 0.14em);
     height: 1px;
     background: currentColor;
     transform: scaleX(0);
@@ -326,89 +689,21 @@
   }
 }
 
-/* The opening sequence runs while the visitor is waiting, not while they are
+/* The opening runs while the visitor is waiting, not while they are
    already reading, so it gets a shorter curve than the scroll reveals. */
 [data-hero] .reveal-fade,
 [data-hero] .reveal-rise {
-  transition-duration: 600ms;
+  transition-duration: 700ms;
 }
 [data-hero] .reveal-rule {
-  transition-duration: 900ms;
+  transition-duration: 1100ms;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Product stage — real screens moving on scroll.                     */
-/*  Whether this is a stage at all is a CSS decision, so no-JS and     */
-/*  reduced-motion both get a plain readable layout without the        */
-/*  component knowing about either.                                    */
-/* ------------------------------------------------------------------ */
-.stage-track {
-  position: relative;
-}
-.stage-viewport {
-  position: static;
-}
-.stage-card {
-  position: relative;
-}
-.stage-card + .stage-card {
-  margin-top: 3rem;
-}
-.stage-counter {
-  display: none;
-}
-
-html:not(.no-js) .stage-track {
-  height: var(--stage-height);
-}
-html:not(.no-js) .stage-viewport {
-  position: sticky;
-  top: 0;
-  height: 100svh;
-  overflow: hidden;
-}
-html:not(.no-js) .stage-card {
-  position: absolute;
-  inset: 0;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  will-change: transform, opacity;
-}
-html:not(.no-js) .stage-counter {
-  display: flex;
-}
-
-/* Exploded assembly — the signature. Bands of one real screen, separated in
-   space and drawn back together. Without scripting they are already together,
-   which is simply the screenshot. */
 .assembly-band {
   will-change: transform, opacity;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .stage-track {
-    height: auto !important;
-  }
-  .stage-viewport {
-    position: static !important;
-    height: auto !important;
-    overflow: visible !important;
-  }
-  .stage-card {
-    position: relative !important;
-    inset: auto !important;
-    opacity: 1 !important;
-    transform: none !important;
-  }
-  .stage-card + .stage-card {
-    margin-top: 3rem !important;
-  }
-  .stage-counter {
-    display: none !important;
-  }
   .assembly-band {
     transform: none !important;
     opacity: 1 !important;
@@ -431,7 +726,6 @@ html:not(.no-js) .stage-counter {
 .no-js .assembly-band {
   transform: none !important;
 }
-/* Only JavaScript can lift the entrance panel, so only JavaScript may show it. */
 .no-js .entrance-panel {
   display: none;
 }
@@ -448,7 +742,7 @@ html:not(.no-js) .stage-counter {
   }
 }
 .route-enter {
-  animation: route-enter 520ms var(--ease-out-expo) both;
+  animation: route-enter 560ms var(--ease-out-expo) both;
 }
 
 html.is-entering {
@@ -489,15 +783,15 @@ html.is-entering {
   height: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--color-ink);
+  background: var(--color-paper);
 }
 ::-webkit-scrollbar-thumb {
-  background: #232c3d;
-  border: 3px solid var(--color-ink);
+  background: #cddcec;
+  border: 3px solid var(--color-paper);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #33405a;
+  background: #adc5db;
 }
 
 /* ------------------------------------------------------------------ */
@@ -506,9 +800,9 @@ html.is-entering {
 /*  A Labs surface is a separate application sitting inside the page,   */
 /*  so it carries its own token set rather than inheriting the band it  */
 /*  lands in. That is what lets a concept take an accent of its own     */
-/*  without leaking product colour into the Archon frame, and what      */
-/*  keeps a light band from turning a dark product interface inside     */
-/*  out. Only --lab-accent is set per concept, on the element.          */
+/*  without leaking product colour into the Archon frame. It is a real  */
+/*  interface and it stays dark, because that is what these concepts    */
+/*  are: product UI, shown inside a studio's daylight page.             */
 /* ------------------------------------------------------------------ */
 .lab-window {
   --lab-bg: #0d1119;
@@ -529,10 +823,9 @@ html.is-entering {
   color-scheme: dark;
 }
 
-/* Product UI is dense by nature; the site's fluid display scale must not
-   reach inside one and start resizing table rows. */
 .lab-window h4 {
   font-family: var(--font-sans);
+  font-weight: 500;
   letter-spacing: -0.01em;
 }
 
@@ -541,20 +834,20 @@ html.is-entering {
   outline-offset: -2px;
 }
 
-/* The universe grid on the home page: every domain tile shares one hairline
-   rather than each drawing its own, so the grid reads as one plate. */
+/* The concept index: a ruled grid, not a set of tiles.
+   It used to be cells of solid paper separated by one-pixel gutters of line
+   colour, which reads as ten boxes however little chrome each one carries —
+   and on a page whose ground is a moving atmosphere, ten opaque rectangles
+   punched a hole straight through it. Now the cells are transparent and the
+   only chrome is a horizontal rule under each one. */
 .universe-grid {
   display: grid;
-  gap: 1px;
-  background-color: var(--line);
-  border-block: 1px solid var(--line);
+  border-top: 1px solid var(--line);
 }
 .universe-grid > * {
-  background-color: var(--bg);
+  border-bottom: 1px solid var(--line);
 }
 
-/* A loading state is a real screen. The skeleton pulses in the shape of the
-   content that is coming, so nothing moves when it arrives. */
 @keyframes lab-skeleton {
   0%,
   100% {
@@ -576,15 +869,10 @@ html.is-entering {
 
 /* ------------------------------------------------------------------ */
 /*  The system stack — opening a product to see what carries it.       */
-/*                                                                     */
-/*  One rotated container and seven translateZ values. The planes are  */
-/*  decoration and are hidden from assistive tech; the list beside     */
-/*  them is the content, so the drawing can be as dimensional as it    */
-/*  likes without costing anything. Without JS the deck simply renders */
-/*  at its open spread, which is the state worth seeing anyway.        */
 /* ------------------------------------------------------------------ */
 .stack-scene {
   perspective: 1500px;
+  overflow: clip;
 }
 .stack-deck {
   transform-style: preserve-3d;
@@ -610,16 +898,191 @@ html.is-entering {
     transform: translate3d(0, 0, calc(var(--depth) * var(--stack-spread)));
   }
 }
-
-/* The rotated deck spans a much larger box than its untransformed element, so
-   on a phone it would sit on top of the paragraph above it. Clipping the scene
-   guarantees it cannot, and the scale keeps the whole stack inside the clip
-   rather than losing its corners to it. */
-.stack-scene {
-  overflow: clip;
-}
 @media (max-width: 40rem) {
   .stack-deck {
     transform: rotateX(56deg) rotateZ(-42deg) scale(0.66);
   }
+}
+
+/* ------------------------------------------------------------------ */
+/*  ARCHON WORLD                                                       */
+/*                                                                     */
+/*  The world is an experience layer over the ordinary home page, not  */
+/*  a replacement for it. Untouched by the rebuild: it is real,        */
+/*  working software and the redesign only changed the way in.         */
+/* ------------------------------------------------------------------ */
+[data-world="off"] .world-overlay {
+  display: none !important;
+}
+.no-js .world-overlay {
+  display: none !important;
+}
+.world-overlay canvas {
+  display: block;
+  touch-action: none;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Editorial motion.                                                  */
+/*                                                                     */
+/*  Every rule here reads `--p` or `--enter`, which `ScrollFrame`      */
+/*  publishes as the element crosses the viewport. Nothing below       */
+/*  animates anything but transform, opacity and clip, and nothing is  */
+/*  driven from JavaScript.                                            */
+/*                                                                     */
+/*  The distances are all small. The previous system moved things by   */
+/*  five rems and scaled plates by six percent, which reads as a       */
+/*  website performing; these read as a page settling.                 */
+/* ------------------------------------------------------------------ */
+.scroll-frame {
+  --p: 0;
+  --enter: 0;
+}
+
+/* A picture that finishes arriving. */
+@utility rise-plate {
+  transform: scale(calc(0.975 + 0.025 * var(--enter)))
+    translate3d(0, calc((1 - var(--enter)) * 1.1rem), 0);
+  transform-origin: 50% 60%;
+  will-change: transform;
+}
+
+@utility rise-bleed {
+  transform: scale(calc(0.985 + 0.015 * var(--enter)));
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+/* Words that catch up after the picture they belong to. */
+@utility rise-copy {
+  opacity: calc(0.15 + 0.85 * var(--enter));
+  transform: translate3d(0, calc((1 - var(--enter)) * 0.9rem), 0);
+  will-change: transform, opacity;
+}
+
+/* A slow drift against whatever it sits over. */
+@utility drift-up {
+  transform: translate3d(0, calc((0.5 - var(--p)) * 2.25rem), 0);
+  will-change: transform;
+}
+
+@utility drift-down {
+  transform: translate3d(0, calc((var(--p) - 0.5) * 1.75rem), 0);
+  will-change: transform;
+}
+
+@utility drift-side {
+  --travel: 7%;
+  transform: translate3d(calc((0.5 - var(--p)) * var(--travel)), 0, 0);
+  will-change: transform;
+}
+
+/* The masked wipe a plate arrives under. */
+@utility wipe-up {
+  clip-path: inset(calc((1 - var(--enter)) * 12%) 0 0 0);
+}
+
+/* Type whose tracking opens as it arrives. Used once, on the opening —
+   the letters settle into place rather than sliding into it. */
+@utility track-in {
+  letter-spacing: calc(-0.03em + (1 - var(--enter)) * 0.05em);
+  will-change: letter-spacing;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise-plate,
+  .rise-bleed,
+  .rise-copy,
+  .drift-up,
+  .drift-down,
+  .drift-side {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+  .wipe-up {
+    clip-path: none !important;
+  }
+  .track-in {
+    letter-spacing: -0.03em !important;
+  }
+}
+
+/* A rule that draws itself in as its section arrives. */
+@utility rule-draw {
+  transform: scaleX(var(--enter));
+  transform-origin: left center;
+}
+
+/* Two bands of the same air do not need two gaps. */
+[data-band="paper"] + [data-band="paper"],
+[data-band="haze"] + [data-band="haze"] {
+  padding-top: 0;
+}
+
+/* Where an ink band already precedes the close, the close does not fade in
+   from daylight again — the descent is one movement, not two. */
+/* The close follows `main`, and on most routes there is a route-transition
+   wrapper in between, so the test has to reach one level further than the
+   direct child. Where the page already ends in the dark, the close does not
+   fade in from daylight again — the descent is one movement, not two. */
+main:has(> [data-band="ink"]:last-child) + footer .site-dusk,
+main:has(> * > [data-band="ink"]:last-child) + footer .site-dusk {
+  display: none;
+}
+main:has(> [data-band="ink"]:last-child) + footer > .frame,
+main:has(> * > [data-band="ink"]:last-child) + footer > .frame {
+  padding-top: 5rem;
+}
+
+/* A change of air has no edge.
+   A tinted chapter painted as a flat fill draws two hard horizontal seams
+   across a page whose whole ground is a continuous atmosphere — the one thing
+   that gives away that the site is a stack of sections. The wash now fades in
+   over the first few percent of the band's own height and back out over the
+   last, so a chapter arrives as a change of light rather than as a block. */
+[data-scheme="haze"].scheme-surface {
+  background-color: transparent;
+  background-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    var(--surface) 6%,
+    var(--surface) 94%,
+    transparent 100%
+  );
+}
+
+
+/* Archon World — the opening. Space before the world: faint stars in three
+   layers, painted on the first frame; and the mark, arriving. */
+.world-stars {
+  background-color: #03050b;
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, rgba(220, 232, 255, 0.85) 50%, transparent 51%),
+    radial-gradient(1px 1px at 78% 12%, rgba(220, 232, 255, 0.7) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 34% 62%, rgba(200, 220, 255, 0.8) 50%, transparent 51%),
+    radial-gradient(1px 1px at 88% 48%, rgba(220, 232, 255, 0.6) 50%, transparent 51%),
+    radial-gradient(1px 1px at 58% 82%, rgba(220, 232, 255, 0.7) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 22% 88%, rgba(180, 200, 255, 0.55) 50%, transparent 51%),
+    radial-gradient(1px 1px at 66% 30%, rgba(220, 232, 255, 0.5) 50%, transparent 51%),
+    radial-gradient(1px 1px at 44% 8%, rgba(220, 232, 255, 0.6) 50%, transparent 51%),
+    radial-gradient(1px 1px at 6% 46%, rgba(220, 232, 255, 0.5) 50%, transparent 51%),
+    radial-gradient(1px 1px at 94% 80%, rgba(220, 232, 255, 0.65) 50%, transparent 51%),
+    radial-gradient(ellipse 60% 40% at 50% 110%, rgba(30, 50, 110, 0.35), transparent 70%),
+    radial-gradient(ellipse 40% 30% at 80% 0%, rgba(90, 50, 140, 0.25), transparent 70%);
+  animation: world-stars-drift 40s linear infinite;
+}
+@keyframes world-stars-drift {
+  from { background-position: 0 0; }
+  to { background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 -2%, 0 2%; }
+}
+.world-mark {
+  animation: world-mark-in 1600ms var(--ease-out-expo) both;
+}
+@keyframes world-mark-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.94); filter: blur(6px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .world-stars { animation: none; }
+  .world-mark { animation: none; }
 }

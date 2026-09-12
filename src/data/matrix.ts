@@ -167,7 +167,7 @@ export const MATRIX: MatrixRow[] = [
     capability: { en: "Commerce", tr: "Ticaret" },
     proof: {
       kind: "shipped",
-      slug: "erden-davetiye",
+      slug: "erden",
       name: "Erden Davetiye",
       note: {
         en: "A live storefront and the admin an atelier in Ankara actually runs on.",

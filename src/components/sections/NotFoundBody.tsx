@@ -2,7 +2,7 @@ import Link from "next/link";
 import { SplitReveal } from "@/components/motion/SplitReveal";
 import { Diagram } from "@/components/system/Diagram";
 import { ActionLink } from "@/components/ui/Action";
-import { ChapterHead } from "@/components/ui/primitives";
+import { SectionRule } from "@/components/ui/primitives";
 import { dict } from "@/i18n/dictionary";
 import { localePath, type Locale } from "@/lib/i18n";
 
@@ -29,8 +29,8 @@ export function NotFoundBody({ locale }: { locale: Locale }) {
 
   return (
     <section
-      data-scheme="dark"
-      data-band="dark"
+      data-scheme="paper"
+      data-band="paper"
       className="scheme-surface relative flex min-h-[100svh] flex-col overflow-hidden"
     >
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-[0.22]">
@@ -38,9 +38,11 @@ export function NotFoundBody({ locale }: { locale: Locale }) {
       </div>
 
       <div className="frame relative flex flex-1 flex-col justify-center py-20">
-        <ChapterHead index="404" title={copy.notFound.label} aside={copy.notFound.aside} />
+        {/* The status code is information, not decoration: it is the one
+            thing on this page that tells a visitor what actually happened. */}
+        <SectionRule label={`404 — ${copy.notFound.label}`} aside={copy.notFound.aside} />
 
-        <h1 className="mt-12 text-mega">
+        <h1 className="mt-12 text-head">
           <SplitReveal
             text={copy.notFound.lead}
             immediate

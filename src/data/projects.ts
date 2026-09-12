@@ -1,5 +1,5 @@
 import type { Localized, LocalizedList } from "@/lib/i18n";
-import { ERDEN, MEETZY, type Screen } from "@/data/screens";
+import { DPPANO, ERDEN, MEETZY, type Screen } from "@/data/screens";
 
 /**
  * Case-study data.
@@ -37,6 +37,16 @@ export type Project = {
   platform: Localized;
   /** The product's own colour, used only inside its own chapter. */
   accent: string;
+  /**
+   * Which of the eight domains this work belongs to.
+   *
+   * A classification of what is already described elsewhere on this site, not
+   * a new claim: Meetzy is a product with a system behind it, Erden is
+   * commerce with a system behind it, and both of those are stated in their
+   * own case studies. It exists so the work index can be filtered by the same
+   * vocabulary the capability pages use.
+   */
+  domains: string[];
   /** Screens, in the order they dock onto the board. */
   screens: Screen[];
   /** The screen the hero and the case-study opening assemble. */
@@ -58,14 +68,226 @@ export type Project = {
     /** The screen that evidences it. */
     screen: Screen;
   };
+  /**
+   * Which composition the home page gives this work.
+   *
+   * An art-direction decision, written down rather than inferred: `bleed` runs
+   * a landscape capture the full width of the frame with the name across it,
+   * `stack` runs a column of handset screens beside a name that stays put, and
+   * `split` is a two-column spread with the pictures offset against the type.
+   * Three products that look nothing alike are not presented as though they
+   * did, and the reason each one gets what it gets lives next to the work.
+   */
+  layout: "bleed" | "stack" | "split";
   sections: CaseSection[];
   link?: { label: string; href: string };
+  /**
+   * A second, softer call to action: somewhere the visitor can use the product
+   * itself rather than read about it.
+   *
+   * Separate from `link` because the two are not the same offer — one is the
+   * product's front door and the other is a running instance of the thing this
+   * page is describing. Only work that has such a thing carries it.
+   */
+  demo?: { label: Localized; href: string; note: Localized };
+  /**
+   * The technology the work is actually built on.
+   *
+   * Only ever filled in from what the person who built it stated. Absent on
+   * every project where nobody confirmed it, which is why the template renders
+   * nothing rather than a plausible list.
+   */
+  stack?: Fact[];
+  /**
+   * Size, in the units the codebase itself counts in.
+   *
+   * Not a business metric and deliberately not presented as one: tables,
+   * migrations and tests are facts about a repository, and they are the only
+   * kind of number this site is in a position to verify.
+   */
+  scale?: { label: Localized; value: string }[];
 };
 
 export const PROJECTS: Project[] = [
   {
+    slug: "dppano",
+    name: "DP Pano",
+    domains: ["products", "systems", "automation"],
+    category: { en: "Education technology", tr: "Eğitim teknolojisi" },
+    summary: {
+      en: "The screens in a school sit blank all day while the notices stay pinned to cork.",
+      tr: "Okuldaki ekranlar gün boyu boş durur; duyurular hâlâ mantar panoya iğnelenir.",
+    },
+    standfirst: {
+      en: "Smart boards and corridor screens sit idle all day while announcements are still pinned to a cork board. DP Pano turns those screens into one live school board fed from a single panel. An administrator enters the content once — twenty-six modules update on every screen in the building, each in its own layout, within seconds.",
+      tr: "Okullardaki akıllı tahtalar ve koridor ekranları gün boyu boş durur; duyurular ise hâlâ mantar panoya iğnelenir. DP Pano bu ekranları tek panelden beslenen canlı bir okul panosuna çevirir. İdareci içeriği bir kez girer — 26 modül, okuldaki her ekranda kendi düzeniyle, saniyeler içinde güncellenir.",
+    },
+    statement: {
+      en: "The board takes the place of the blank screen, not the lesson.",
+      tr: "Ekran dersin yerine değil, boş ekranın yerine geçer.",
+    },
+    facts: [
+      { label: { en: "Status", tr: "Durum" }, value: { en: "Live, in active development", tr: "Canlı, aktif geliştirmede" } },
+      { label: { en: "Version", tr: "Sürüm" }, value: { en: "v1.53.0", tr: "v1.53.0" } },
+      { label: { en: "Modules", tr: "Modül" }, value: { en: "Twenty-six", tr: "Yirmi altı" } },
+      { label: { en: "For", tr: "Kullanıcı" }, value: { en: "K-12 schools", tr: "K-12 okulları" } },
+      { label: { en: "Interface", tr: "Arayüz dili" }, value: { en: "Turkish", tr: "Türkçe" } },
+    ],
+    role: {
+      en: "Product, design, architecture, engineering and deployment",
+      tr: "Ürün, tasarım, mimari, geliştirme ve dağıtım",
+    },
+    system: {
+      en: "Boards, timetable, duty roster, consent",
+      tr: "Panolar, ders programı, nöbet, rıza",
+    },
+    platform: {
+      en: "Web panel and browser board screen",
+      tr: "Web paneli ve tarayıcı tabanlı pano ekranı",
+    },
+    accent: "#2563EB",
+    /* Boards meant to be read across a room. Nothing is gained by putting one
+       in a column, and the whole argument is how much is on one screen. */
+    layout: "bleed",
+    lead: DPPANO.board!,
+    screens: [DPPANO.board!, DPPANO.staffroom!, DPPANO.canteen!, DPPANO.screens!],
+    detail: [
+      DPPANO.layout!,
+      DPPANO.timetable!,
+      DPPANO.solver!,
+      DPPANO.duty!,
+      DPPANO.safeMode!,
+    ],
+    systemAreas: {
+      title: { en: "What the system holds", tr: "Sistemin tuttuğu" },
+      areas: [
+        { en: "Twenty-six board modules", tr: "Yirmi altı pano modülü" },
+        { en: "Several screens per school, each with its own layout", tr: "Okul başına birden çok ekran, her biri kendi düzeniyle" },
+        { en: "A layout editor: six regions, two rotating slots each", tr: "Düzen editörü: altı bölge, bölge başına iki dönüşümlü slot" },
+        { en: "Push to screen over server-sent events", tr: "Sunucudan ekrana anlık iletim (SSE)" },
+        { en: "Timetable, with a constraint solver behind it", tr: "Ders programı ve arkasındaki kısıt çözücü" },
+        { en: "Duty rotation, and a printable roster", tr: "Nöbet rotasyonu ve basılabilir çizelge" },
+        { en: "Automatic cover for an absent teacher", tr: "Gelmeyen öğretmen için otomatik ikame" },
+        { en: "Staff accounts with permission per module", tr: "Modül bazlı yetkiyle personel hesapları" },
+        { en: "Safe mode, screen PIN, network restriction, consent records", tr: "Güvenli mod, ekran PIN'i, ağ kısıtı, rıza kayıtları" },
+      ],
+      note: {
+        en: "Every area listed is visible in the captures on this page. All of them were produced against demo data: there is no real pupil, teacher or school anywhere in this case study.",
+        tr: "Buradaki her alan bu sayfadaki ekran görüntülerinde görünüyor. Hepsi demo veriyle üretildi: bu vaka çalışmasının hiçbir yerinde gerçek bir öğrenci, öğretmen ya da okul yok.",
+      },
+      screen: DPPANO.screens!,
+    },
+    sections: [
+      {
+        index: "01",
+        title: { en: "The problem", tr: "Problem" },
+        body: {
+          en: [
+            "Keeping a school's noticeboard current is nobody's actual job. The printed notice goes stale in a week, the duty roster is shifted along by hand every Monday, and the timetable lives in a spreadsheet that changes without anyone being told.",
+            "Schools that do put something on a screen hit a second problem: the teacher closes the full-screen page on the way into a lesson, nobody opens it again afterwards, and the system is dead by the second week. On top of that, the personal-data rules arriving in 2026 made showing a pupil's name and photograph on a public screen a problem from the outset.",
+          ],
+          tr: [
+            "Okulun panosunu güncel tutmak kimsenin asıl işi değildir. Duyuru kâğıdı bir hafta sonra eskir, nöbet çizelgesi her pazartesi elle kaydırılır, ders programı Excel'de tutulur ve değiştiğinde kimse haberdar olmaz.",
+            "Ekrana bir şey yansıtan okullarda ise ikinci bir sorun çıkar: öğretmen derse girerken tam ekran sayfayı kapatır, ders bitince kimse geri açmaz — sistem ikinci hafta ölür. Üstüne 2026'daki kişisel veri düzenlemesi, öğrenci adını ve fotoğrafını kamuya açık bir ekranda göstermeyi baştan sorunlu hâle getirdi.",
+          ],
+        },
+      },
+      {
+        index: "02",
+        title: {
+          en: "It replaces the blank screen, not the lesson",
+          tr: "Dersin yerine değil, boş ekranın yerine",
+        },
+        body: {
+          en: [
+            "Outside lesson time the board opens itself, full screen. The moment a teacher signs in, it steps back. Setting it up is a single step, and it asks the teacher to change nothing about how they work.",
+            "That is the whole answer to the second-week death: a system that needs somebody to remember it is a system that stops.",
+          ],
+          tr: [
+            "Pano ders dışında kendiliğinden tam ekran açılır, öğretmen oturum açtığı anda arkaya çekilir. Kurulum tek adımdır ve öğretmenden hiçbir alışkanlık değişikliği istemez.",
+            "İkinci hafta ölmesinin cevabı da bu: birinin hatırlamasına ihtiyaç duyan sistem, duran sistemdir.",
+          ],
+        },
+      },
+      {
+        index: "03",
+        title: { en: "One school, many boards", tr: "Bir okul, birçok pano" },
+        body: {
+          en: [
+            "Separate screens are defined for the entrance hall, the staffroom, the canteen and the corridor. The content is held at school level and the screens differ only in layout: a notice entered once appears on every screen in that screen's own arrangement.",
+            "Updates are pushed from the server to the screen as they happen, over server-sent events. Nobody refreshes a page.",
+          ],
+          tr: [
+            "Giriş holü, öğretmenler odası, kantin ve koridor için ayrı ekranlar tanımlanır. İçerik okul seviyesinde ortaktır, ekranlar yalnızca düzen olarak ayrışır: bir kez girilen duyuru her ekranda o ekranın yerleşimiyle görünür.",
+            "Güncelleme sunucudan ekrana anlık itilir (SSE); kimse sayfayı yenilemez.",
+          ],
+        },
+      },
+      {
+        index: "04",
+        title: {
+          en: "A system that calculates, not just displays",
+          tr: "Sadece gösteren değil, hesaplayan bir sistem",
+        },
+        body: {
+          en: [
+            "The timetable is built by a constraint solver that produces a clash-free schedule: teacher availability, block lessons, rooms and elective pools all enter the same calculation.",
+            "The duty roster is distributed automatically on a zone-by-day rotation and prints as landscape A4, ready for the wall. When a teacher is absent, their lessons are shared among the people free at that hour on a fair measure — that day's load, plus how many covers they have taken in the last thirty days.",
+          ],
+          tr: [
+            "Ders programı, çakışmasız çizelge üreten bir kısıt çözücüyle kurulur: öğretmen müsaitliği, blok ders, derslik ve seçmeli havuzları aynı hesaba girer.",
+            "Nöbet çizelgesi bölge × gün rotasyonuyla otomatik dağıtılır ve duvara asılacak hâlde yatay A4 basılır. Gelmeyen öğretmenin dersleri, o saatte boş olan nöbetçilere adil bir ölçütle — o günkü yük artı son 30 günün ikame sayısı — dağıtılır.",
+          ],
+        },
+      },
+      {
+        index: "05",
+        title: {
+          en: "Privacy is the default, not a layer",
+          tr: "Kişisel veri güvenliği varsayılan",
+        },
+        body: {
+          en: [
+            "A board goes live in safe mode: names, photographs and sensitive fields are not shown on a publicly visible screen. A screen PIN and a school-network restriction, an explicit consent record, a parent consent portal and access logs are part of the product itself.",
+            "It is not a compliance layer bolted on afterwards. It is the single door everything personal has to pass through on its way out.",
+          ],
+          tr: [
+            "Pano varsayılan güvenli modda yayına girer: isim, fotoğraf ve hassas alanlar kamuya açık ekranda gösterilmez. Ekran PIN'i ve okul ağı (IP) kısıtı, açık rıza kaydı, veli rıza portalı ve erişim kayıtları ürünün kendi içindedir.",
+            "Sonradan eklenmiş bir uyum katmanı değil, veri çıkış yolunun tek kapısıdır.",
+          ],
+        },
+      },
+    ],
+    link: { label: "dppano.com", href: "https://dppano.com" },
+    demo: {
+      label: { en: "Open the live board", tr: "Canlı demo panoyu aç" },
+      href: "https://dppano.com/pano/6234722a-ab02-4bb8-acc3-0f7e019788ae",
+      note: {
+        en: "Opens full screen. No sign-up.",
+        tr: "Tam ekran açılır, kayıt gerekmez.",
+      },
+    },
+    stack: [
+      { label: { en: "Backend", tr: "Sunucu" }, value: { en: "Python 3.13 · Flask 3 · SQLAlchemy + Alembic · JWT · APScheduler", tr: "Python 3.13 · Flask 3 · SQLAlchemy + Alembic · JWT · APScheduler" } },
+      { label: { en: "Data", tr: "Veri" }, value: { en: "PostgreSQL · Redis (cache, pub/sub, rate limiting)", tr: "PostgreSQL · Redis (önbellek, pub/sub, hız sınırı)" } },
+      { label: { en: "Real time", tr: "Gerçek zamanlı" }, value: { en: "Server-sent events, on gunicorn + gevent", tr: "Server-Sent Events, gunicorn + gevent üzerinde" } },
+      { label: { en: "Front end", tr: "Ön yüz" }, value: { en: "Jinja2 server rendering · vanilla JS · Tailwind CSS · Alpine.js", tr: "Jinja2 sunucu render · saf JS · Tailwind CSS · Alpine.js" } },
+      { label: { en: "Solver", tr: "Çözücü" }, value: { en: "Google OR-Tools CP-SAT, with a pure-Python placement engine", tr: "Google OR-Tools CP-SAT ve saf Python yerleştirme motoru" } },
+      { label: { en: "Deployment", tr: "Dağıtım" }, value: { en: "Docker · nginx · Coolify · gunicorn", tr: "Docker · nginx · Coolify · gunicorn" } },
+    ],
+    scale: [
+      { label: { en: "Database tables", tr: "Veritabanı tablosu" }, value: "~85" },
+      { label: { en: "Blueprints", tr: "Blueprint" }, value: "38" },
+      { label: { en: "Migrations", tr: "Migration" }, value: "41" },
+      { label: { en: "Automated tests", tr: "Otomatik test" }, value: "~1.700" },
+      { label: { en: "Lines of Python", tr: "Python satırı" }, value: "~56.000" },
+      { label: { en: "Lines of JS", tr: "JS satırı" }, value: "~34.000" },
+    ],
+  },
+  {
     slug: "meetzy",
     name: "Meetzy",
+    domains: ["products", "systems"],
     category: { en: "Social product", tr: "Sosyal ürün" },
     summary: {
       en: "Going to things is easy. Finding someone to go with is the part nobody solved.",
@@ -101,6 +323,8 @@ export const PROJECTS: Project[] = [
     },
     platform: { en: "Mobile app", tr: "Mobil uygulama" },
     accent: "#F0483C",
+    /* Four handset captures and a product about people: a column of moments. */
+    layout: "stack",
     lead: MEETZY.mood!,
     screens: [MEETZY.mood!, MEETZY.nearby!, MEETZY.feed!, MEETZY.map!],
     detail: [MEETZY.profile!, MEETZY.memories!, MEETZY.auth!],
@@ -196,7 +420,8 @@ export const PROJECTS: Project[] = [
     ],
   },
   {
-    slug: "erden-davetiye",
+    slug: "erden",
+    domains: ["commerce", "systems"],
     name: "Erden Davetiye",
     category: { en: "Commerce system", tr: "Ticaret sistemi" },
     summary: {
@@ -229,6 +454,9 @@ export const PROJECTS: Project[] = [
     },
     platform: { en: "Web, mobile first", tr: "Web, önce mobil" },
     accent: "#B08D57",
+    /* A storefront is itself a piece of visual design, so it gets the spread:
+       type against pictures, offset, with a diagonal through it. */
+    layout: "split",
     lead: ERDEN.home!,
     screens: [ERDEN.home!, ERDEN.categories!, ERDEN.products!, ERDEN.admin!],
     detail: [ERDEN.styles!, ERDEN.support!, ERDEN.navigation!],

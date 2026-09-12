@@ -3,18 +3,20 @@ import { Reveal } from "@/components/motion/Reveal";
 import { cn } from "@/lib/utils";
 
 /**
- * The recurring chapter head: a hairline spanning the frame, a two-digit index
- * and a mono title in the margin. Every major band on the site opens this way,
- * which is most of what makes the pacing feel like one document.
+ * A chapter opening, reduced to a hairline.
+ *
+ * The old head printed an em dash in the accent colour, a title and an aside
+ * at label size on every band, which turned every section on the site into the
+ * same three-part announcement — and gave a number to things that were not a
+ * sequence. What a chapter needs is a line across the page and two pieces of
+ * ten-pixel metadata at either end of it. After that the type does the work.
  */
-export function ChapterHead({
-  index,
-  title,
+export function SectionRule({
+  label,
   aside,
   className,
 }: {
-  index: string;
-  title: string;
+  label: string;
   aside?: ReactNode;
   className?: string;
 }) {
@@ -22,19 +24,13 @@ export function ChapterHead({
     <Reveal
       variant="none"
       className={cn(
-        "hairline-t flex flex-wrap items-baseline gap-x-6 gap-y-2 pt-4 md:pt-5",
+        "hairline-t mono-micro flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2 pt-3 text-[var(--fg-mute)]",
         className,
       )}
     >
-      <span className="mono-label reveal-fade text-[var(--accent)]">{index}</span>
-      <span className="mono-label reveal-fade text-[var(--fg-dim)]" style={{ transitionDelay: "70ms" }}>
-        {title}
-      </span>
+      <span className="reveal-fade">{label}</span>
       {aside ? (
-        <span
-          className="mono-label reveal-fade ml-auto text-right text-[var(--fg-mute)]"
-          style={{ transitionDelay: "140ms" }}
-        >
+        <span className="reveal-fade text-right" style={{ transitionDelay: "90ms" }}>
           {aside}
         </span>
       ) : null}
@@ -42,7 +38,14 @@ export function ChapterHead({
   );
 }
 
-/** A section wrapper that owns vertical rhythm and the optional scheme flip. */
+/**
+ * A section wrapper that owns vertical rhythm and the optional change of air.
+ *
+ * `paper` paints nothing — the atmosphere behind the document shows through
+ * it, which is what makes the site read as one continuous field rather than a
+ * stack of coloured blocks. `haze` thickens that air slightly. `ink` is night,
+ * and is spent on the world entry and the close.
+ */
 export function Band({
   children,
   scheme,
@@ -52,7 +55,7 @@ export function Band({
   as: Tag = "section",
 }: {
   children: ReactNode;
-  scheme?: "dark" | "light";
+  scheme?: "paper" | "haze" | "ink";
   id?: string;
   className?: string;
   size?: "tight" | "regular" | "loose";
@@ -60,8 +63,8 @@ export function Band({
 }) {
   const padding = {
     tight: "py-16 md:py-24",
-    regular: "py-24 md:py-36 lg:py-44",
-    loose: "py-32 md:py-48 lg:py-56",
+    regular: "py-24 md:py-36",
+    loose: "py-32 md:py-44",
   }[size];
 
   return (
@@ -69,7 +72,7 @@ export function Band({
       id={id}
       data-scheme={scheme}
       data-band={scheme ?? "inherit"}
-      className={cn(scheme && "scheme-surface", padding, className)}
+      className={cn(scheme === "haze" || scheme === "ink" ? "scheme-surface" : null, padding, className)}
     >
       {children}
     </Tag>

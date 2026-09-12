@@ -1,7 +1,7 @@
 import { SplitReveal } from "@/components/motion/SplitReveal";
 import { Reveal } from "@/components/motion/Reveal";
 import { ActionLink } from "@/components/ui/Action";
-import { Band, ChapterHead } from "@/components/ui/primitives";
+import { Band, SectionRule } from "@/components/ui/primitives";
 import type { Copy } from "@/i18n/dictionary";
 import { CONTACT_EMAIL } from "@/lib/site";
 import { localePath, type Locale } from "@/lib/i18n";
@@ -9,22 +9,16 @@ import { localePath, type Locale } from "@/lib/i18n";
 export function ContactCta({
   locale,
   copy,
-  index,
 }: {
   locale: Locale;
   copy: Copy;
-  index?: string;
 }) {
   return (
-    <Band scheme="light" size="loose" id="start">
+    <Band scheme="haze" size="loose" id="start">
       <div className="frame">
-        <ChapterHead
-          index={index ?? copy.contact.index}
-          title={copy.contact.label}
-          aside={copy.contact.aside}
-        />
+        <SectionRule label={copy.contact.label} aside={copy.contact.aside} />
 
-        <h2 className="mt-14 text-d1 md:mt-20">
+        <h2 className="mt-14 text-head md:mt-20">
           <SplitReveal text={copy.contact.statement} lineHeight="0.92em" stagger={38} />
           <SplitReveal
             text={[{ text: copy.contact.statementAccent, accent: true }]}

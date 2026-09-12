@@ -20,7 +20,7 @@ const en = {
     work: {
       title: "Work",
       description:
-        "Two live products, written up from what is actually true: Meetzy, a social app for finding someone to go with, and Erden Davetiye, a storefront and the admin system behind it.",
+        "Three live products, written up from what is actually true: Meetzy, a social app for finding someone to go with; DP Pano, a school board system run from one panel; and Erden Davetiye, a storefront and the admin system behind it.",
     },
     capabilities: {
       title: "Capabilities",
@@ -74,12 +74,46 @@ const en = {
     standfirst:
       "Products, systems, commerce, AI, automation and data. One studio, from the first decision to the release.",
     ctaWork: "See the work",
+    /* Printed on the rule above the first project, at the foot of the
+       opening. It is the only thing that says what comes next. */
+    nextLabel: "First up",
     ctaContact: "Start a project",
     assembling: "Assembling",
     liveProduct: "Live product",
     proofFacts: "Live for about three months · around 2,000 signups · built by one person",
     proofNote: "A real screen from a product people are using, not a mockup.",
     disciplines: ["Products", "Systems", "Commerce", "AI", "Automation", "Data"],
+    /* The three lines under the name. Each one is something this site can
+       point at: three shipped products, a world built in WebGL, and ten
+       running concept interfaces. */
+    positioning: ["Digital products.", "Creative technology.", "Immersive systems."],
+    scroll: "Scroll",
+  },
+
+  /* The capability register and the studio's one claim about itself.
+     Every proof line below is something a visitor can go and check on this
+     site; none of it is a figure about the business. */
+  register: {
+    label: "What gets built here",
+    aside: "Eight disciplines",
+    statement: "Not a list of services. A register, with the work behind it.",
+    pieces: "pieces",
+    none: "No work yet",
+  },
+
+  designEng: {
+    label: "How",
+    aside: "One studio, both halves",
+    first: "Design",
+    second: "Engineering",
+    statement: "Most studios hand you half of it and call the other half somebody else's problem.",
+    body: "A design studio gives you screens. A software company gives you a repository. Archon defines, designs, builds and releases the same thing, which is why the products on this site are products rather than pitches, and why the decisions in them survived contact with a database.",
+    proof: [
+      "Three products, live",
+      "Ten concept interfaces, running in your browser",
+      "A world built in WebGL, walkable",
+      "Product, design, architecture, deployment: one hand",
+    ],
   },
 
   position: {
@@ -98,12 +132,27 @@ const en = {
   work: {
     index: "01",
     label: "Selected work",
-    aside: "Two live products",
-    statement: "Both of these are",
+    aside: "Three live products",
+    statement: "All three of these are",
     statementAccent: "live.",
     body: "No concepts, no pitch mockups. Real screens from products people are using, with the parts that are not verified left out.",
-    all: "All work",
+    all: "All",
     read: "Read the case study",
+    /* The index over everything Archon has built. */
+    indexLabel: "Everything built here",
+    indexAside: "Three shipped, ten concepts",
+    indexStatement: "Thirteen products.",
+    indexAccent: "Three of them shipped.",
+    indexBody:
+      "Filter the whole body of work by what it is and by whether it went live. What shipped says so; what did not says that too, on every row.",
+    filterProvenance: "Status",
+    filterDomain: "Domain",
+    showing: "Showing",
+    ofTotal: "of",
+    pieces: "pieces",
+    empty: "Nothing is tagged both of those things.",
+    reset: "Clear the filters",
+    openConcept: "Open the concept",
     open: "Open",
     next: "Next case study",
     caseStudy: "Case study",
@@ -117,6 +166,8 @@ const en = {
     systemLabel: "System",
     platform: "Platform",
     visit: "Visit the live site",
+    built: "What it is built on",
+    scaleNote: "Size, in the repository’s own units",
   },
 
   capabilities: {
@@ -256,7 +307,7 @@ const en = {
     aside: "Concepts, and clearly labelled",
     statement: "What else can we",
     statementAccent: "build?",
-    body: "Two shipped products is an honest answer to what has been released, and a poor answer to what can be built. So the rest was built too — ten complete product concepts, designed and engineered here, running in your browser. They are not client work and they never pretend to be.",
+    body: "Three shipped products is an honest answer to what has been released, and a poor answer to what can be built. So the rest was built too — ten complete product concepts, designed and engineered here, running in your browser. They are not client work and they never pretend to be.",
     chip: "Concept",
     nav: "Sections",
     sample: "Sample data",
@@ -422,6 +473,80 @@ const en = {
     link: "How the work runs",
   },
 
+  world: {
+    label: "Archon World",
+    lead: ["Digital products", "Systems", "Experiences"],
+    enter: "Enter Archon World",
+    enterShort: "Archon World",
+    skip: "Skip to the main site",
+    mainSite: "Main site",
+    destinations: "Sections",
+    hint: "Move the pointer to look around. Escape returns to the site.",
+    /* The invitation on the ordinary site. */
+    nav: "World",
+    index: "05",
+    bandLabel: "Archon World",
+    bandAside: "A place, not a page",
+    bandStatement: "The same work,",
+    bandAccent: "somewhere you can walk.",
+    bandBody:
+      "Everything on this site also exists as a place: seven platforms over a cosmic sea, joined by bridges, that you walk as the Archon explorer. The gate is the Archon mark at the size of architecture; through it each shipped product has its own station, with its real screens hanging over it and two or three people who will tell you about it, in text and out loud. Beyond them the ten concepts, the layers a system is made of, an archive, and a walkway above it all.",
+    bandFacts: [
+      "Seven islands",
+      "Three project stations, with guides",
+      "Walk it, or take the tour",
+    ],
+    open: "Enter the world",
+    plate: "Archon World — the gate, from the plaza",
+    /* The opening: the world reveals itself, then asks for a language. */
+    tagline: "Explore the digital world",
+    chooseLanguage: "Choose a language",
+    enterWorld: "Enter the world",
+    languageName: "English",
+    on: "ON",
+    off: "OFF",
+    voice: "Voice",
+    sound: "Sound",
+    language: "Language",
+    revealing: ["Planet", "Landmark", "Islands", "Ocean", "Projects", "Explorer"],
+    /* Navigation. */
+    teleport: "Teleport",
+    jump: "SPACE — JUMP",
+    /* The host who welcomes the visitor. */
+    host: {
+      label: "Archon host",
+      talk: "Talk",
+      intro: [
+        "Hello, and welcome to the Archon Soft world.",
+        "I can guide you through this world.",
+        "You can explore our projects, discover different areas, or teleport directly to a section using the menu on the left.",
+        "If you'd like, we can explore together.",
+      ],
+      back: "Welcome back.",
+      question: "What would you like to look at?",
+      options: {
+        projects: "Explore the projects",
+        tour: "Walk the world with me",
+        gallery: "The gallery",
+        systems: "Look at the systems",
+      },
+      follow: "Come with me",
+      stay: "Stay here",
+      thanks: "Thank you",
+      following: "Walking with you",
+      lines: {
+        hub: "From here you can reach every main area of the Archon world.",
+        boards: "Here you can see our work in education technology — DP Pano.",
+        shipped: "Meetzy brings events and people together; on the other side, Erden Davetiye is a more elegant, editorial experience.",
+        gallery: "In the gallery you can explore our work in a freer format.",
+        labs: "Archon Labs: concept products, running, each labelled as a concept.",
+        systems: "Systems — what runs behind an interface.",
+        archive: "The archive: everything we have built, in one place.",
+        between: "The bridges run over the sea; every island is a different part of what we do.",
+      },
+    },
+  },
+
   footer: {
     index: "Index",
     colophon: "Colophon",
@@ -430,6 +555,9 @@ const en = {
     motion: "Motion",
     motionValue: "CSS transitions, Lenis",
     backToTop: "Back to top",
+    /* The last sentence the page says, at the size of the page. */
+    closing: "Let’s build something.",
+    rights: "All rights reserved",
     start: "Start a project",
   },
 
@@ -468,7 +596,7 @@ const tr: Dictionary = {
     work: {
       title: "İşler",
       description:
-        "İki canlı ürün, yalnızca doğrulanmış olan üzerinden anlatıldı: birlikte gidecek birini bulmak için bir sosyal uygulama olan Meetzy ve bir vitrin ile arkasındaki yönetim sistemi olan Erden Davetiye.",
+        "Üç canlı ürün, yalnızca doğrulanmış olan üzerinden anlatıldı: birlikte gidecek birini bulmak için bir sosyal uygulama olan Meetzy; okulun ekranlarını tek panelden yöneten DP Pano; ve bir vitrin ile arkasındaki yönetim sistemi olan Erden Davetiye.",
     },
     capabilities: {
       title: "Yetkinlikler",
@@ -522,12 +650,38 @@ const tr: Dictionary = {
     standfirst:
       "Ürün, sistem, ticaret, yapay zekâ, otomasyon ve veri. Tek stüdyo; ilk karardan yayına kadar.",
     ctaWork: "İşlere bak",
+    nextLabel: "İlk sırada",
     ctaContact: "Projeye başla",
     assembling: "Kuruluyor",
     liveProduct: "Canlı ürün",
     proofFacts: "Yaklaşık üç aydır canlı · 2.000 civarı kayıt · tek kişi tarafından kuruldu",
     proofNote: "İnsanların kullandığı bir üründen gerçek bir ekran; maket değil.",
     disciplines: ["Ürünler", "Sistemler", "Ticaret", "Yapay zekâ", "Otomasyon", "Veri"],
+    positioning: ["Dijital ürünler.", "Yaratıcı teknoloji.", "Sürükleyici sistemler."],
+    scroll: "Kaydır",
+  },
+
+  register: {
+    label: "Burada ne kuruluyor",
+    aside: "Sekiz alan",
+    statement: "Hizmet listesi üretmiyoruz. Arkasında işi olan bir sicil.",
+    pieces: "iş",
+    none: "Henüz iş yok",
+  },
+
+  designEng: {
+    label: "Nasıl",
+    aside: "Tek stüdyo, iki yarı",
+    first: "Tasarım",
+    second: "Mühendislik",
+    statement: "Çoğu stüdyo yarısını verir, diğerini başkasının sorunu ilan eder.",
+    body: "Tasarım stüdyosu ekran verir. Yazılım şirketi repo verir. Archon aynı şeyi tanımlar, tasarlar, kurar ve yayınlar; bu sitedeki ürünlerin sunum değil ürün olmasının, içlerindeki kararların bir veritabanıyla temas ettikten sonra ayakta kalmasının sebebi bu.",
+    proof: [
+      "Üç ürün, canlı",
+      "On konsept arayüz, tarayıcında çalışıyor",
+      "WebGL ile kurulmuş, yürünebilir bir dünya",
+      "Ürün, tasarım, mimari, dağıtım: tek elden",
+    ],
   },
 
   position: {
@@ -546,11 +700,25 @@ const tr: Dictionary = {
   work: {
     index: "01",
     label: "Seçili işler",
-    aside: "İki canlı ürün",
-    statement: "İkisi de",
+    aside: "Üç canlı ürün",
+    statement: "Üçü de",
     statementAccent: "canlı.",
     body: "Konsept yok, sunum maketi yok. İnsanların kullandığı ürünlerden gerçek ekranlar; doğrulanmamış olan hiçbir şey yazılmadı.",
-    all: "Tüm işler",
+    all: "Hepsi",
+    indexLabel: "Burada kurulan her şey",
+    indexAside: "Üç yayında, on konsept",
+    indexStatement: "On üç ürün.",
+    indexAccent: "Üçü yayında.",
+    indexBody:
+      "Bütün işi ne olduğuna ve yayına çıkıp çıkmadığına göre süz. Yayına çıkan bunu söyler; çıkmayan da her satırda söyler.",
+    filterProvenance: "Durum",
+    filterDomain: "Alan",
+    showing: "Gösterilen",
+    ofTotal: "/",
+    pieces: "parça",
+    empty: "Bu ikisiyle birden etiketli bir şey yok.",
+    reset: "Filtreleri temizle",
+    openConcept: "Konsepti aç",
     read: "Vaka çalışmasını oku",
     open: "Aç",
     next: "Sonraki vaka çalışması",
@@ -565,6 +733,8 @@ const tr: Dictionary = {
     systemLabel: "Sistem",
     platform: "Platform",
     visit: "Canlı siteyi aç",
+    built: "Neyin üzerine kuruldu",
+    scaleNote: "Boyut, deponun kendi birimleriyle",
   },
 
   capabilities: {
@@ -869,6 +1039,76 @@ const tr: Dictionary = {
     link: "İş nasıl yürüyor",
   },
 
+  world: {
+    label: "Archon Dünyası",
+    lead: ["Dijital ürünler", "Sistemler", "Deneyimler"],
+    enter: "Archon Dünyasına gir",
+    enterShort: "Archon Dünyası",
+    skip: "Ana siteye geç",
+    mainSite: "Ana site",
+    destinations: "Bölümler",
+    hint: "Bakmak için imleci gezdir. Escape siteye döner.",
+    nav: "Dünya",
+    index: "05",
+    bandLabel: "Archon Dünyası",
+    bandAside: "Sayfa değil, bir yer",
+    bandStatement: "Aynı iş,",
+    bandAccent: "yürüyebileceğin bir yerde.",
+    bandBody:
+      "Bu sitedeki her şey bir yer olarak da var: kozmik bir denizin üzerinde köprülerle bağlı yedi platform; içinde Archon kâşifi olarak yürürsün. Kapı, mimari ölçekte Archon markası; içinden geçince yayındaki her ürünün kendi istasyonu var — gerçek ekranları üstünde asılı, yanında onu yazıyla ve sesli anlatan iki üç kişi. Ötesinde on konsept, bir sistemin katmanları, bir arşiv ve hepsinin üstünde bir geçit.",
+    bandFacts: [
+      "Yedi ada",
+      "Üç proje istasyonu, rehberleriyle",
+      "Yürü, ya da turu seç",
+    ],
+    open: "Dünyaya gir",
+    plate: "Archon Dünyası — kapı, meydandan",
+    tagline: "Dijital dünyayı keşfet",
+    chooseLanguage: "Bir dil seçin",
+    enterWorld: "Dünyaya gir",
+    languageName: "Türkçe",
+    on: "AÇIK",
+    off: "KAPALI",
+    voice: "Anlatım",
+    sound: "Ses",
+    language: "Dil",
+    revealing: ["Gezegen", "Kapı", "Adalar", "Okyanus", "Projeler", "Kâşif"],
+    teleport: "Işınlan",
+    jump: "SPACE — ZIPLA",
+    host: {
+      label: "Archon rehberi",
+      talk: "Konuş",
+      intro: [
+        "Merhaba, Archon Soft dünyasına hoş geldiniz.",
+        "Ben size bu dünyada eşlik edebilirim.",
+        "Projelerimizi inceleyebilir, farklı bölümleri keşfedebilir veya sol taraftaki menüden istediğiniz bölüme doğrudan gidebilirsiniz.",
+        "İsterseniz birlikte başlayabiliriz.",
+      ],
+      back: "Tekrar hoş geldiniz.",
+      question: "Ne ile ilgilenmek istersiniz?",
+      options: {
+        projects: "Projeleri keşfet",
+        tour: "Dünyayı gez",
+        gallery: "Galeri",
+        systems: "Sistemleri incele",
+      },
+      follow: "Benimle gel",
+      stay: "Burada kal",
+      thanks: "Teşekkürler",
+      following: "Sizinle yürüyor",
+      lines: {
+        hub: "Buradan Archon dünyasının ana bölgelerine ulaşabilirsiniz.",
+        boards: "Burada eğitim teknolojileri alanındaki çalışmalarımızı inceleyebilirsiniz — DP Pano.",
+        shipped: "Meetzy, etkinlikleri ve insanları bir araya getiren projelerimizden biri; karşı tarafta Erden Davetiye için daha zarif ve editorial bir deneyim tasarladık.",
+        gallery: "Galeri bölümünde farklı çalışmalarımızı daha serbest bir formatta keşfedebilirsiniz.",
+        labs: "Archon Labs: çalışır hâldeki konsept ürünler; her biri konsept olarak etiketlendi.",
+        systems: "Sistemler — bir arayüzün arkasında ne çalışır.",
+        archive: "Arşiv: bugüne kadar yaptığımız her şey, tek yerde.",
+        between: "Köprüler denizin üzerinden geçer; her ada yaptığımız işin farklı bir parçası.",
+      },
+    },
+  },
+
   footer: {
     index: "İçindekiler",
     colophon: "Künye",
@@ -877,6 +1117,8 @@ const tr: Dictionary = {
     motion: "Hareket",
     motionValue: "CSS geçişleri, Lenis",
     backToTop: "Başa dön",
+    closing: "Hadi bir şey kuralım.",
+    rights: "Tüm hakları saklıdır",
     start: "Projeye başla",
   },
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /**
  * Matches a media query without a hydration mismatch: the server and the first
@@ -167,43 +167,3 @@ export function useFocusTrap<T extends HTMLElement>(active: boolean): React.RefO
   return ref;
 }
 
-/**
- * Magnetic pointer response. Returns a ref plus the handlers to spread onto an
- * element; movement is written straight to the style to skip React re-renders.
- * Returns inert handlers on touch devices and under reduced motion.
- */
-export function useMagnetic<T extends HTMLElement>(strength = 0.32) {
-  const ref = useRef<T>(null);
-  const hasPointer = useHasPointer();
-  const reduced = usePrefersReducedMotion();
-  const enabled = hasPointer && !reduced;
-  const frame = useRef(0);
-
-  const onPointerMove = useCallback(
-    (event: React.PointerEvent<T>) => {
-      const node = ref.current;
-      if (!node || !enabled) return;
-      const rect = node.getBoundingClientRect();
-      const x = (event.clientX - (rect.left + rect.width / 2)) * strength;
-      const y = (event.clientY - (rect.top + rect.height / 2)) * strength;
-      if (frame.current) cancelAnimationFrame(frame.current);
-      frame.current = requestAnimationFrame(() => {
-        node.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0)`;
-      });
-    },
-    [enabled, strength],
-  );
-
-  const onPointerLeave = useCallback(() => {
-    const node = ref.current;
-    if (!node) return;
-    if (frame.current) cancelAnimationFrame(frame.current);
-    node.style.transform = "translate3d(0, 0, 0)";
-  }, []);
-
-  useEffect(() => () => {
-    if (frame.current) cancelAnimationFrame(frame.current);
-  }, []);
-
-  return { ref, enabled, handlers: enabled ? { onPointerMove, onPointerLeave } : {} };
-}

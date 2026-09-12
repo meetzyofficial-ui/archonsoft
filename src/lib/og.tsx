@@ -6,10 +6,10 @@ import { SITE } from "@/lib/site";
 /**
  * Shared Open Graph card.
  *
- * The same language as the site: ink ground, hairline frame, the real arch
- * mark with its gradient keystone, a mono spec strip and Space Grotesk
- * carrying the headline. Fonts are read from disk at build time — these images
- * are prerendered, so nothing is fetched at request time.
+ * The same language as the site: hairline frame, the supplied Archon mark, a
+ * mono spec strip, and the display serif carrying the headline. Fonts are read
+ * from disk at build time — these images are prerendered, so nothing is
+ * fetched at request time.
  */
 
 export const OG_SIZE = { width: 1200, height: 630 };
@@ -17,12 +17,14 @@ export const OG_CONTENT_TYPE = "image/png";
 
 const font = (file: string) => readFileSync(join(process.cwd(), "src/assets/og", file));
 
-const INK = "#0b0f1a";
-const PAPER = "#ffffff";
-const BLUE = "#4f86ff";
-const VIOLET = "#7a5cff";
-const LINE = "rgba(255,255,255,0.16)";
-const MUTE = "rgba(255,255,255,0.5)";
+/* The share card is the one place the site is still night: a card has to hold
+   its own against whatever timeline it lands in, and a near-white card on a
+   near-white feed is invisible. The palette is the site's ink scheme. */
+const INK = "#101722";
+const PAPER = "#fbfcff";
+const ACCENT = "#e5a184";
+const LINE = "rgba(251,252,255,0.16)";
+const MUTE = "rgba(251,252,255,0.52)";
 
 export type OgCard = {
   eyebrow: string;
@@ -47,7 +49,7 @@ export function renderOgImage({ eyebrow, title, accent, meta }: OgCard) {
           backgroundColor: INK,
           color: PAPER,
           padding: 64,
-          fontFamily: "Grotesk",
+          fontFamily: "Display",
           position: "relative",
         }}
       >
@@ -75,18 +77,12 @@ export function renderOgImage({ eyebrow, title, accent, meta }: OgCard) {
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <svg width="30" height="30" viewBox="8 12 84 84">
-              <defs>
-                <linearGradient id="og-keystone" x1="0.1" y1="0" x2="0.9" y2="1">
-                  <stop offset="0" stopColor={BLUE} />
-                  <stop offset="1" stopColor={VIOLET} />
-                </linearGradient>
-              </defs>
-              <path
-                d="M16 86 L16 44 L34 20 L66 20 L84 44 L84 86 L68 86 L68 48 L58 34 L42 34 L32 48 L32 86 Z"
-                fill={PAPER}
-              />
-              <path d="M40 20 L60 20 L55 34 L45 34 Z" fill="url(#og-keystone)" />
+            {/* The supplied mark: three left-aligned bars of decreasing
+                width, measured off the brand file rather than redrawn. */}
+            <svg width="30" height="26" viewBox="0 0 34 29.4">
+              <rect x="0" y="0" width="34" height="7.4" fill={PAPER} />
+              <rect x="0" y="11" width="24.5" height="7.4" fill={PAPER} />
+              <rect x="0" y="22" width="15" height="7.4" fill={PAPER} />
             </svg>
             <span>Archonsoft</span>
           </div>
@@ -107,7 +103,7 @@ export function renderOgImage({ eyebrow, title, accent, meta }: OgCard) {
           }}
         >
           <span>{title}</span>
-          {accent ? <span style={{ color: BLUE }}>{accent}</span> : null}
+          {accent ? <span style={{ color: ACCENT }}>{accent}</span> : null}
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
@@ -147,7 +143,7 @@ export function renderOgImage({ eyebrow, title, accent, meta }: OgCard) {
     {
       ...OG_SIZE,
       fonts: [
-        { name: "Grotesk", data: font("SpaceGrotesk-Bold.ttf"), style: "normal", weight: 700 },
+        { name: "Display", data: font("Newsreader-Regular.ttf"), style: "normal", weight: 400 },
         { name: "Mono", data: font("GeistMono-Regular.ttf"), style: "normal", weight: 400 },
       ],
     },

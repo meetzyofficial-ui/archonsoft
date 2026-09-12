@@ -6,14 +6,25 @@ import { DEFAULT_LOCALE, LOCALES } from "@/lib/i18n";
  * sent to the default. Doing it here rather than with a redirect page means a
  * mistyped URL still lands on the localised 404 with the full chrome, instead
  * of on a bare framework error page.
+ *
+ * It also stamps the language onto the request. A `not-found` boundary is the
+ * one server component in the App Router that cannot read its own route
+ * params, so without this every Turkish visitor who mistyped a URL was
+ * answered in English — on a site whose whole point is that both languages are
+ * real.
  */
+export const LOCALE_HEADER = "x-archon-locale";
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const hasLocale = LOCALES.some(
+  const matched = LOCALES.find(
     (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`),
   );
-  if (hasLocale) return NextResponse.next();
+  if (matched) {
+    const headers = new Headers(request.headers);
+    headers.set(LOCALE_HEADER, matched);
+    return NextResponse.next({ request: { headers } });
+  }
 
   const url = request.nextUrl.clone();
   url.pathname = `/${DEFAULT_LOCALE}${pathname === "/" ? "" : pathname}`;

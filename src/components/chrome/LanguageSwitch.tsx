@@ -18,27 +18,36 @@ export function LanguageSwitch({ locale, label }: { locale: Locale; label: strin
   const rest = stripLocale(pathname);
 
   return (
-    <div
-      className="mono-label flex items-center gap-1 border border-[var(--line)] px-1"
-      role="group"
-      aria-label={label}
-    >
-      {LOCALES.map((code) => {
+    /* Two words and a slash. It was a bordered segmented control, which was
+       the only pill left in the header and read as a widget rather than as
+       part of the masthead. */
+    <div className="mono-label flex items-center" role="group" aria-label={label}>
+      {LOCALES.map((code, i) => {
         const active = code === locale;
         return (
+          <span key={code} className="flex items-center">
+            {i > 0 ? (
+              <span aria-hidden="true" className="px-1.5 text-[var(--fg-mute)]">
+                /
+              </span>
+            ) : null}
           <Link
-            key={code}
             href={`/${code}${rest}`}
             hrefLang={code}
             aria-current={active ? "true" : undefined}
             aria-label={LOCALE_NAME[code]}
             className={cn(
-              "px-2 py-2 transition-colors duration-300",
+              /* Two letters at eleven pixels is a sixteen-pixel pointer
+                 target — under what WCAG 2.2 asks of a control. The box grows
+                 and the negative margin hands the space straight back, so the
+                 masthead is unchanged and the finger gets twenty-eight. */
+              "link-rule -mx-1.5 px-1.5 [--rule-inset:0.375rem] transition-colors duration-300",
               active ? "text-[var(--fg)]" : "text-[var(--fg-mute)] hover:text-[var(--fg)]",
             )}
           >
             {LOCALE_LABEL[code]}
           </Link>
+          </span>
         );
       })}
     </div>

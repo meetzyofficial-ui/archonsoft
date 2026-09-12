@@ -6,7 +6,7 @@ import { ScrollLit } from "@/components/motion/ScrollLit";
 import { ContactCta } from "@/components/sections/ContactCta";
 import { Process } from "@/components/sections/Process";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { Band, ChapterHead } from "@/components/ui/primitives";
+import { Band, SectionRule } from "@/components/ui/primitives";
 import { PRINCIPLES, STUDIO_FACTS } from "@/data/practice";
 import { dict } from "@/i18n/dictionary";
 import { isLocale, t, type Locale } from "@/lib/i18n";
@@ -91,15 +91,15 @@ export default async function AboutPage({ params }: Params) {
         <p className="mt-6 text-[var(--fg-mute)]">{page.note}</p>
       </PageHeader>
 
-      <Band scheme="dark" size="regular" className="pt-0">
+      <Band scheme="paper" size="regular" className="pt-0">
         <div className="frame">
-          <ChapterHead index="—" title={page.facts} aside={page.factsAside} />
+          <SectionRule label={page.facts} aside={page.factsAside} />
           <dl className="mt-10 grid gap-px border border-[var(--line)] bg-[var(--line)] sm:grid-cols-2 lg:grid-cols-4">
             {STUDIO_FACTS.map((fact, i) => (
               <div key={fact.label.en} className="scheme-surface">
                 <Reveal delay={i * 70} className="p-7 md:p-8">
                   <dt className="mono-label text-[var(--fg-mute)]">{t(fact.label, locale)}</dt>
-                  <dd className="mt-3 text-d3">{t(fact.value, locale)}</dd>
+                  <dd className="mt-3 text-quote">{t(fact.value, locale)}</dd>
                 </Reveal>
               </div>
             ))}
@@ -107,7 +107,7 @@ export default async function AboutPage({ params }: Params) {
 
           <ScrollLit
             as="h2"
-            className="mt-20 max-w-[24ch] text-d2 md:mt-28"
+            className="mt-20 max-w-[24ch] text-sub md:mt-28"
             text={page.spanTitle}
           />
           <div className="mt-10 grid gap-8 md:grid-cols-12">
@@ -118,9 +118,9 @@ export default async function AboutPage({ params }: Params) {
         </div>
       </Band>
 
-      <Band scheme="dark" size="regular" className="pt-0">
+      <Band scheme="paper" size="regular" className="pt-0">
         <div className="frame">
-          <ChapterHead index="01" title={page.principles} aside={page.principlesAside} />
+          <SectionRule label={page.principles} aside={page.principlesAside} />
           <ol className="mt-12 md:mt-16">
             {PRINCIPLES.map((principle, index) => (
               <li key={principle.index} className="hairline-t">
@@ -131,7 +131,7 @@ export default async function AboutPage({ params }: Params) {
                   <span className="mono-label text-[var(--accent)] md:col-span-1">
                     {principle.index}
                   </span>
-                  <h3 className="text-d3 md:col-span-4">{t(principle.title, locale)}</h3>
+                  <h3 className="text-quote md:col-span-4">{t(principle.title, locale)}</h3>
                   <p className="max-w-[54ch] text-[var(--fg-dim)] md:col-span-6 md:col-start-7">
                     {t(principle.body, locale)}
                   </p>
@@ -142,8 +142,8 @@ export default async function AboutPage({ params }: Params) {
         </div>
       </Band>
 
-      <Process locale={locale} index="02" title={page.process} aside={page.processAside} />
-      <ContactCta locale={locale} copy={copy} index="03" />
+      <Process locale={locale} title={page.process} aside={page.processAside} />
+      <ContactCta locale={locale} copy={copy} />
     </>
   );
 }

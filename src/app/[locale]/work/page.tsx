@@ -1,15 +1,13 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { Reveal } from "@/components/motion/Reveal";
-import { ProductPlane } from "@/components/product/ProductPlane";
 import { ContactCta } from "@/components/sections/ContactCta";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { Band } from "@/components/ui/primitives";
-import { PROJECTS } from "@/data/projects";
+import { WorkIndex } from "@/components/work/WorkIndex";
+import { WorkRow } from "@/components/work/WorkRow";
+import { COLLECTION, DOMAIN_FACETS, PROVENANCE_FACETS } from "@/data/collection";
 import { dict } from "@/i18n/dictionary";
-import { isLocale, localePath, t, type Locale } from "@/lib/i18n";
+import { isLocale, t, type Locale } from "@/lib/i18n";
 import { SITE } from "@/lib/site";
 
 type Params = { params: Promise<{ locale: string }> };
@@ -37,93 +35,75 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   };
 }
 
+/**
+ * The work index.
+ *
+ * Everything Archon has built, in one place, filterable by what it is and by
+ * whether it went live — which is the question anybody assessing a studio is
+ * actually asking. Two products shipped and ten concepts did not, and the
+ * index prints that on every row rather than sorting it into two pages the
+ * visitor has to find separately.
+ *
+ * The rows are rendered here, on the server, with their real images and their
+ * localised copy. Only the narrowing is client work.
+ */
 export default async function WorkPage({ params }: Params) {
   const { locale: raw } = await params;
   if (!isLocale(raw)) notFound();
   const locale = raw as Locale;
   const copy = dict(locale);
 
+  const items = COLLECTION.map((piece) => ({
+    slug: piece.slug,
+    provenance: piece.provenance,
+    domains: piece.domains,
+  }));
+
   return (
     <>
       <PageHeader
-        title={copy.work.label}
-        aside={copy.work.aside}
-        lead={copy.work.statement}
-        accent={copy.work.statementAccent}
-        standfirst={copy.work.body}
+        title={copy.work.indexLabel}
+        aside={copy.work.indexAside}
+        lead={copy.work.indexStatement}
+        accent={copy.work.indexAccent}
+        standfirst={copy.work.indexBody}
       />
 
-      <Band scheme="dark" size="tight" className="pt-0">
-        <div className="frame space-y-24 md:space-y-36">
-          {PROJECTS.map((project, index) => (
-            <article
-              key={project.slug}
-              className="hairline-t pt-8"
-              style={{ ["--accent" as string]: project.accent }}
-            >
-              <div className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2">
-                <span className="mono-label text-[var(--accent)]">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <span className="mono-label text-[var(--fg-mute)]">
-                  {t(project.category, locale)}
-                </span>
-              </div>
+      <WorkIndex
+        items={items}
+        provenanceFacets={PROVENANCE_FACETS.map((facet) => ({
+          id: facet.id,
+          label: t(facet.label, locale),
+          count: facet.count,
+        }))}
+        domainFacets={DOMAIN_FACETS.map((facet) => ({
+          id: facet.id,
+          label: t(facet.label, locale),
+          count: facet.count,
+        }))}
+        copy={{
+          all: copy.work.all,
+          provenance: copy.work.filterProvenance,
+          domain: copy.work.filterDomain,
+          showing: copy.work.showing,
+          ofTotal: copy.work.ofTotal,
+          pieces: copy.work.pieces,
+          empty: copy.work.empty,
+          reset: copy.work.reset,
+        }}
+      >
+        {COLLECTION.map((piece, index) => (
+          <WorkRow
+            key={piece.slug}
+            piece={piece}
+            locale={locale}
+            copy={copy}
+            priority={index === 0}
+          />
+        ))}
+      </WorkIndex>
 
-              <Link
-                href={localePath(locale, `/work/${project.slug}`)}
-                data-cursor-label={copy.work.open}
-                className="group mt-8 block"
-              >
-                <h2 className="text-d1 transition-transform duration-[900ms] ease-[var(--ease-out-expo)] md:group-hover:translate-x-2">
-                  {project.name}
-                </h2>
-
-                <div className="mt-10 grid gap-8 md:grid-cols-12">
-                  <div className="md:col-span-5">
-                    <p className="max-w-[42ch] text-lead text-[var(--fg-dim)]">
-                      {t(project.summary, locale)}
-                    </p>
-                    <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-4">
-                      {project.facts.map((fact) => (
-                        <div key={fact.label.en}>
-                          <dt className="mono-label text-[var(--fg-mute)]">
-                            {t(fact.label, locale)}
-                          </dt>
-                          <dd className="mt-1">{t(fact.value, locale)}</dd>
-                        </div>
-                      ))}
-                    </dl>
-                    <span className="mono-label link-rule mt-8 inline-flex items-center gap-3">
-                      {copy.work.read}
-                      <span
-                        aria-hidden="true"
-                        className="block h-px w-8 origin-left bg-current transition-transform duration-[700ms] ease-[var(--ease-out-expo)] group-hover:scale-x-[2]"
-                      />
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-4 md:col-span-6 md:col-start-7">
-                    {project.screens.slice(0, 3).map((screen, i) => (
-                      <Reveal key={i} delay={i * 70}>
-                        <ProductPlane
-                          screen={screen}
-                          locale={locale}
-                          showCaption={false}
-                          sizes="(min-width: 768px) 16vw, 30vw"
-                          className="transition-transform duration-[900ms] ease-[var(--ease-out-expo)] md:group-hover:-translate-y-2"
-                        />
-                      </Reveal>
-                    ))}
-                  </div>
-                </div>
-              </Link>
-            </article>
-          ))}
-        </div>
-      </Band>
-
-      <ContactCta locale={locale} copy={copy} index="—" />
+      <ContactCta locale={locale} copy={copy} />
     </>
   );
 }

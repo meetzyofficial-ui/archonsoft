@@ -4,11 +4,11 @@ import { notFound } from "next/navigation";
 import { Capabilities } from "@/components/sections/Capabilities";
 import { CapabilityMatrix } from "@/components/sections/CapabilityMatrix";
 import { ContactCta } from "@/components/sections/ContactCta";
-import { TechBand } from "@/components/sections/Approach";
+import { CategoryBand, SelectBand, SystemBand, TechBand } from "@/components/sections/Approach";
 import { Reveal } from "@/components/motion/Reveal";
 import { SplitReveal } from "@/components/motion/SplitReveal";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { Band, ChapterHead } from "@/components/ui/primitives";
+import { Band, SectionRule } from "@/components/ui/primitives";
 import { CAPABILITIES } from "@/data/capabilities";
 import { MATRIX } from "@/data/matrix";
 import { dict } from "@/i18n/dictionary";
@@ -73,21 +73,37 @@ export default async function CapabilitiesPage({ params }: Params) {
         standfirst={copy.capabilities.body}
       />
 
-      <Capabilities locale={locale} copy={copy} index="01" withLink={false} />
+      <Capabilities locale={locale} copy={copy} withLink={false} />
+
+      {/* What can actually be built. It used to sit on the home page, where it
+          competed with the work for attention and repeated, as thirteen
+          categories, a taxonomy the work index already offers as eight domain
+          filters. This is the page that exists to answer it. */}
+      <CategoryBand locale={locale} copy={copy} />
+
+      {/* The eight layers a running product is made of.
+          This came off the home page, where it was the third taxonomy of the
+          same question on one screen. It belongs on the page that exists to
+          answer what can be built, immediately after the list of what those
+          things are — and it is the only place on the site that shows the
+          layers as a stack rather than as a list. */}
+      <SystemBand locale={locale} copy={copy} />
+
+      {/* The chooser. It came off the home page with the rest of the answers
+          to "what can be built"; it is not a taxonomy but a way of asking the
+          visitor which of these sentences is them, and this is the page where
+          that question has somewhere to lead. */}
+      <SelectBand locale={locale} copy={copy} />
 
       {/* The matrix. Every claim above ends here, at something that can be
           opened — and a concept is never allowed to sit unlabelled beside a
           shipped product. */}
-      <Band scheme="dark" size="regular" id="matrix">
+      <Band scheme="paper" size="regular" id="matrix">
         <div className="frame">
-          <ChapterHead
-            index={copy.matrix.index}
-            title={copy.matrix.label}
-            aside={`${MATRIX.length} — ${copy.matrix.aside}`}
-          />
+          <SectionRule label={copy.matrix.label} aside={`${MATRIX.length} — ${copy.matrix.aside}`} />
 
           <div className="mt-10 grid gap-8 md:mt-14 md:grid-cols-12 md:items-end">
-            <h2 className="text-d1 md:col-span-7">
+            <h2 className="text-head md:col-span-7">
               <SplitReveal text={copy.matrix.statement} lineHeight="0.94em" stagger={34} />
               <SplitReveal
                 text={[{ text: copy.matrix.statementAccent }]}
@@ -109,7 +125,7 @@ export default async function CapabilitiesPage({ params }: Params) {
 
       <TechBand locale={locale} copy={copy} />
 
-      <ContactCta locale={locale} copy={copy} index="—" />
+      <ContactCta locale={locale} copy={copy} />
     </>
   );
 }

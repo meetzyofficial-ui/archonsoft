@@ -1,78 +1,65 @@
-"use client";
-
 import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
-import { Magnetic } from "@/components/motion/Magnetic";
 import { cn } from "@/lib/utils";
 
+/**
+ * The one thing you can press.
+ *
+ * What used to be here was a 52px control with a border, a bottom-up colour
+ * wipe on hover, a two-arrow swap animation and a magnetic pull toward the
+ * cursor — six behaviours to say "link". On a page whose whole language is
+ * hairlines and eleven-pixel type, that object was louder than the work.
+ *
+ * A navigation action is now a line of small caps with a rule running off it,
+ * and the rule grows on hover. That is the entire interaction vocabulary, and
+ * it is the same on a project, a case study, the world and the footer, so the
+ * site only ever teaches it once.
+ *
+ * A form control is the one exception: a submit button that looks like a
+ * sentence is a submit button people do not press. That keeps a hairline box
+ * and a 3px corner — restrained, and unmistakably a control.
+ */
+
 type Variant = "solid" | "line" | "ghost";
-
-const base =
-  "group/action relative inline-flex items-center gap-3 overflow-hidden isolate " +
-  "mono-label select-none whitespace-nowrap " +
-  "h-[3.25rem] pl-6 pr-5 rounded-none border transition-colors duration-500 " +
-  "ease-[var(--ease-out-expo)] disabled:opacity-40 disabled:pointer-events-none";
-
-const variants: Record<Variant, string> = {
-  solid: "border-transparent bg-[var(--fg)] text-[var(--bg)] hover:text-[var(--fg)]",
-  line: "border-[var(--line-strong)] text-[var(--fg)] hover:text-[var(--bg)]",
-  ghost: "border-transparent text-[var(--fg-dim)] hover:text-[var(--fg)] px-0 h-auto gap-2",
-};
-
-/** The wipe that fills the control from the bottom edge on hover. */
-function Wipe({ variant }: { variant: Variant }) {
-  if (variant === "ghost") return null;
-  return (
-    <span
-      aria-hidden="true"
-      className={cn(
-        "absolute inset-0 -z-10 origin-bottom scale-y-0 rounded-none",
-        "transition-transform duration-[650ms] ease-[var(--ease-out-expo)]",
-        "group-hover/action:scale-y-100 group-focus-visible/action:scale-y-100",
-        variant === "solid" ? "bg-[var(--bg)]" : "bg-[var(--fg)]",
-      )}
-    />
-  );
-}
-
-function Arrow({ direction = "right" }: { direction?: "right" | "down" }) {
-  return (
-    <span aria-hidden="true" className="relative block h-3 w-3 overflow-hidden">
-      <svg
-        viewBox="0 0 12 12"
-        fill="none"
-        className={cn(
-          "absolute inset-0 h-3 w-3 transition-transform duration-[550ms] ease-[var(--ease-out-expo)]",
-          direction === "right"
-            ? "group-hover/action:translate-x-[130%]"
-            : "group-hover/action:translate-y-[130%]",
-        )}
-      >
-        <path d={direction === "right" ? "M1 6h10M6.6 1.6 11 6l-4.4 4.4" : "M6 1v10M1.6 5.6 6 10l4.4-4.4"} stroke="currentColor" strokeWidth="1.2" />
-      </svg>
-      <svg
-        viewBox="0 0 12 12"
-        fill="none"
-        className={cn(
-          "absolute inset-0 h-3 w-3 transition-transform duration-[550ms] ease-[var(--ease-out-expo)]",
-          direction === "right"
-            ? "-translate-x-[130%] group-hover/action:translate-x-0"
-            : "-translate-y-[130%] group-hover/action:translate-y-0",
-        )}
-      >
-        <path d={direction === "right" ? "M1 6h10M6.6 1.6 11 6l-4.4 4.4" : "M6 1v10M1.6 5.6 6 10l4.4-4.4"} stroke="currentColor" strokeWidth="1.2" />
-      </svg>
-    </span>
-  );
-}
 
 type CommonProps = {
   children: ReactNode;
   variant?: Variant;
   arrow?: "right" | "down" | "none";
   className?: string;
-  magnetic?: boolean;
 };
+
+/** The rule that runs off the end of an action, with the arrow on it. */
+function Rule({ direction = "right" }: { direction?: "right" | "down" }) {
+  if (direction === "down") {
+    return (
+      <span
+        aria-hidden="true"
+        className="relative block h-8 w-px bg-current transition-[height] duration-[700ms] ease-[var(--ease-out-expo)] group-hover/action:h-12"
+      >
+        <span className="absolute right-[-3px] bottom-0 block size-[7px] rotate-[135deg] border-t border-r border-current" />
+      </span>
+    );
+  }
+  return (
+    <span
+      aria-hidden="true"
+      className="relative block h-px w-10 bg-current transition-[width] duration-[700ms] ease-[var(--ease-out-expo)] group-hover/action:w-20"
+    >
+      <span className="absolute -top-[3px] right-0 block size-[7px] rotate-45 border-t border-r border-current" />
+    </span>
+  );
+}
+
+const emphasis: Record<Variant, string> = {
+  solid: "text-[var(--fg)]",
+  line: "text-[var(--fg-dim)] hover:text-[var(--fg)]",
+  ghost: "text-[var(--fg-mute)] hover:text-[var(--fg)]",
+};
+
+const base =
+  "group/action mono-label inline-flex select-none items-center gap-4 whitespace-nowrap " +
+  "-my-2 py-2 transition-colors duration-500 ease-[var(--ease-out-expo)]";
 
 export function ActionLink({
   children,
@@ -80,18 +67,14 @@ export function ActionLink({
   variant = "line",
   arrow = "right",
   className,
-  magnetic = true,
   ...rest
 }: CommonProps & ComponentProps<typeof Link>) {
-  const content = (
-    <Link href={href} className={cn(base, variants[variant], className)} {...rest}>
-      <Wipe variant={variant} />
-      <span className="relative">{children}</span>
-      {arrow !== "none" ? <Arrow direction={arrow} /> : null}
+  return (
+    <Link href={href} className={cn(base, emphasis[variant], className)} {...rest}>
+      <span>{children}</span>
+      {arrow !== "none" ? <Rule direction={arrow} /> : null}
     </Link>
   );
-
-  return magnetic ? <Magnetic strength={0.22}>{content}</Magnetic> : content;
 }
 
 export function ActionButton({
@@ -99,16 +82,35 @@ export function ActionButton({
   variant = "solid",
   arrow = "right",
   className,
-  magnetic = false,
   ...rest
 }: CommonProps & ComponentProps<"button">) {
-  const content = (
-    <button className={cn(base, variants[variant], className)} {...rest}>
-      <Wipe variant={variant} />
-      <span className="relative">{children}</span>
-      {arrow !== "none" ? <Arrow direction={arrow} /> : null}
+  /* A real control, because it submits something. */
+  if (variant === "solid") {
+    return (
+      <button
+        className={cn(
+          "group/action mono-label inline-flex h-12 items-center gap-4 border border-[var(--fg)] px-6",
+          "text-[var(--fg)] transition-colors duration-500 ease-[var(--ease-out-expo)]",
+          "hover:bg-[var(--fg)] hover:text-[var(--bg)]",
+          "disabled:pointer-events-none disabled:opacity-40",
+          className,
+        )}
+        style={{ borderRadius: "var(--radius-hair)" }}
+        {...rest}
+      >
+        <span>{children}</span>
+        {arrow !== "none" ? <Rule direction={arrow} /> : null}
+      </button>
+    );
+  }
+
+  return (
+    <button
+      className={cn(base, emphasis[variant], "disabled:pointer-events-none disabled:opacity-40", className)}
+      {...rest}
+    >
+      <span>{children}</span>
+      {arrow !== "none" ? <Rule direction={arrow} /> : null}
     </button>
   );
-
-  return magnetic ? <Magnetic strength={0.22}>{content}</Magnetic> : content;
 }

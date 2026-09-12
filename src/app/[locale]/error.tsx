@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { ActionButton, ActionLink } from "@/components/ui/Action";
-import { ChapterHead } from "@/components/ui/primitives";
+import { SectionRule } from "@/components/ui/primitives";
 import { dict } from "@/i18n/dictionary";
 import { DEFAULT_LOCALE, localePath } from "@/lib/i18n";
 
@@ -21,14 +21,14 @@ export default function Error({
 
   return (
     <section
-      data-scheme="dark"
-      data-band="dark"
-      className="scheme-surface flex min-h-[100svh] flex-col justify-center pt-[72px]"
+      data-scheme="paper"
+      data-band="paper"
+      className="scheme-surface flex min-h-[100svh] flex-col justify-center pt-16"
     >
       <div className="frame py-20">
-        <ChapterHead index="500" title={copy.error.label} aside={copy.error.aside} />
+        <SectionRule label={copy.error.label} aside={copy.error.aside} />
 
-        <h1 className="mt-12 max-w-[16ch] text-d1">
+        <h1 className="mt-12 max-w-[16ch] text-head">
           {copy.error.title} <span className="text-[var(--accent)]">{copy.error.titleAccent}</span>
         </h1>
 

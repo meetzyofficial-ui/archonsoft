@@ -33,16 +33,27 @@ export function ProductPlane({
   className?: string;
   sizes?: string;
 }) {
+  /* A handset radius on a browser capture makes a desktop screen look like a
+     phone, which is the one thing this component exists not to do. Orientation
+     answers it without a new prop to keep in sync: portrait captures are
+     phones, landscape ones are screens, and a screen has square corners. */
+  const wide = screen.image.width > screen.image.height;
+
   return (
     <figure className={cn("flex flex-col", className)}>
-      <div className="relative overflow-hidden rounded-[1.6rem] border border-[var(--line-strong)] bg-[var(--bg-raise)] p-[3px] shadow-[0_30px_80px_-40px_rgba(0,0,0,0.9)]">
+      <div
+        className={cn(
+          "relative overflow-hidden border border-[var(--line-strong)] bg-[var(--bg-raise)] p-[3px] shadow-[0_30px_80px_-40px_rgba(0,0,0,0.9)]",
+          wide ? "rounded-[0.5rem]" : "rounded-[1.6rem]",
+        )}
+      >
         <Image
           src={screen.image}
           alt={t(screen.caption, locale)}
           placeholder="blur"
           priority={priority}
           sizes={sizes}
-          className="h-auto w-full rounded-[1.42rem]"
+          className={cn("h-auto w-full", wide ? "rounded-[0.34rem]" : "rounded-[1.42rem]")}
         />
       </div>
 

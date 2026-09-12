@@ -6,7 +6,7 @@ import { Reveal } from "@/components/motion/Reveal";
 import { SplitReveal } from "@/components/motion/SplitReveal";
 import { SelfSelect } from "@/components/sections/SelfSelect";
 import { ActionLink } from "@/components/ui/Action";
-import { Band, ChapterHead } from "@/components/ui/primitives";
+import { Band, SectionRule } from "@/components/ui/primitives";
 import { LAYERS, LAYER_GROUPS, PROCESS } from "@/data/process";
 import type { Copy } from "@/i18n/dictionary";
 import { localePath, t, tl, type Locale } from "@/lib/i18n";
@@ -22,16 +22,12 @@ import { cn } from "@/lib/utils";
 
 export function SelectBand({ locale, copy }: { locale: Locale; copy: Copy }) {
   return (
-    <Band scheme="light" size="regular" id="build">
+    <Band scheme="haze" size="regular" id="build">
       <div className="frame">
-        <ChapterHead
-          index={copy.select.index}
-          title={copy.select.label}
-          aside={copy.select.aside}
-        />
+        <SectionRule label={copy.select.label} aside={copy.select.aside} />
 
         <div className="mt-10 grid gap-8 md:mt-14 md:grid-cols-12 md:items-end">
-          <h2 className="text-d1 md:col-span-7">
+          <h2 className="text-head md:col-span-7">
             <SplitReveal text={copy.select.statement} lineHeight="0.94em" stagger={34} />
             <SplitReveal
               text={[{ text: copy.select.statementAccent }]}
@@ -59,16 +55,12 @@ export function SelectBand({ locale, copy }: { locale: Locale; copy: Copy }) {
 
 export function CategoryBand({ locale, copy }: { locale: Locale; copy: Copy }) {
   return (
-    <Band scheme="light" size="regular" id="build-what">
+    <Band scheme="haze" size="regular" id="build-what">
       <div className="frame">
-        <ChapterHead
-          index={copy.categories.index}
-          title={copy.categories.label}
-          aside={copy.categories.aside}
-        />
+        <SectionRule label={copy.categories.label} aside={copy.categories.aside} />
 
         <div className="mt-10 grid gap-8 md:mt-14 md:grid-cols-12 md:items-end">
-          <h2 className="text-d1 md:col-span-7">
+          <h2 className="text-head md:col-span-7">
             <SplitReveal text={copy.categories.statement} lineHeight="0.94em" stagger={34} />
             <SplitReveal
               text={[{ text: copy.categories.statementAccent }]}
@@ -111,12 +103,12 @@ export function SystemBand({ locale, copy }: { locale: Locale; copy: Copy }) {
   const journey = copy.why.journey;
 
   return (
-    <Band scheme="dark" size="regular" id="why">
+    <Band scheme="paper" size="regular" id="why">
       <div className="frame">
-        <ChapterHead index={copy.why.index} title={copy.why.label} aside={copy.why.aside} />
+        <SectionRule label={copy.why.label} aside={copy.why.aside} />
 
         <div className="mt-10 grid gap-8 md:mt-14 md:grid-cols-12 md:items-end">
-          <h2 className="text-d1 md:col-span-7">
+          <h2 className="text-head md:col-span-7">
             <SplitReveal text={copy.why.statement} lineHeight="0.94em" stagger={34} />
             <SplitReveal
               text={[{ text: copy.why.statementAccent }]}
@@ -172,7 +164,7 @@ export function SystemBand({ locale, copy }: { locale: Locale; copy: Copy }) {
             <SystemStack
               locale={locale}
               notes={{}}
-              accent="var(--color-blue)"
+              accent="var(--color-blue-ink)"
               productName={copy.stack.layers}
               label={copy.stack.layers}
               openLabel={copy.stack.open}
@@ -209,14 +201,10 @@ export function ProcessBand({
     <>
       {withHead ? (
         <>
-          <ChapterHead
-            index={copy.process.index}
-            title={copy.process.label}
-            aside={copy.process.aside}
-          />
+          <SectionRule label={copy.process.label} aside={copy.process.aside} />
 
           <div className="mt-10 grid gap-8 md:mt-14 md:grid-cols-12 md:items-end">
-            <h2 className="text-d1 md:col-span-7">
+            <h2 className="text-head md:col-span-7">
               <SplitReveal text={copy.process.statement} lineHeight="0.94em" stagger={34} />
               <SplitReveal
                 text={[{ text: copy.process.statementAccent }]}
@@ -247,7 +235,7 @@ export function ProcessBand({
               <div className={detailed ? "md:col-span-4" : ""}>
                 <div className="flex items-baseline gap-3">
                   <span className="mono-label text-[var(--accent)]">{stage.index}</span>
-                  <h3 className="display text-d3">{t(stage.title, locale)}</h3>
+                  <h3 className="display text-quote">{t(stage.title, locale)}</h3>
                   <Icon
                     name={stage.icon}
                     size={15}
@@ -303,7 +291,7 @@ export function ProcessBand({
   );
 
   return withHead ? (
-    <Band scheme="dark" size="regular" id="process">
+    <Band scheme="paper" size="regular" id="process">
       <div className="frame">{body}</div>
     </Band>
   ) : (
@@ -316,19 +304,19 @@ export function ProcessBand({
 export function TechBand({
   locale,
   copy,
-  scheme = "light",
+  scheme = "haze",
 }: {
   locale: Locale;
   copy: Copy;
-  scheme?: "dark" | "light";
+  scheme?: "paper" | "haze" | "ink";
 }) {
   return (
     <Band scheme={scheme} size="regular" id="layers">
       <div className="frame">
-        <ChapterHead index={copy.tech.index} title={copy.tech.label} aside={copy.tech.aside} />
+        <SectionRule label={copy.tech.label} aside={copy.tech.aside} />
 
         <div className="mt-10 grid gap-8 md:mt-14 md:grid-cols-12 md:items-end">
-          <h2 className="text-d1 md:col-span-7">
+          <h2 className="text-head md:col-span-7">
             <SplitReveal text={copy.tech.statement} lineHeight="0.94em" stagger={34} />
             <SplitReveal
               text={[{ text: copy.tech.statementAccent }]}

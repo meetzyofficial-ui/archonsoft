@@ -13,7 +13,8 @@ const ROUTES = [
   "/tr",
   "/en/work",
   "/en/work/meetzy",
-  "/en/work/erden-davetiye",
+  "/en/work/dppano",
+  "/en/work/erden",
   "/en/capabilities",
   "/en/labs",
   "/en/labs/divan",
@@ -68,16 +69,27 @@ const audit = () => {
   };
 
   const backdrop = (el) => {
+    /* Archon World paints its environment into a canvas, so nothing in its
+       interface has a CSS background to walk up to. It is a dark room, and
+       that is what its chrome is set against. */
+    if (el.closest(".world-overlay")) return { r: 13, g: 17, b: 25, a: 1 };
     for (let node = el; node; node = node.parentElement) {
       const c = toRgba(getComputedStyle(node).backgroundColor);
       if (c.a >= 0.98) return c;
       // The header floats over the page with no background of its own; what
       // it actually sits on is the band it has adopted the scheme of.
       if (node.tagName === "HEADER" && node.dataset.scheme) {
-        return toRgba(node.dataset.scheme === "light" ? "#ffffff" : "#0b0f1a");
+        return toRgba(node.dataset.scheme === "ink" ? "#101722" : "#fbfcff");
+      }
+      // Sections paint nothing now — the atmosphere behind the document shows
+      // through them — so a paper band resolves to the paper colour and a
+      // tinted one to the palest value its own gradient reaches.
+      if (node.dataset && node.dataset.band) {
+        if (node.dataset.band === "ink") return { r: 16, g: 23, b: 34, a: 1 };
+        if (node.dataset.band === "haze") return { r: 232, g: 242, b: 254, a: 1 };
       }
     }
-    return { r: 11, g: 15, b: 26, a: 1 };
+    return { r: 251, g: 252, b: 255, a: 1 };
   };
 
   const problems = [];
@@ -94,6 +106,12 @@ const audit = () => {
     if (Number(style.opacity) < 0.95) continue;
     const rect = el.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) continue;
+    /* Off-screen is not a contrast failure. The header retracts on scroll by
+       translating itself out of the viewport: it keeps its size and its
+       computed colours, so it was still being measured — against whatever
+       band happened to be behind where it used to be. Nobody can read a
+       control that is not on the screen. */
+    if (rect.bottom <= 0 || rect.top >= window.innerHeight) continue;
     if (el.closest('[aria-hidden="true"]')) continue;
 
     const size = parseFloat(style.fontSize);
@@ -109,7 +127,7 @@ const audit = () => {
       if (seen.has(key)) continue;
       seen.add(key);
       problems.push(
-        `${value.toFixed(2)}:1 (needs ${need}) - ${Math.round(size)}px - "${el.textContent.trim().slice(0, 46)}"`,
+        `${value.toFixed(2)}:1 (needs ${need}) - ${Math.round(size)}px - bg rgb(${bg.r},${bg.g},${bg.b}) - ${el.tagName}${el.closest("[data-band]") ? "@" + el.closest("[data-band]").dataset.band : ""}${el.closest(".world-overlay") ? "@overlay" : ""} - "${el.textContent.trim().slice(0, 40)}"`,
       );
     }
   }

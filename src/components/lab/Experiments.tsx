@@ -43,7 +43,7 @@ function Shell({
             <span className="mono-label text-[var(--accent)]">{`EXP ${number}`}</span>
             <span className="mono-label text-[var(--fg-mute)]">{field}</span>
           </div>
-          <h2 className="mt-5 text-d3 font-medium">{title}</h2>
+          <h2 className="mt-5 text-quote font-medium">{title}</h2>
           <p className="mt-4 max-w-[38ch] text-[var(--fg-dim)]">{note}</p>
           {action ? <div className="mt-6">{action}</div> : null}
         </div>
@@ -110,7 +110,7 @@ export function FieldExperiment({ locale }: { locale: Locale }) {
     const styles = getComputedStyle(document.documentElement);
     const draw = () => {
       const base = styles.getPropertyValue("--color-paper").trim() || "#ffffff";
-      const accent = styles.getPropertyValue("--color-blue").trim() || "#4f86ff";
+      const accent = styles.getPropertyValue("--color-blue-ink").trim() || "#4f86ff";
       context.clearRect(0, 0, width, height);
 
       let moving = false;
@@ -403,7 +403,7 @@ export function CadenceExperiment({ locale }: { locale: Locale }) {
         </div>
 
         <p
-          className="mt-8 text-d2 font-medium"
+          className="mt-8 text-sub font-medium"
           style={{
             letterSpacing: "calc(-0.04em + var(--v) * 0.09em)",
             transform: "translateX(calc(var(--v) * var(--dir) * 12px))",

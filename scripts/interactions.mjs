@@ -17,9 +17,26 @@ const check = (label, ok, detail = "") => {
 
 const browser = await chromium.launch();
 
-/* ---------------------------------------------------------------- mobile nav */
+/* This suite tests the site itself, and the site is what a returning visitor
+   sees: Archon World opens once per session and every context below starts
+   after that. Setting the dismissal flag is precisely what the world writes on
+   its own way out, so nothing here is being faked around. The world has its
+   own suite in `world.mjs`. */
+const newContext = async (options) => {
+  const context = await browser.newContext(options);
+  await context.addInitScript(() => {
+    try {
+      sessionStorage.setItem("archon-world-dismissed", "1");
+    } catch {
+      /* A context without storage simply sees the world, and says so. */
+    }
+  });
+  return context;
+};
+
+/* ------------------------------------------------------------- the index */
 {
-  const context = await browser.newContext({ ...devices["iPhone 13"] });
+  const context = await newContext({ ...devices["iPhone 13"] });
   const page = await context.newPage();
   await page.goto(`${BASE}/en`, { waitUntil: "networkidle" });
   await page.waitForTimeout(1500);
@@ -28,17 +45,17 @@ const browser = await chromium.launch();
   await trigger.click();
   await page.waitForTimeout(700);
 
-  const panel = page.locator("#mobile-nav");
-  check("mobile nav opens", await panel.evaluate((el) => el.getAttribute("aria-hidden") === "false"));
+  const panel = page.locator("#site-menu");
+  check("the index opens", await panel.evaluate((el) => el.getAttribute("aria-hidden") === "false"));
   check(
-    "mobile nav locks page scroll",
+    "the index locks page scroll",
     await page.evaluate(() => getComputedStyle(document.body).overflow === "hidden"),
   );
-  await page.screenshot({ path: path.join(OUT, "x-mobile-nav.png") });
+  await page.screenshot({ path: path.join(OUT, "x-index-menu.png") });
 
   await page.keyboard.press("Escape");
   await page.waitForTimeout(600);
-  check("escape closes mobile nav", await panel.evaluate((el) => el.getAttribute("aria-hidden") === "true"));
+  check("escape closes the index", await panel.evaluate((el) => el.getAttribute("aria-hidden") === "true"));
   check(
     "scroll lock released",
     await page.evaluate(() => getComputedStyle(document.body).overflow !== "hidden"),
@@ -46,11 +63,11 @@ const browser = await chromium.launch();
 
   await trigger.click();
   await page.waitForTimeout(600);
-  await page.locator("#mobile-nav a", { hasText: "Work" }).first().click();
+  await page.locator("#site-menu a", { hasText: "Work" }).first().click();
   await page.waitForURL("**/en/work", { timeout: 5000 }).catch(() => {});
-  check("mobile nav navigates", page.url().endsWith("/en/work"), page.url());
+  check("the index navigates", page.url().endsWith("/en/work"), page.url());
   await page.waitForTimeout(600);
-  check("nav closes after navigation", await panel.evaluate((el) => el.getAttribute("aria-hidden") === "true"));
+  check("the index closes after navigation", await panel.evaluate((el) => el.getAttribute("aria-hidden") === "true"));
   check("route change resets scroll", (await page.evaluate(() => window.scrollY)) < 5);
 
   await context.close();
@@ -58,12 +75,14 @@ const browser = await chromium.launch();
 
 /* ---------------------------------------------------------- capability tabs */
 {
-  const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  const context = await newContext({ viewport: { width: 1280, height: 900 } });
   const page = await context.newPage();
   await page.goto(`${BASE}/en/capabilities`, { waitUntil: "networkidle" });
   await page.waitForTimeout(1500);
 
-  const tabs = page.getByRole("tab");
+  /* Scoped to the capability band. The chooser moved onto this page and is
+     also a tab list, so an unscoped count was counting two of them. */
+  const tabs = page.locator("#capabilities-tabs").getByRole("tab");
   check("capabilities render as a tab list", (await tabs.count()) === 6, `${await tabs.count()} tabs`);
 
   const automation = page.getByRole("tab", { name: /Admin systems/i }).first();
@@ -90,57 +109,97 @@ const browser = await chromium.launch();
   await context.close();
 }
 
-/* ------------------------------------------------------------- work stage */
+/* --------------------------------------------------------- project sequence */
 {
-  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const context = await newContext({ viewport: { width: 1440, height: 900 } });
   const page = await context.newPage();
   await page.goto(`${BASE}/en`, { waitUntil: "networkidle" });
   await page.waitForTimeout(1600);
 
-  const tracks = page.locator(".stage-track");
-  check("each project builds its own scroll track", (await tracks.count()) === 2, `${await tracks.count()}`);
-  const track = tracks.first();
+  /* One unit per shipped project, counted from the page rather than written
+     down: the number of live products is a fact about the work, and a test
+     that hard-codes it fails the day another one ships. */
+  const units = page.locator('article[aria-labelledby^="project-"]');
+  const count = await units.count();
+  check("the work is a sequence of editorial units", count > 1, `${count} units`);
 
-  const tall = await track.evaluate((el) => el.getBoundingClientRect().height > window.innerHeight * 1.5);
-  check("the track is taller than the viewport", tall);
-
-  const box = await track.evaluate((el) => ({ top: el.getBoundingClientRect().top + window.scrollY }));
-  // Scroll to the end of the track: the last card must still be on stage.
-  const target = await track.evaluate((el) => el.getBoundingClientRect().bottom + window.scrollY - window.innerHeight);
-  for (let i = 0; i < 60; i += 1) {
-    const current = await page.evaluate(() => window.scrollY);
-    if (Math.abs(target - current) < 12) break;
-    await page.mouse.wheel(0, Math.max(-700, Math.min(700, target - current)));
-    await page.waitForTimeout(45);
-  }
-  await page.waitForTimeout(900);
-
-  const state = await page.evaluate(() => {
-    const cards = Array.from(document.querySelectorAll("[data-board]")[0].querySelectorAll(".stage-card"));
-    return cards.map((el) => ({
-      opacity: Number(getComputedStyle(el).opacity),
-      transform: getComputedStyle(el).transform,
-    }));
+  /* The size of a project is the argument of this design, so it is the thing
+     the test holds. A picture that creeps back toward filling the viewport is
+     the exact regression this page was rebuilt to undo. */
+  const picture = await page.evaluate(() => {
+    const fig = document.querySelector('article[aria-labelledby^="project-"] figure');
+    if (!fig) return null;
+    const r = fig.getBoundingClientRect();
+    const frame = document.querySelector(".frame").getBoundingClientRect();
+    return {
+      heightRatio: r.height / window.innerHeight,
+      widthRatio: r.width / frame.width,
+    };
   });
   check(
-    "cards are transformed by scroll",
-    state.some((card) => card.transform !== "none"),
+    "a project picture is around 40% of the viewport, never a screenful",
+    picture !== null && picture.heightRatio > 0.28 && picture.heightRatio < 0.52,
+    `${Math.round((picture?.heightRatio ?? 0) * 100)}vh`,
   );
   check(
-    "the board is composed by the end of the track",
-    state.filter((card) => card.opacity > 0.85).length === state.length,
-    state.map((c) => c.opacity.toFixed(2)).join(" / "),
+    "and it never takes the whole column",
+    picture !== null && picture.widthRatio <= 0.72,
+    `${Math.round((picture?.widthRatio ?? 0) * 100)}% of the frame`,
   );
-  check("the frame counter is showing", (await page.locator(".stage-counter").first().isVisible()) === true);
-  void box;
-  await page.screenshot({ path: path.join(OUT, "x-stage.png") });
 
+  /* No cards. The unit is an image and some type on the page; a border, a
+     fill or a shadow around it would make it an object again. */
+  const chrome = await page.evaluate(() =>
+    Array.from(document.querySelectorAll('article[aria-labelledby^="project-"] figure')).filter(
+      (el) => {
+        const st = getComputedStyle(el);
+        return (
+          st.boxShadow !== "none" ||
+          parseFloat(st.borderTopWidth) > 0 ||
+          parseFloat(st.borderRadius) > 4
+        );
+      },
+    ).length,
+  );
+  check("no project sits in a card", chrome === 0, `${chrome} framed`);
+
+  /* The whole choreography is that every position is a pure function of one
+     scroll number. Read it at three points and at the start again: it must
+     move as the page moves, and come back exactly when the page comes back. */
+  const readings = async (y) => {
+    await page.evaluate((v) => window.scrollTo(0, v), y);
+    await page.waitForTimeout(420);
+    /* The computed value, not the inline one. A frame the driver has not
+       reached yet has no inline property and falls back to the 0 declared in
+       the stylesheet — reading the inline style would compare bookkeeping
+       ("not written yet" vs "written as 0") rather than what is on screen. */
+    return page.evaluate(() =>
+      Array.from(document.querySelectorAll(".scroll-frame"))
+        .slice(0, 12)
+        .map((el) => getComputedStyle(el).getPropertyValue("--p").trim()),
+    );
+  };
+
+  const top = await readings(0);
+  const middle = await readings(2200);
+  const lower = await readings(4400);
+  const back = await readings(0);
+
+  check("scroll drives the composition", JSON.stringify(top) !== JSON.stringify(middle));
+  check("and keeps driving it", JSON.stringify(middle) !== JSON.stringify(lower));
+  check(
+    "scrolling back reverses it exactly",
+    JSON.stringify(back) === JSON.stringify(top),
+    `${JSON.stringify(top).slice(0, 40)} vs ${JSON.stringify(back).slice(0, 40)}`,
+  );
+
+  await page.screenshot({ path: path.join(OUT, "x-project-sequence.png") });
   await context.close();
 }
 
 /* --------------------------------------------------------- lab experiments */
 {
-  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const context = await newContext({ viewport: { width: 1440, height: 900 } });
   const page = await context.newPage();
   await page.goto(`${BASE}/en/labs`, { waitUntil: "networkidle" });
   await page.waitForTimeout(1500);
@@ -172,25 +231,27 @@ const browser = await chromium.launch();
 
 /* ----------------------------------------------------------- adaptive header */
 {
-  const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  const context = await newContext({ viewport: { width: 1280, height: 900 } });
   const page = await context.newPage();
   await page.goto(`${BASE}/en`, { waitUntil: "networkidle" });
   await page.waitForTimeout(1500);
 
   const scheme = () => page.getByRole("banner").getAttribute("data-scheme");
-  check("header starts dark over the hero", (await scheme()) === "dark");
+  check("header starts in daylight over the opening", (await scheme()) === "paper");
 
-  await page.locator("#build").scrollIntoViewIfNeeded();
+  /* The site is daylight the whole way down and the light goes out once: at
+     the way into the world, which is where the header has to invert. */
+  await page.locator("#world").scrollIntoViewIfNeeded();
   await page.waitForTimeout(1200);
-  check("header inverts over the light chapter", (await scheme()) === "light", `${await scheme()}`);
-  await page.screenshot({ path: path.join(OUT, "x-header-light.png") });
+  check("header inverts over the world entry", (await scheme()) === "ink", `${await scheme()}`);
+  await page.screenshot({ path: path.join(OUT, "x-header-ink.png") });
 
   await context.close();
 }
 
 /* --------------------------------------------------------------- contact form */
 {
-  const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  const context = await newContext({ viewport: { width: 1280, height: 900 } });
   const page = await context.newPage();
   await page.goto(`${BASE}/en/contact`, { waitUntil: "networkidle" });
   await page.waitForTimeout(1500);
@@ -250,15 +311,20 @@ const browser = await chromium.launch();
 
 /* --------------------------------------------------------- the assembly */
 {
-  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  /* On a case study now, not on the home page.
+     The opening no longer assembles a screen beside its headline — it says one
+     sentence and hands over to the first project — but the assembly itself is
+     unchanged and still opens every case study, so the mechanism is exercised
+     where it actually lives. */
+  const context = await newContext({ viewport: { width: 1440, height: 900 } });
   const page = await context.newPage();
-  await page.goto(`${BASE}/en`, { waitUntil: "networkidle" });
+  await page.goto(`${BASE}/en/work/dppano`, { waitUntil: "networkidle" });
 
   await page.waitForTimeout(3200);
 
   // Read the settled value first: the probe below rewrites the property.
   const settled = await page.evaluate(() =>
-    Number(getComputedStyle(document.querySelector("[data-hero] [role='img']")).getPropertyValue("--assembly")),
+    Number(getComputedStyle(document.querySelector("[role='img']")).getPropertyValue("--assembly")),
   );
   check("the assembly finishes on its own", settled === 1, String(settled));
 
@@ -266,8 +332,8 @@ const browser = await chromium.launch();
   // transition suppressed, --assembly 0 must separate the bands and 1 must
   // bring them back to identity.
   const travel = await page.evaluate(() => {
-    const host = document.querySelector("[data-hero] [role='img']");
-    const band = document.querySelector("[data-hero] .assembly-band");
+    const host = document.querySelector("[role='img']");
+    const band = document.querySelector(".assembly-band");
     band.style.transition = "none";
     const read = () => {
       const m = new DOMMatrixReadOnly(getComputedStyle(band).transform);
@@ -285,10 +351,10 @@ const browser = await chromium.launch();
   check("the assembly separates the bands", travel.apart > 40, `${travel.apart}px`);
   check("the assembly closes to the real screen", travel.together <= 1, `${travel.together}px`);
 
-  const bands = await page.locator("[data-hero] .assembly-band").count();
-  check("the assembly is cut into bands", bands === 5, `${bands} bands`);
+  const bands = await page.locator(".assembly-band").count();
+  check("the assembly is cut into bands", bands >= 4, `${bands} bands`);
 
-  const painted = await page.locator("[data-hero] .assembly-band").first().evaluate(
+  const painted = await page.locator(".assembly-band").first().evaluate(
     (el) => getComputedStyle(el).backgroundImage !== "none",
   );
   check("every band paints the real screen", painted);
@@ -299,7 +365,7 @@ const browser = await chromium.launch();
 
 /* ------------------------------------------------------------- language */
 {
-  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const context = await newContext({ viewport: { width: 1440, height: 900 } });
   const page = await context.newPage();
   await page.goto(`${BASE}/en/work/meetzy`, { waitUntil: "networkidle" });
   await page.waitForTimeout(1200);
@@ -324,7 +390,7 @@ const browser = await chromium.launch();
 
 /* ------------------------------------------------------------ archon labs */
 {
-  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const context = await newContext({ viewport: { width: 1440, height: 900 } });
   const page = await context.newPage();
   await page.goto(`${BASE}/en/labs/divan`, { waitUntil: "networkidle" });
   await page.waitForTimeout(900);
@@ -365,7 +431,7 @@ const browser = await chromium.launch();
 
 /* ------------------------------------------------------- the labs explorer */
 {
-  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const context = await newContext({ viewport: { width: 1440, height: 900 } });
   const page = await context.newPage();
   await page.goto(`${BASE}/en`, { waitUntil: "networkidle" });
   await page.locator("#labs").scrollIntoViewIfNeeded();
@@ -388,9 +454,9 @@ const browser = await chromium.launch();
 
 /* ------------------------------------------------------------- the chooser */
 {
-  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const context = await newContext({ viewport: { width: 1440, height: 900 } });
   const page = await context.newPage();
-  await page.goto(`${BASE}/en`, { waitUntil: "networkidle" });
+  await page.goto(`${BASE}/en/capabilities`, { waitUntil: "networkidle" });
   await page.locator("#build").scrollIntoViewIfNeeded();
   await page.waitForTimeout(1400);
 
@@ -410,9 +476,12 @@ const browser = await chromium.launch();
 
 /* ----------------------------------------------------------- category map */
 {
-  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  /* The thirteen-category map lives on the capabilities page now, not the home
+     page: it was one of three taxonomies the home page carried, and this is
+     the page that exists to answer what can be built. */
+  const context = await newContext({ viewport: { width: 1440, height: 900 } });
   const page = await context.newPage();
-  await page.goto(`${BASE}/en`, { waitUntil: "networkidle" });
+  await page.goto(`${BASE}/en/capabilities`, { waitUntil: "networkidle" });
   await page.locator("#build-what").scrollIntoViewIfNeeded();
   await page.waitForTimeout(1400);
 
@@ -439,9 +508,12 @@ const browser = await chromium.launch();
 
 /* ---------------------------------------------------------- system stack */
 {
-  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  /* Moved to the capabilities page with the section itself: the home page now
+     answers "what can this studio build" with the work rather than with a
+     third diagram of the same taxonomy. */
+  const context = await newContext({ viewport: { width: 1440, height: 900 } });
   const page = await context.newPage();
-  await page.goto(`${BASE}/en`, { waitUntil: "networkidle" });
+  await page.goto(`${BASE}/en/capabilities`, { waitUntil: "networkidle" });
   await page.locator("#why").scrollIntoViewIfNeeded();
   await page.waitForTimeout(1400);
 
@@ -471,7 +543,7 @@ const browser = await chromium.launch();
 
 /* ------------------------------------------------------- the skipped states */
 {
-  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const context = await newContext({ viewport: { width: 1440, height: 900 } });
   const page = await context.newPage();
   await page.goto(`${BASE}/en/labs/tezgah`, { waitUntil: "networkidle" });
   await page.waitForTimeout(900);
@@ -499,7 +571,7 @@ const browser = await chromium.launch();
 
 /* ------------------------------------------------------------ the legend */
 {
-  const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  const context = await newContext({ viewport: { width: 1280, height: 900 } });
   const page = await context.newPage();
   await page.goto(`${BASE}/en/labs`, { waitUntil: "networkidle" });
   const footer = page.locator("footer");
@@ -515,7 +587,7 @@ const browser = await chromium.launch();
 
 /* ----------------------------------------------------------------- keyboard */
 {
-  const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  const context = await newContext({ viewport: { width: 1280, height: 900 } });
   const page = await context.newPage();
   await page.goto(`${BASE}/en`, { waitUntil: "networkidle" });
   await page.waitForTimeout(1500);
@@ -536,7 +608,7 @@ const browser = await chromium.launch();
 
 /* ------------------------------------------------------------ reduced motion */
 {
-  const context = await browser.newContext({
+  const context = await newContext({
     viewport: { width: 1280, height: 900 },
     reducedMotion: "reduce",
   });
@@ -556,19 +628,22 @@ const browser = await chromium.launch();
   const cursor = await page.locator("[data-cursor-root]").count();
   check("custom cursor is not mounted under reduced motion", cursor === 0);
 
-  const stage = await page.evaluate(() => {
-    const viewport = document.querySelector(".stage-viewport");
-    const card = document.querySelector(".stage-card");
-    if (!viewport || !card) return null;
-    return {
-      position: getComputedStyle(viewport).position,
-      opacity: Number(getComputedStyle(card).opacity),
-    };
-  });
+  /* The scroll driver publishes a finished reading rather than never
+     publishing one: a visitor who asked for no motion gets the composition
+     already arrived, not a page of things stuck at 94% and half transparent. */
+  /* Asked for no motion, every scroll-driven composition publishes a finished
+     reading rather than none — so the work is laid out, arrived, and nothing
+     is left waiting for a scroll that will never drive it. */
+  const stillWork = await page.evaluate(() => ({
+    units: document.querySelectorAll('article[aria-labelledby^="project-"]').length,
+    frames: Array.from(document.querySelectorAll(".scroll-frame")).filter(
+      (el) => el.style.getPropertyValue("--enter") !== "1",
+    ).length,
+  }));
   check(
-    "the work stage collapses to a list under reduced motion",
-    stage?.position === "static" && (stage?.opacity ?? 0) > 0.95,
-    JSON.stringify(stage),
+    "the work is fully arrived under reduced motion",
+    stillWork.units > 1 && stillWork.frames === 0,
+    JSON.stringify(stillWork),
   );
 
   await page.screenshot({ path: path.join(OUT, "x-reduced-motion.png"), fullPage: false });
@@ -577,7 +652,7 @@ const browser = await chromium.launch();
 
 /* ------------------------------------------------------------------- no JS */
 {
-  const context = await browser.newContext({
+  const context = await newContext({
     viewport: { width: 1280, height: 900 },
     javaScriptEnabled: false,
   });
@@ -587,19 +662,22 @@ const browser = await chromium.launch();
 
   const text = await page.locator("body").innerText();
   check("content is present without JavaScript", text.includes("Meetzy") && text.includes("Capabilities"));
-  const noJsStage = await page.evaluate(() => {
-    const viewport = document.querySelector(".stage-viewport");
-    const card = document.querySelector(".stage-card");
-    if (!viewport || !card) return null;
+  /* Without scripting nothing sets `--p`, so every composition falls back to
+     the declared default. Anything that needs the driver to have run in order
+     to be visible would be invisible here, which is the failure this catches. */
+  const noJsWork = await page.evaluate(() => {
+    const pictures = Array.from(
+      document.querySelectorAll('article[aria-labelledby^="project-"] img'),
+    );
     return {
-      position: getComputedStyle(viewport).position,
-      opacity: Number(getComputedStyle(card).opacity),
+      pictures: pictures.length,
+      invisible: pictures.filter((el) => Number(getComputedStyle(el).opacity) < 0.9).length,
     };
   });
   check(
-    "the work stage is a readable list without JavaScript",
-    noJsStage?.position === "static" && (noJsStage?.opacity ?? 0) > 0.95,
-    JSON.stringify(noJsStage),
+    "the work is visible without JavaScript",
+    noJsWork.pictures > 0 && noJsWork.invisible === 0,
+    JSON.stringify(noJsWork),
   );
 
   check(

@@ -39,13 +39,12 @@ export function LabsExplorer({
   return (
     <div
       className={cn("grid gap-6 lg:grid-cols-12 lg:gap-x-10 lg:gap-y-0", className)}
-      style={{ ["--accent" as string]: lab.accent }}
     >
       {/* What you are looking at, before you are given the controls for it. */}
       <div className="lg:col-span-9 lg:col-start-4 lg:row-start-1">
         <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
           <Provenance kind="concept" copy={copy} />
-          <h3 className="display text-d3">{lab.name}</h3>
+          <h3 className="display text-quote">{lab.name}</h3>
           <span className="mono-label text-[var(--accent)]">{t(lab.sector, locale)}</span>
           <span className="mono-label ml-auto flex items-center gap-2 text-[var(--fg-mute)]">
             <Icon name="play" size={11} />
@@ -55,7 +54,7 @@ export function LabsExplorer({
 
         {/* The customer problem first. The category is a label; this is the
             reason to keep reading. */}
-        <p className="mt-5 max-w-[46ch] text-d3 text-[var(--fg)]">
+        <p className="mt-5 max-w-[46ch] text-quote text-[var(--fg)]">
           {t(lab.story.promise, locale)}
         </p>
         <p className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
@@ -81,7 +80,6 @@ export function LabsExplorer({
                   type="button"
                   aria-pressed={selected}
                   onClick={() => setSlug(candidate.slug)}
-                  style={{ ["--accent" as string]: candidate.accent }}
                   className={cn(
                     "group/lab flex w-full cursor-pointer items-baseline gap-3 border-[var(--line)] px-3 py-2.5 text-left",
                     "transition-colors duration-300 lg:border-t lg:px-0 lg:py-3.5",

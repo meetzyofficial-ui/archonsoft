@@ -10,7 +10,7 @@ import { ContactCta } from "@/components/sections/ContactCta";
 import { LabNotes } from "@/components/sections/LabNotes";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Provenance } from "@/components/ui/Provenance";
-import { Band, ChapterHead } from "@/components/ui/primitives";
+import { Band, SectionRule } from "@/components/ui/primitives";
 import { LABS, getDomain } from "@/data/labs";
 import { EXPERIMENTS, LAB_NOTES } from "@/data/lab";
 import { dict } from "@/i18n/dictionary";
@@ -85,16 +85,16 @@ export default async function LabsPage({ params }: Params) {
         </p>
       </PageHeader>
 
-      <Band scheme="dark" size="tight" className="pt-2">
+      <Band scheme="paper" size="tight" className="pt-2">
         <div className="frame">
           <LabsExplorer locale={locale} copy={copy} />
         </div>
       </Band>
 
       {/* The whole set, as a plate. */}
-      <Band scheme="light" size="regular">
+      <Band scheme="haze" size="regular">
         <div className="frame">
-          <ChapterHead index="—" title={copy.labs.all} aside={copy.provenance.concept} />
+          <SectionRule label={copy.labs.all} aside={copy.provenance.concept} />
         </div>
 
         <Reveal variant="none" className="mt-10 md:mt-14">
@@ -104,10 +104,9 @@ export default async function LabsPage({ params }: Params) {
                 <Link
                   href={localePath(locale, `/labs/${lab.slug}`)}
                   style={{
-                    ["--accent" as string]: lab.accent,
                     transitionDelay: `${index * 45}ms`,
                   }}
-                  className="reveal-fade group/card flex h-full flex-col p-5 transition-colors duration-500 hover:bg-[var(--bg-raise)] md:p-6"
+                  className="reveal-fade group/card flex h-full flex-col py-6 pr-6 transition-colors duration-500 hover:bg-[color-mix(in_oklab,var(--color-sky)_26%,transparent)] md:py-7"
                 >
                   <div className="flex items-baseline gap-3">
                     <span className="mono-label text-[var(--fg-mute)]">{lab.index}</span>
@@ -121,7 +120,7 @@ export default async function LabsPage({ params }: Params) {
                       className="ml-auto shrink-0 text-[var(--fg-mute)] transition-colors duration-500 group-hover/card:text-[var(--accent)]"
                     />
                   </div>
-                  <h3 className="display mt-4 text-d3">{lab.name}</h3>
+                  <h3 className="display mt-4 text-quote">{lab.name}</h3>
                   <p className="mono-label mt-2 text-[var(--fg-mute)]">{t(lab.sector, locale)}</p>
                   <p className="mt-4 text-lead text-[var(--fg)]">{t(lab.story.promise, locale)}</p>
                   <p className="mt-3 text-[var(--fg-dim)]">{t(lab.story.problem, locale)}</p>
@@ -144,13 +143,9 @@ export default async function LabsPage({ params }: Params) {
 
       {/* The experiments are a different thing entirely and are kept apart:
           they are not products and they make no argument. */}
-      <Band scheme="dark" size="regular">
+      <Band scheme="paper" size="regular">
         <div className="frame">
-          <ChapterHead
-            index="—"
-            title={copy.labs.experiments}
-            aside={`${EXPERIMENTS.length} / ${copy.next.running}`}
-          />
+          <SectionRule label={copy.labs.experiments} aside={`${EXPERIMENTS.length} / ${copy.next.running}`} />
           <p className="mt-8 max-w-[62ch] text-lead text-[var(--fg-dim)]">
             {copy.labs.experimentsBody}
           </p>
@@ -158,14 +153,14 @@ export default async function LabsPage({ params }: Params) {
         </div>
       </Band>
 
-      <Band scheme="dark" size="regular" className="pt-0">
+      <Band scheme="paper" size="regular" className="pt-0">
         <div className="frame">
-          <ChapterHead index="—" title={copy.next.threads} aside={String(LAB_NOTES.length)} />
+          <SectionRule label={copy.next.threads} aside={String(LAB_NOTES.length)} />
           <LabNotes notes={LAB_NOTES} locale={locale} copy={copy} className="mt-12 md:mt-16" />
         </div>
       </Band>
 
-      <ContactCta locale={locale} copy={copy} index="—" />
+      <ContactCta locale={locale} copy={copy} />
     </>
   );
 }

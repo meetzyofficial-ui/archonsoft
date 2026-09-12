@@ -27,7 +27,7 @@ export function LabNotes({
               </span>
             </div>
 
-            <h3 className="text-d3 md:col-span-6">{t(note.title, locale)}</h3>
+            <h3 className="text-quote md:col-span-6">{t(note.title, locale)}</h3>
 
             <div className="md:col-span-4">
               <p className="text-[var(--fg-dim)]">{t(note.position, locale)}</p>

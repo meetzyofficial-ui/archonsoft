@@ -88,7 +88,7 @@ export function SelfSelect({ locale, copy }: { locale: Locale; copy: Copy }) {
                 </span>
                 <span
                   className={cn(
-                    "display text-d3 transition-[color,transform] duration-[600ms] ease-[var(--ease-out-expo)]",
+                    "display text-quote transition-[color,transform] duration-[600ms] ease-[var(--ease-out-expo)]",
                     selected
                       ? "translate-x-1.5 text-[var(--fg)]"
                       : "text-[var(--fg-mute)] group-hover/row:text-[var(--fg-dim)]",
@@ -158,7 +158,7 @@ export function SelfSelect({ locale, copy }: { locale: Locale; copy: Copy }) {
                   data-cursor-label={copy.select.open}
                 >
                   <span className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-                    <span className="display text-d3 transition-transform duration-500 ease-[var(--ease-out-expo)] group-hover/proof:translate-x-1.5">
+                    <span className="display text-quote transition-transform duration-500 ease-[var(--ease-out-expo)] group-hover/proof:translate-x-1.5">
                       {row.proof.name}
                     </span>
                     <Provenance kind={row.proof.kind} copy={copy} />

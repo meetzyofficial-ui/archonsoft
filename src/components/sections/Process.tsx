@@ -1,31 +1,45 @@
 import { Reveal } from "@/components/motion/Reveal";
-import { Band, ChapterHead } from "@/components/ui/primitives";
+import { Band, SectionRule } from "@/components/ui/primitives";
 import { PROCESS } from "@/data/practice";
 import { t, type Locale } from "@/lib/i18n";
 
+/**
+ * How the work runs, as four rows on rules.
+ *
+ * It was four bordered cells in a one-pixel-gutter grid — the one place left
+ * on the site where content sat inside a box. A phase of work is not an
+ * object; it is an entry in a sequence, and a sequence is a list. The number
+ * carries the order, the rule carries the separation, and nothing is
+ * enclosed.
+ */
 export function Process({
   locale,
-  index = "—",
   title,
   aside,
 }: {
   locale: Locale;
-  index?: string;
   title: string;
   aside: string;
 }) {
   return (
-    <Band scheme="light" size="regular">
+    <Band scheme="haze" size="regular">
       <div className="frame">
-        <ChapterHead index={index} title={title} aside={aside} />
+        <SectionRule label={title} aside={aside} />
 
-        <ol className="mt-12 grid gap-px border border-[var(--line)] bg-[var(--line)] md:mt-16 md:grid-cols-4">
+        <ol className="mt-12 md:mt-16">
           {PROCESS.map((phase, i) => (
-            <li key={phase.index} className="scheme-surface">
-              <Reveal delay={i * 80} className="flex h-full flex-col p-7 md:p-8">
-                <span className="mono-label text-[var(--accent)]">{phase.index}</span>
-                <h3 className="mt-6 text-d3">{t(phase.title, locale)}</h3>
-                <p className="mt-4 text-[var(--fg-dim)]">{t(phase.body, locale)}</p>
+            <li key={phase.index} className="hairline-t">
+              <Reveal
+                delay={i * 70}
+                className="grid gap-x-8 gap-y-3 py-7 md:grid-cols-12 md:py-9"
+              >
+                <span className="mono-micro reveal-fade text-[var(--accent)] md:col-span-1">
+                  {phase.index}
+                </span>
+                <h3 className="text-sub reveal-fade md:col-span-4">{t(phase.title, locale)}</h3>
+                <p className="reveal-fade max-w-[52ch] text-[var(--fg-mute)] md:col-span-6 md:col-start-7">
+                  {t(phase.body, locale)}
+                </p>
               </Reveal>
             </li>
           ))}

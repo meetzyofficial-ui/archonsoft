@@ -43,7 +43,7 @@ export function CapabilityTabs({ locale, copy }: { locale: Locale; copy: Copy })
   };
 
   return (
-    <div className="grid gap-12 lg:grid-cols-12 lg:gap-10">
+    <div id="capabilities-tabs" className="grid gap-12 lg:grid-cols-12 lg:gap-10">
       <div
         role="tablist"
         aria-label={copy.capabilities.label}
@@ -81,7 +81,7 @@ export function CapabilityTabs({ locale, copy }: { locale: Locale; copy: Copy })
                 </span>
                 <span
                   className={cn(
-                    "display text-d2 transition-[color,transform] duration-[600ms] ease-[var(--ease-out-expo)]",
+                    "display text-sub transition-[color,transform] duration-[600ms] ease-[var(--ease-out-expo)]",
                     selected
                       ? "translate-x-1.5 text-[var(--fg)]"
                       : "text-[var(--fg-mute)] group-hover/row:text-[var(--fg-dim)]",

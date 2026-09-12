@@ -69,11 +69,11 @@ export default async function ProcessPage({ params }: Params) {
         standfirst={copy.process.body}
       />
 
-      <Band scheme="dark" size="regular" className="pt-4">
+      <Band scheme="paper" size="regular" className="pt-4">
         <ProcessBand locale={locale} copy={copy} detailed withHead={false} />
       </Band>
 
-      <ContactCta locale={locale} copy={copy} index="—" />
+      <ContactCta locale={locale} copy={copy} />
     </>
   );
 }

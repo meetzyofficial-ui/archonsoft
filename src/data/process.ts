@@ -286,7 +286,7 @@ export const LAYERS: Layer[] = [
     },
     evidence: {
       kind: "shipped",
-      slug: "erden-davetiye",
+      slug: "erden",
       name: { en: "Erden Davetiye", tr: "Erden Davetiye" },
     },
   },

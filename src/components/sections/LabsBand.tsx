@@ -2,7 +2,7 @@ import { LabsExplorer } from "@/components/labs/LabsExplorer";
 import { Reveal } from "@/components/motion/Reveal";
 import { SplitReveal } from "@/components/motion/SplitReveal";
 import { ActionLink } from "@/components/ui/Action";
-import { Band, ChapterHead } from "@/components/ui/primitives";
+import { Band, SectionRule } from "@/components/ui/primitives";
 import { LABS } from "@/data/labs";
 import type { Copy } from "@/i18n/dictionary";
 import { localePath, type Locale } from "@/lib/i18n";
@@ -19,16 +19,12 @@ import { localePath, type Locale } from "@/lib/i18n";
  */
 export function LabsBand({ locale, copy }: { locale: Locale; copy: Copy }) {
   return (
-    <Band scheme="dark" size="regular" id="labs">
+    <Band scheme="paper" size="regular" id="labs">
       <div className="frame">
-        <ChapterHead
-          index={copy.labs.index}
-          title={copy.labs.label}
-          aside={`${LABS.length} — ${copy.labs.count}`}
-        />
+        <SectionRule label={copy.labs.label} aside={`${LABS.length} — ${copy.labs.count}`} />
 
         <div className="mt-10 grid gap-8 md:mt-14 md:grid-cols-12 md:items-end">
-          <h2 className="text-d1 md:col-span-7">
+          <h2 className="text-head md:col-span-7">
             <SplitReveal text={copy.labs.statement} lineHeight="0.94em" stagger={34} />
             <SplitReveal
               text={[{ text: copy.labs.statementAccent }]}

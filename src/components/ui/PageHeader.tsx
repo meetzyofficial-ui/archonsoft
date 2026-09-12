@@ -1,14 +1,23 @@
 import type { ReactNode } from "react";
 import { Reveal } from "@/components/motion/Reveal";
-import { SplitReveal } from "@/components/motion/SplitReveal";
-import { Band, ChapterHead } from "@/components/ui/primitives";
+import { SectionRule } from "@/components/ui/primitives";
 
 /**
- * The masthead every top-level route opens with. Headline on the left seven
- * columns, standfirst on the right four, both settling on the same baseline.
+ * The masthead every top-level route opens with.
+ *
+ * A rule, the page's name at ten pixels on it, then one sentence in the
+ * display serif and a standfirst in the far column. It is deliberately half
+ * the height of the old one: that version reserved a screen and a half for a
+ * title before any content began, on six routes, and the largest thing on
+ * every inner page was the word naming it.
+ *
+ * Nothing here animates. This block is the first screen of every inner route,
+ * so a reveal on it is a reveal nobody sees — and one that is paid for: an
+ * element that is still settling cannot be the largest contentful paint until
+ * it stops, which on a throttled connection dated a masthead painted at 0.85s
+ * to 3.6s. The page opens still; motion starts when you scroll.
  */
 export function PageHeader({
-  index = "—",
   title,
   aside,
   lead,
@@ -16,7 +25,6 @@ export function PageHeader({
   standfirst,
   children,
 }: {
-  index?: string;
   title: string;
   aside?: string;
   lead: string;
@@ -25,30 +33,27 @@ export function PageHeader({
   children?: ReactNode;
 }) {
   return (
-    <Band scheme="dark" size="tight" className="pt-[calc(72px+3.5rem)] md:pt-[calc(72px+5.5rem)]">
+    <section
+      data-scheme="paper"
+      data-band="paper"
+      className="pt-[calc(4rem+3rem)] pb-16 md:pt-[calc(4rem+5rem)] md:pb-24"
+    >
       <div className="frame">
-        <ChapterHead index={index} title={title} aside={aside} />
+        <SectionRule label={title} aside={aside} />
 
-        <div className="mt-11 grid gap-10 md:mt-16 md:grid-cols-12 md:items-end md:gap-8">
-          <h1 className="text-d1 md:col-span-7">
-            <SplitReveal text={lead} immediate lineHeight="0.92em" stagger={38} delay={120} />
-            <SplitReveal
-              text={[{ text: accent, accent: true }]}
-              immediate
-              lineHeight="0.92em"
-              stagger={38}
-              delay={240}
-            />
-          </h1>
+        <div className="mt-10 grid gap-10 md:mt-14 md:grid-cols-12 md:items-end md:gap-8">
+          <Reveal variant="rise" priority className="md:col-span-7">
+            <h1 className="text-section max-w-[16ch]">
+              {lead} <span className="text-[var(--fg-mute)]">{accent}</span>
+            </h1>
+          </Reveal>
 
-          {/* `rise`, not `fade`: this is the largest thing above the fold on
-              most routes, and opacity would hold LCP until hydration. */}
-          <Reveal variant="rise" className="md:col-span-4 md:col-start-9" delay={200}>
-            <p className="text-lead text-[var(--fg-dim)]">{standfirst}</p>
+          <Reveal variant="rise" priority className="md:col-span-4 md:col-start-9">
+            <p className="text-[var(--fg-mute)]">{standfirst}</p>
             {children}
           </Reveal>
         </div>
       </div>
-    </Band>
+    </section>
   );
 }

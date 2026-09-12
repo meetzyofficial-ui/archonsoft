@@ -9,10 +9,11 @@ const ROUTES = [
   "/en",
   "/en/work",
   "/en/work/meetzy",
+  "/en/work/dppano",
   "/en/capabilities",
   "/en/labs",
   "/en/labs/divan",
-  "/en/work/erden-davetiye",
+  "/en/work/erden",
   "/en/about",
   "/en/contact",
 ];

@@ -538,7 +538,7 @@ export const STACK_NOTES: Record<string, StackNotes> = {
 export const RELATIONS: Record<string, Relation[]> = {
   divan: [
     {
-      slug: "erden-davetiye",
+      slug: "erden",
       name: "Erden Davetiye",
       kind: "capability",
       note: {
@@ -549,7 +549,7 @@ export const RELATIONS: Record<string, Relation[]> = {
   ],
   ulak: [
     {
-      slug: "erden-davetiye",
+      slug: "erden",
       name: "Erden Davetiye",
       kind: "problem-space",
       note: {
@@ -560,7 +560,7 @@ export const RELATIONS: Record<string, Relation[]> = {
   ],
   kervan: [
     {
-      slug: "erden-davetiye",
+      slug: "erden",
       name: "Erden Davetiye",
       kind: "capability",
       note: {
@@ -582,7 +582,7 @@ export const RELATIONS: Record<string, Relation[]> = {
   ],
   tezgah: [
     {
-      slug: "erden-davetiye",
+      slug: "erden",
       name: "Erden Davetiye",
       kind: "capability",
       note: {
@@ -593,7 +593,7 @@ export const RELATIONS: Record<string, Relation[]> = {
   ],
   vardiya: [
     {
-      slug: "erden-davetiye",
+      slug: "erden",
       name: "Erden Davetiye",
       kind: "problem-space",
       note: {
@@ -615,7 +615,7 @@ export const RELATIONS: Record<string, Relation[]> = {
   ],
   atolye: [
     {
-      slug: "erden-davetiye",
+      slug: "erden",
       name: "Erden Davetiye",
       kind: "capability",
       note: {
@@ -626,7 +626,7 @@ export const RELATIONS: Record<string, Relation[]> = {
   ],
   kutuk: [
     {
-      slug: "erden-davetiye",
+      slug: "erden",
       name: "Erden Davetiye",
       kind: "problem-space",
       note: {
@@ -637,7 +637,7 @@ export const RELATIONS: Record<string, Relation[]> = {
   ],
   esik: [
     {
-      slug: "erden-davetiye",
+      slug: "erden",
       name: "Erden Davetiye",
       kind: "capability",
       note: {

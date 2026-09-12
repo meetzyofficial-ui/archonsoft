@@ -54,7 +54,12 @@ function Chip({
   return (
     <label
       className={cn(
-        "mono-label cursor-pointer border px-3.5 py-2.5 transition-colors duration-300",
+        /* A fixed box, not a box that fits its text.
+           These sit in a grid, so the tallest chip sets the row — and a label
+           that goes from one line to two when the mono face swaps in moves
+           every field under it. Holding the height means the swap changes the
+           letterforms and nothing else. */
+        "mono-label flex min-h-11 cursor-pointer items-center border px-3.5 py-2 transition-colors duration-300",
         "has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--accent)]",
         checked
           ? "border-[var(--fg)] bg-[var(--fg)] text-[var(--bg)]"
@@ -174,7 +179,7 @@ export function ContactForm({ locale, copy }: { locale: Locale; copy: Copy }) {
     return (
       <div className="hairline-t pt-10" role="status">
         <p className="mono-label text-[var(--accent)]">{form.sent}</p>
-        <p className="mt-6 max-w-[26ch] text-d2">{form.sentTitle}</p>
+        <p className="mt-6 max-w-[26ch] text-sub">{form.sentTitle}</p>
         <p className="mt-6 max-w-[46ch] text-[var(--fg-dim)]">{form.sentBody}</p>
       </div>
     );
@@ -184,7 +189,7 @@ export function ContactForm({ locale, copy }: { locale: Locale; copy: Copy }) {
     return (
       <div className="hairline-t pt-10" role="status">
         <p className="mono-label text-[var(--accent)]">{form.notSent}</p>
-        <p className="mt-6 max-w-[28ch] text-d3">{form.unconfiguredTitle}</p>
+        <p className="mt-6 max-w-[28ch] text-quote">{form.unconfiguredTitle}</p>
         <p className="mt-5 max-w-[46ch] text-[var(--fg-dim)]">
           {form.unconfiguredBody}
           {mailtoFallback ? "" : form.unconfiguredNoAddress}
@@ -306,7 +311,15 @@ export function ContactForm({ locale, copy }: { locale: Locale; copy: Copy }) {
         <legend className="mono-label text-[var(--fg-mute)]">
           {form.type} <span className="text-[var(--accent)]">*</span>
         </legend>
-        <div className="mt-4 flex flex-wrap gap-2.5" aria-describedby={describe("projectType")}>
+        {/* A grid, not a wrapping row.
+            These chips are set in the mono face and are wider in the
+            fallback, so the row they wrapped to changed the moment the real
+            face arrived — and a changing line count moves everything below
+            it. A fixed column count has the same height whatever is loaded. */}
+        <div
+          className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4"
+          aria-describedby={describe("projectType")}
+        >
           {PROJECT_TYPES.map((type) => (
             <Chip
               key={type}
@@ -330,7 +343,7 @@ export function ContactForm({ locale, copy }: { locale: Locale; copy: Copy }) {
           {form.budget}{" "}
           <span className="normal-case tracking-normal">{form.budgetHint}</span>
         </legend>
-        <div className="mt-4 flex flex-wrap gap-2.5">
+        <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
           {BUDGET_RANGES.map((range) => (
             <Chip
               key={range}

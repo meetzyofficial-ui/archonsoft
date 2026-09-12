@@ -111,7 +111,7 @@ export function CapabilityMap({ locale, copy }: { locale: Locale; copy: Copy }) 
         <div className="lg:sticky lg:top-24">
           <div className="mb-5 flex flex-wrap items-center gap-x-4 gap-y-3">
             <Provenance kind={active.kind} copy={copy} />
-            <span className="display text-d3">{active.name}</span>
+            <span className="display text-quote">{active.name}</span>
             <Link
               href={href}
               className="mono-label link-rule ml-auto inline-flex items-center gap-3 text-[var(--fg)]"

@@ -19,6 +19,19 @@ import erdenNavigation from "@/assets/work/erden/07-navigation.jpg";
 import erdenFooter from "@/assets/work/erden/08-footer.jpg";
 import erdenAdmin from "@/assets/work/erden/09-admin.jpg";
 
+import dpBoard from "@/assets/work/dppano/01-board.jpg";
+import dpStaffroom from "@/assets/work/dppano/02-staffroom.jpg";
+import dpCanteen from "@/assets/work/dppano/03-canteen.jpg";
+import dpScreens from "@/assets/work/dppano/04-screens.jpg";
+import dpLayout from "@/assets/work/dppano/05-layout.jpg";
+import dpTimetable from "@/assets/work/dppano/06-timetable.jpg";
+import dpSolver from "@/assets/work/dppano/07-solver.jpg";
+import dpDuty from "@/assets/work/dppano/08-duty.jpg";
+import dpDutyPrint from "@/assets/work/dppano/09-duty-print.jpg";
+import dpSafeMode from "@/assets/work/dppano/10-safe-mode.jpg";
+import dpPermissions from "@/assets/work/dppano/11-permissions.jpg";
+
+
 /**
  * Every real product screen on the site, in one place.
  *
@@ -114,5 +127,94 @@ export const ERDEN: Record<string, Screen> = {
       tr: "Yönetim — sipariş, tasarım, ürün, kategori, kupon, müşteri, yorum, analitik",
     },
     redacted: true,
+  },
+};
+
+/**
+ * DP Pano — a live product, captured in the browser.
+ *
+ * Every screen here was produced against demo data, so unlike Meetzy none of
+ * it is redacted: there is no real pupil, teacher or school anywhere in the
+ * set. That is a fact about the captures, not a design decision, and it is why
+ * a product whose whole argument is about personal data can be shown at full
+ * size without a single mosaic on it.
+ */
+export const DPPANO: Record<string, Screen> = {
+  board: {
+    image: dpBoard,
+    caption: {
+      en: "One board: announcements, timetable, duty roster, menu and weather",
+      tr: "Genel pano: duyuru, ders programı, nöbet, menü ve hava durumu",
+    },
+  },
+  staffroom: {
+    image: dpStaffroom,
+    caption: {
+      en: "The staffroom screen: cover plan, bell schedule, the week's duties",
+      tr: "Öğretmenler odası ekranı: ikame planı, zil çizelgesi, haftalık nöbet",
+    },
+  },
+  canteen: {
+    image: dpCanteen,
+    caption: {
+      en: "The canteen screen: price list, today's offer, nutrition cards",
+      tr: "Kantin ekranı: fiyat listesi, günün fırsatı, beslenme kartları",
+    },
+  },
+  screens: {
+    image: dpScreens,
+    caption: {
+      en: "One school, several screens, each with its own layout",
+      tr: "Bir okulun birden çok ekranı, her biri kendi düzeniyle",
+    },
+  },
+  layout: {
+    image: dpLayout,
+    caption: {
+      en: "The layout editor: modules placed region by region",
+      tr: "Düzen editörü: bölge bölge modül yerleşimi",
+    },
+  },
+  timetable: {
+    image: dpTimetable,
+    caption: {
+      en: "The weekly timetable: pick a lesson, the teacher resolves",
+      tr: "Haftalık ders programı: ders seçilir, öğretmen otomatik çözülür",
+    },
+  },
+  solver: {
+    image: dpSolver,
+    caption: {
+      en: "School-wide solver: a clash-free schedule for every class",
+      tr: "Okul geneli çözücü: tüm şubeler için çakışmasız çizelge üretimi",
+    },
+  },
+  duty: {
+    image: dpDuty,
+    caption: {
+      en: "Automatic duty allocation — preview, and what it could not place",
+      tr: "Otomatik nöbetçi dağıtımı — önizleme ve karşılanamayan bulgular",
+    },
+  },
+  dutyPrint: {
+    image: dpDutyPrint,
+    caption: {
+      en: "The duty roster as landscape A4, ready for the wall",
+      tr: "Duvara asılacak hâlde yatay A4 nöbet çizelgesi çıktısı",
+    },
+  },
+  safeMode: {
+    image: dpSafeMode,
+    caption: {
+      en: "Safe mode, screen PIN and the school-network restriction",
+      tr: "Güvenli mod, ekran PIN'i ve okul ağı (IP) kısıtı",
+    },
+  },
+  permissions: {
+    image: dpPermissions,
+    caption: {
+      en: "Staff accounts, with permission granted module by module",
+      tr: "Modül bazlı yetki matrisi ile personel hesapları",
+    },
   },
 };

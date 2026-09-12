@@ -24,6 +24,8 @@ const RAW_M = path.join(ROOT, "_incoming/meetzy-raw");
 const RAW_E = path.join(ROOT, "_incoming/erden-raw");
 const OUT_M = path.join(ROOT, "src/assets/work/meetzy");
 const OUT_E = path.join(ROOT, "src/assets/work/erden");
+const RAW_D = path.join(ROOT, "_incoming/dppano-raw");
+const OUT_D = path.join(ROOT, "src/assets/work/dppano");
 
 const W = 942;
 const H = 2048;
@@ -116,7 +118,37 @@ const ERDEN = [
   },
 ];
 
-async function run(list, rawDir, outDir, { chrome = false } = {}) {
+/**
+ * DP Pano — browser captures of a live product.
+ *
+ * The handover also carried three generated illustrations, offered as section
+ * breaks. They are not used. Two are photoreal renders of a classroom and the
+ * third is stock-shaped clip art, and all three sit at right angles to the way
+ * everything else on this site looks — on a page whose argument is that only
+ * verified things get published, next to eleven captures of software that
+ * actually runs, a drawing of a school is the weakest thing on the page. The
+ * originals stay in `_incoming` if that judgement is ever revisited.
+ *
+ * Nothing is redacted because nothing needs to be: the whole package was
+ * produced against demo data, which the person who built it stated in the
+ * handover. The only processing is a resize, and the three smaller captures
+ * keep their own size rather than being blown up to match the others.
+ */
+const DPPANO = [
+  { src: "01-pano-genel.png", out: "01-board.jpg" },
+  { src: "02-pano-ogretmenler-odasi.png", out: "02-staffroom.jpg" },
+  { src: "03-pano-kantin.png", out: "03-canteen.jpg" },
+  { src: "04-panel-ekranlar.png", out: "04-screens.jpg" },
+  { src: "05-panel-duzen-editoru.png", out: "05-layout.jpg" },
+  { src: "06-ders-programi-cizelge.png", out: "06-timetable.jpg" },
+  { src: "07-ders-programi-cozucu.png", out: "07-solver.jpg" },
+  { src: "08-nobet-otomatik-dagitim.png", out: "08-duty.jpg", width: 1400 },
+  { src: "09-nobet-cizelgesi-cikti.png", out: "09-duty-print.jpg", width: 1228 },
+  { src: "10-kvkk-guvenli-mod.png", out: "10-safe-mode.jpg" },
+  { src: "11-yetkili-hesap-yetkileri.png", out: "11-permissions.jpg", width: 1346 },
+];
+
+async function run(list, rawDir, outDir, { chrome = false, width = 0 } = {}) {
   await rm(outDir, { recursive: true, force: true });
   await mkdir(outDir, { recursive: true });
 
@@ -136,6 +168,14 @@ async function run(list, rawDir, outDir, { chrome = false } = {}) {
 
     if (item.redact) pipeline = await redact(pipeline, item.redact);
 
+    /* DP Pano arrives at up to 2880px across, which is more than twice what
+       any layout on this site asks for and four times what the world's
+       textures use. Resizing on the way in keeps the repository honest without
+       compressing anything the eye will meet: the widest use is a full-bleed
+       plate on an 1800px content column. */
+    const cap = item.width ?? width;
+    if (cap) pipeline = pipeline.resize({ width: cap, withoutEnlargement: true });
+
     await write(pipeline, path.join(outDir, item.out));
   }
 }
@@ -144,4 +184,6 @@ console.log("Meetzy →");
 await run(MEETZY, RAW_M, OUT_M);
 console.log("Erden Davetiye →");
 await run(ERDEN, RAW_E, OUT_E, { chrome: true });
+console.log("DP Pano →");
+await run(DPPANO, RAW_D, OUT_D, { width: 1800 });
 console.log("\nDone.");

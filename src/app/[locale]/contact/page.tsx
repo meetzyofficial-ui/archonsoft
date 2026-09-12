@@ -49,7 +49,7 @@ export default async function ContactPage({ params }: Params) {
         standfirst={copy.contact.body}
       />
 
-      <Band scheme="dark" size="tight" className="pt-0">
+      <Band scheme="paper" size="tight" className="pt-0">
         <div className="frame grid gap-14 md:grid-cols-12 md:gap-8">
           <div className="md:col-span-7">
             <ContactForm locale={locale} copy={copy} />

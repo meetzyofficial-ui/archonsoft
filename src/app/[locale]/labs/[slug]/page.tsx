@@ -9,7 +9,7 @@ import { Reveal } from "@/components/motion/Reveal";
 import { SplitReveal } from "@/components/motion/SplitReveal";
 import { ContactCta } from "@/components/sections/ContactCta";
 import { Provenance } from "@/components/ui/Provenance";
-import { Band, ChapterHead } from "@/components/ui/primitives";
+import { Band, SectionRule } from "@/components/ui/primitives";
 import { LABS, getDomain, getLab, getNextLab } from "@/data/labs";
 import { dict } from "@/i18n/dictionary";
 import { LOCALES, isLocale, localePath, t, tl, type Locale } from "@/lib/i18n";
@@ -82,12 +82,12 @@ export default async function LabPage({ params }: Params) {
   ];
 
   return (
-    <div style={{ ["--accent" as string]: lab.accent }}>
+    <div>
       {/* 01–03 — what it is, its name, one sentence. */}
       <Band
-        scheme="dark"
+        scheme="paper"
         size="tight"
-        className="pt-[calc(72px+3rem)] pb-0 md:pt-[calc(72px+4.5rem)]"
+        className="pt-[calc(4rem+3rem)] pb-0 md:pt-[calc(4rem+4.5rem)]"
       >
         <div className="frame">
           <Reveal variant="none" className="hairline-t flex flex-wrap items-center gap-3 pt-4">
@@ -105,14 +105,14 @@ export default async function LabPage({ params }: Params) {
             </span>
           </Reveal>
 
-          <h1 className="mt-8 text-mega md:mt-10">
+          <h1 className="mt-8 text-head md:mt-10">
             <SplitReveal text={lab.name} immediate lineHeight="0.88em" stagger={38} delay={100} />
           </h1>
 
           <div className="mt-7 grid gap-6 md:mt-9 md:grid-cols-12 md:items-end">
-            <Reveal variant="rise" className="md:col-span-7" delay={180}>
+            <Reveal variant="rise" priority className="md:col-span-7">
               <p className="mono-label text-[var(--accent)]">{t(lab.sector, locale)}</p>
-              <p className="mt-4 max-w-[24ch] text-d3 text-[var(--fg)]">
+              <p className="mt-4 max-w-[24ch] text-quote text-[var(--fg)]">
                 {t(lab.story.promise, locale)}
               </p>
               <p className="mt-5 max-w-[52ch] text-lead text-[var(--fg-dim)]">
@@ -132,7 +132,7 @@ export default async function LabPage({ params }: Params) {
       </Band>
 
       {/* 04–05 — the product, given the page. */}
-      <Band scheme="dark" size="tight" className="pt-10 md:pt-14">
+      <Band scheme="paper" size="tight" className="pt-10 md:pt-14">
         <div className="px-[clamp(0.75rem,2vw,2.5rem)]">
           <Reveal variant="none">
             <div className="reveal-fade">
@@ -146,9 +146,9 @@ export default async function LabPage({ params }: Params) {
       </Band>
 
       {/* 06 — the five beats, and what building it demonstrates. */}
-      <Band scheme="light" size="regular">
+      <Band scheme="haze" size="regular">
         <div className="frame">
-          <ChapterHead index="01" title={copy.story.label} aside={t(lab.sector, locale)} />
+          <SectionRule label={copy.story.label} aside={t(lab.sector, locale)} />
 
           <div className="mt-10 grid gap-12 md:mt-14 lg:grid-cols-12 lg:gap-10">
             <dl className="hairline-t lg:col-span-7">
@@ -177,7 +177,7 @@ export default async function LabPage({ params }: Params) {
                   {copy.story.capability}
                 </dt>
                 <dd className="reveal-fade md:col-span-9">
-                  <span className="display text-d3">{t(lab.story.capability, locale)}</span>
+                  <span className="display text-quote">{t(lab.story.capability, locale)}</span>
                 </dd>
               </Reveal>
             </dl>
@@ -216,12 +216,12 @@ export default async function LabPage({ params }: Params) {
       </Band>
 
       {/* 07 — the system under the interface. */}
-      <Band scheme="dark" size="regular" id="system">
+      <Band scheme="paper" size="regular" id="system">
         <div className="frame">
-          <ChapterHead index="02" title={copy.stack.layers} aside={copy.stack.aside} />
+          <SectionRule label={copy.stack.layers} aside={copy.stack.aside} />
 
           <div className="mt-10 grid gap-8 md:mt-12 md:grid-cols-12 md:items-end">
-            <h2 className="text-d2 md:col-span-7">
+            <h2 className="text-sub md:col-span-7">
               <SplitReveal text={copy.stack.statement} lineHeight="0.98em" stagger={32} />
               <SplitReveal
                 text={[{ text: copy.stack.statementAccent }]}
@@ -263,13 +263,9 @@ export default async function LabPage({ params }: Params) {
 
       {/* 09 — the links back to real work, with the relation named. */}
       {lab.relations.length > 0 ? (
-        <Band scheme="light" size="regular">
+        <Band scheme="haze" size="regular">
           <div className="frame">
-            <ChapterHead
-              index="03"
-              title={copy.launch.related}
-              aside={copy.provenance.shipped}
-            />
+            <SectionRule label={copy.launch.related} aside={copy.provenance.shipped} />
             <ul className="mt-10 grid gap-8 md:mt-14 md:grid-cols-2">
               {lab.relations.map((relation) => (
                 <Reveal as="li" key={relation.slug} className="hairline-t pt-6">
@@ -283,7 +279,7 @@ export default async function LabPage({ params }: Params) {
                         : copy.launch.relatedProblem}
                     </span>
                     <span className="mt-3 flex flex-wrap items-baseline gap-x-4 gap-y-2">
-                      <span className="display text-d3 transition-transform duration-500 ease-[var(--ease-out-expo)] group-hover/rel:translate-x-1.5">
+                      <span className="display text-quote transition-transform duration-500 ease-[var(--ease-out-expo)] group-hover/rel:translate-x-1.5">
                         {relation.name}
                       </span>
                       <Provenance kind="shipped" copy={copy} />
@@ -308,17 +304,16 @@ export default async function LabPage({ params }: Params) {
       ) : null}
 
       {/* 10 — the next one, then the way in. */}
-      <Band scheme="dark" size="tight">
+      <Band scheme="paper" size="tight">
         <div className="frame">
           <Reveal variant="none" className="hairline-t pt-6">
             <Link
               href={localePath(locale, `/labs/${next.slug}`)}
-              style={{ ["--accent" as string]: next.accent }}
               className="group/next block"
             >
               <span className="mono-label reveal-fade text-[var(--fg-mute)]">{copy.labs.next}</span>
               <span className="reveal-fade mt-4 flex flex-wrap items-baseline gap-x-6 gap-y-2">
-                <span className="display text-d2 transition-transform duration-[700ms] ease-[var(--ease-out-expo)] group-hover/next:translate-x-2">
+                <span className="display text-sub transition-transform duration-[700ms] ease-[var(--ease-out-expo)] group-hover/next:translate-x-2">
                   {next.name}
                 </span>
                 <span className="mono-label text-[var(--accent)]">{t(next.sector, locale)}</span>
@@ -332,7 +327,7 @@ export default async function LabPage({ params }: Params) {
         </div>
       </Band>
 
-      <ContactCta locale={locale} copy={copy} index="—" />
+      <ContactCta locale={locale} copy={copy} />
     </div>
   );
 }

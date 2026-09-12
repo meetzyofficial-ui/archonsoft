@@ -1,13 +1,53 @@
 "use client";
 
-import { Fragment, useEffect, useRef, type CSSProperties, type ElementType } from "react";
+import {
+  createElement,
+  Fragment,
+  useEffect,
+  useRef,
+  type CSSProperties,
+  type HTMLAttributes,
+  type ReactNode,
+  type Ref,
+} from "react";
 import { usePrefersReducedMotion } from "@/lib/hooks";
 import { clamp, cn } from "@/lib/utils";
 import type { Segment } from "@/components/motion/SplitReveal";
 
+/**
+ * The tags this component is ever asked to be.
+ *
+ * It was `ElementType`, which stopped resolving the moment react-three-fiber
+ * augmented the global JSX element map: the union of every intrinsic element's
+ * props collapses to `never` and every prop below it fails to typecheck. A
+ * narrow union is what this component actually needed anyway.
+ */
+type PolymorphicTag = "div" | "span" | "p" | "li" | "ol" | "ul" | "section" | "h2" | "h3";
+
+/**
+ * Renders the chosen tag without going through JSX intrinsic resolution.
+ *
+ * A polymorphic tag inside JSX makes TypeScript intersect the props — and the
+ * refs — of every tag in the union, which no single ref can satisfy. Going
+ * through `createElement` keeps the component honestly polymorphic and keeps
+ * the ref a plain element ref.
+ */
+function polymorphic(
+  tag: PolymorphicTag,
+  props: HTMLAttributes<HTMLElement> & {
+    ref?: Ref<HTMLElement>;
+    "data-revealed"?: string;
+    "aria-label"?: string;
+  },
+  children: ReactNode,
+) {
+  return createElement(tag, props, children);
+}
+
+
 type ScrollLitProps = {
   text: string | Segment[];
-  as?: ElementType;
+  as?: PolymorphicTag;
   className?: string;
   /** Opacity of a word that has not been reached yet. */
   floor?: number;
@@ -85,8 +125,10 @@ export function ScrollLit({ text, as: Tag = "p", className, floor = 0.2 }: Scrol
     "--p": 0,
   } as CSSProperties;
 
-  return (
-    <Tag ref={ref} className={className} style={containerStyle}>
+  return polymorphic(
+    Tag,
+    { ref, className, style: containerStyle },
+    <>
       {words.map((item, index) => (
         <Fragment key={`${item.word}-${index}`}>
           <span
@@ -107,6 +149,6 @@ export function ScrollLit({ text, as: Tag = "p", className, floor = 0.2 }: Scrol
           {index < words.length - 1 ? " " : null}
         </Fragment>
       ))}
-    </Tag>
+    </>,
   );
 }

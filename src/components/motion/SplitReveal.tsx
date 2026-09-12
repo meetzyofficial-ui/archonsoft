@@ -1,8 +1,46 @@
 "use client";
 
-import { Fragment, type CSSProperties, type ElementType } from "react";
+import {
+  createElement,
+  Fragment,
+  type CSSProperties,
+  type HTMLAttributes,
+  type ReactNode,
+  type Ref,
+} from "react";
 import { useInView } from "@/lib/hooks";
 import { cn } from "@/lib/utils";
+
+/**
+ * The tags this component is ever asked to be.
+ *
+ * It was `ElementType`, which stopped resolving the moment react-three-fiber
+ * augmented the global JSX element map: the union of every intrinsic element's
+ * props collapses to `never` and every prop below it fails to typecheck. A
+ * narrow union is what this component actually needed anyway.
+ */
+type PolymorphicTag = "div" | "span" | "p" | "li" | "ol" | "ul" | "section" | "h2" | "h3";
+
+/**
+ * Renders the chosen tag without going through JSX intrinsic resolution.
+ *
+ * A polymorphic tag inside JSX makes TypeScript intersect the props — and the
+ * refs — of every tag in the union, which no single ref can satisfy. Going
+ * through `createElement` keeps the component honestly polymorphic and keeps
+ * the ref a plain element ref.
+ */
+function polymorphic(
+  tag: PolymorphicTag,
+  props: HTMLAttributes<HTMLElement> & {
+    ref?: Ref<HTMLElement>;
+    "data-revealed"?: string;
+    "aria-label"?: string;
+  },
+  children: ReactNode,
+) {
+  return createElement(tag, props, children);
+}
+
 
 export type Segment = {
   text: string;
@@ -15,7 +53,7 @@ export type Segment = {
 type SplitRevealProps = {
   /** Plain string, or segments when part of the phrase needs its own styling. */
   text: string | Segment[];
-  as?: ElementType;
+  as?: PolymorphicTag;
   className?: string;
   /** Milliseconds between consecutive words. */
   stagger?: number;
@@ -70,13 +108,15 @@ export function SplitReveal({
     marginBlock: "-0.3em",
   };
 
-  return (
-    <Tag
-      ref={ref}
-      data-revealed={revealed ? "true" : "false"}
-      aria-label={label}
-      className={cn("block", className)}
-    >
+  return polymorphic(
+    Tag,
+    {
+      ref,
+      "data-revealed": revealed ? "true" : "false",
+      "aria-label": label,
+      className: cn("block", className),
+    },
+    <>
       <span aria-hidden="true">
         {words.map((item, index) => (
           <Fragment key={`${item.word}-${index}`}>
@@ -100,6 +140,6 @@ export function SplitReveal({
           </Fragment>
         ))}
       </span>
-    </Tag>
+    </>,
   );
 }

@@ -6,7 +6,7 @@ import { Diagram, type DiagramKind } from "@/components/system/Diagram";
 import { Reveal } from "@/components/motion/Reveal";
 import { SplitReveal } from "@/components/motion/SplitReveal";
 import { ActionLink } from "@/components/ui/Action";
-import { Band, ChapterHead } from "@/components/ui/primitives";
+import { Band, SectionRule } from "@/components/ui/primitives";
 import { EXPERIMENTS, LAB_NOTES } from "@/data/lab";
 import type { Copy } from "@/i18n/dictionary";
 import { useHasPointer, usePrefersReducedMotion } from "@/lib/hooks";
@@ -124,15 +124,15 @@ export function NextUp({ locale, copy }: { locale: Locale; copy: Copy }) {
   ];
 
   return (
-    <Band scheme="dark" size="regular" id="next">
+    <Band scheme="paper" size="regular" id="next">
       <div className="frame">
-        <ChapterHead index={copy.next.index} title={copy.next.label} aside={copy.next.aside} />
+        <SectionRule label={copy.next.label} aside={copy.next.aside} />
 
         <div className="mt-14 grid gap-10 md:mt-20 md:grid-cols-12 md:items-end md:gap-8">
           <SplitReveal
             as="h2"
             lineHeight="0.98em"
-            className="text-d2 md:col-span-7"
+            className="text-sub md:col-span-7"
             text={[
               { text: copy.next.statement },
               { text: copy.next.statementAccent, accent: true },
@@ -165,7 +165,7 @@ export function NextUp({ locale, copy }: { locale: Locale; copy: Copy }) {
               >
                 <span className="mono-label text-[var(--accent)] md:col-span-2">{item.index}</span>
 
-                <h3 className="text-d3 md:col-span-5 md:transition-transform md:duration-[600ms] md:ease-[var(--ease-out-expo)] md:group-hover/row:translate-x-2">
+                <h3 className="text-quote md:col-span-5 md:transition-transform md:duration-[600ms] md:ease-[var(--ease-out-expo)] md:group-hover/row:translate-x-2">
                   {item.title}
                 </h3>
 
