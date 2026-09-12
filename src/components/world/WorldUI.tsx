@@ -261,7 +261,11 @@ export function WorldUI({
         aria-label={world.destinations}
         data-rail-compact
         className={cn(
-          "pointer-events-auto absolute top-[7.5rem] left-[max(var(--spacing-gutter),env(safe-area-inset-left))] flex flex-col gap-2 sm:hidden",
+          /* A column up the left in portrait; a row under the top line in
+             landscape, where the height is short and the stick sits low. */
+          "pointer-events-auto absolute top-[7.5rem] left-[max(var(--spacing-gutter),env(safe-area-inset-left))] flex flex-col gap-2",
+          "landscape:top-[3.4rem] landscape:left-1/2 landscape:-translate-x-1/2 landscape:flex-row",
+          touch ? "flex" : "sm:hidden",
           "transition-opacity duration-500",
           quiet ? "opacity-40" : "opacity-100",
         )}
@@ -294,7 +298,8 @@ export function WorldUI({
         aria-label={world.destinations}
         data-rail
         className={cn(
-          "pointer-events-auto absolute top-1/2 left-[var(--spacing-gutter)] hidden -translate-y-1/2 sm:block",
+          "pointer-events-auto absolute top-1/2 left-[var(--spacing-gutter)] -translate-y-1/2",
+          touch ? "hidden" : "hidden sm:block",
           "transition-opacity duration-500",
           quiet ? "opacity-40" : "opacity-100",
         )}
