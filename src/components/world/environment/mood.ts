@@ -169,5 +169,18 @@ export const moodStore = {
     current.key.lerp(target.key, k);
     current.fogDensity += (target.fogDensity - current.fogDensity) * k;
     current.light += (target.light - current.light) * k;
+    /* A passing event's colour, laid over the sky and the fog this frame. */
+    if (tintAmount > 0) {
+      current.sky.lerp(tintColour, tintAmount);
+      tintAmount = 0;
+    }
+  },
+  /** Colour the sky a little, for this frame only — a comet, a flare. */
+  tint(amount: number, colour: string) {
+    tintAmount = amount;
+    tintColour.set(colour);
   },
 };
+
+let tintAmount = 0;
+const tintColour = new THREE.Color();

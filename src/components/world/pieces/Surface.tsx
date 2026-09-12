@@ -162,29 +162,34 @@ export function paintPanel(content: PanelContent): SurfacePaint {
     ctx.fillStyle = "#f6f9fd";
     const bodySize = Math.round(Math.min(38, Math.max(28, w * 0.035)));
     ctx.font = font(SANS.replace("600", "500"), bodySize);
-    y = wrap(ctx, content.body, pad, y, w - pad * 2, bodySize * 1.55, 4);
+    /* A panel carrying a long list keeps the paragraph short. */
+    const many = (content.layers?.length ?? 0) > 4;
+    y = wrap(ctx, content.body, pad, y, w - pad * 2, bodySize * 1.55, many ? 2 : 4);
 
     if (content.layers?.length) {
       y += 26 * scale;
-      for (const layer of content.layers) {
-        if (y > h - pad) break;
+      /* Up to four layers in one column; more in two, smaller. */
+      const columns = many ? 2 : 1;
+      const gap = 40 * scale;
+      const columnWidth = (w - pad * 2 - gap * (columns - 1)) / columns;
+      const size = many ? bodySize * 0.92 : bodySize;
+      const rowHeight = size * 2.35;
+      const top = y;
+      content.layers.forEach((layer, i) => {
+        const column = i % columns;
+        const row = Math.floor(i / columns);
+        const x = pad + column * (columnWidth + gap);
+        const ly = top + row * rowHeight;
+        if (ly + rowHeight * 0.6 > h - pad) return;
         ctx.fillStyle = content.accent;
-        ctx.fillRect(pad, y - bodySize * 0.72, 3 * scale, bodySize * 0.9);
+        ctx.fillRect(x, ly - size * 0.72, 3 * scale, size * 0.9);
         ctx.fillStyle = "#f2f6fc";
-        label(ctx, layer.label, pad + 16 * scale, y, Math.round(bodySize * 0.74));
+        label(ctx, layer.label, x + 16 * scale, ly, Math.round(size * 0.74));
         ctx.fillStyle = "rgba(220,228,244,0.9)";
-        ctx.font = font(SANS.replace("600", "500"), Math.round(bodySize * 0.84));
-        y = wrap(
-          ctx,
-          layer.detail,
-          pad + 16 * scale,
-          y + bodySize * 1.05,
-          w - pad * 2 - 16 * scale,
-          bodySize * 1.05,
-          1,
-        );
-        y += bodySize * 0.5;
-      }
+        ctx.font = font(SANS.replace("600", "500"), Math.round(size * 0.84));
+        wrap(ctx, layer.detail, x + 16 * scale, ly + size * 1.05, columnWidth - 16 * scale, size * 1.05, 1);
+      });
+      y = top + Math.ceil(content.layers.length / columns) * rowHeight;
     }
 
     if (content.meta?.length) {

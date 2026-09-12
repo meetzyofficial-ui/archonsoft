@@ -847,6 +847,125 @@ function Spires({ reduced }: { reduced: boolean }) {
   );
 }
 
+/* ----------------------------------------------------------------- comet */
+
+let cometTexture: THREE.CanvasTexture | null = null;
+function useCometTexture() {
+  return useMemo(() => {
+    if (cometTexture) return cometTexture;
+    const canvas = document.createElement("canvas");
+    canvas.width = 512;
+    canvas.height = 64;
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+      /* The tail: brightest at the head, fading along its length and
+         across its width, green with a white core. */
+      const along = ctx.createLinearGradient(0, 0, 512, 0);
+      along.addColorStop(0, "rgba(120,255,190,0)");
+      along.addColorStop(0.5, "rgba(110,245,175,0.55)");
+      along.addColorStop(0.9, "rgba(200,255,225,1)");
+      along.addColorStop(1, "rgba(255,255,255,1)");
+      ctx.fillStyle = along;
+      ctx.fillRect(0, 0, 512, 64);
+      const across = ctx.createLinearGradient(0, 0, 0, 64);
+      across.addColorStop(0, "rgba(0,0,0,1)");
+      across.addColorStop(0.5, "rgba(0,0,0,0)");
+      across.addColorStop(1, "rgba(0,0,0,1)");
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.fillStyle = across;
+      ctx.fillRect(0, 0, 512, 64);
+    }
+    cometTexture = new THREE.CanvasTexture(canvas);
+    cometTexture.colorSpace = THREE.SRGBColorSpace;
+    return cometTexture;
+  }, []);
+}
+
+/**
+ * A green comet.
+ *
+ * Every few minutes — the first about half a minute in — a bright green
+ * head with a long, thin tail crosses the sky over the world in five or six
+ * seconds, high, from one side to the other on a slightly falling line, and
+ * the sky lifts a little green while it passes. It never comes near the
+ * ground; it is a thing to catch sight of, not an event to survive.
+ */
+function Comet() {
+  const group = useRef<THREE.Group>(null);
+  const head = useRef<THREE.Mesh>(null);
+  const tail = useRef<THREE.Mesh>(null);
+  const texture = useCometTexture();
+  const state = useRef({ next: 28 + Math.random() * 20, t: -1, from: new THREE.Vector3(), to: new THREE.Vector3(), clock: 0 });
+  const DURATION = 5.6;
+  const dir = useMemo(() => new THREE.Vector3(), []);
+
+  /* QA: call the next comet now. */
+  useEffect(() => {
+    (window as unknown as { __archonComet?: () => void }).__archonComet = () => {
+      state.current.next = state.current.clock;
+    };
+    return () => {
+      delete (window as unknown as { __archonComet?: unknown }).__archonComet;
+    };
+  }, []);
+
+  useFrame((_, raw) => {
+    const delta = Math.min(raw, 0.05);
+    const st = state.current;
+    st.clock += delta;
+    const node = group.current;
+    if (!node) return;
+    if (st.t < 0) {
+      node.visible = false;
+      if (st.clock >= st.next) {
+        /* A new pass: high, far, on a line that falls a little. */
+        const side = Math.random() < 0.5 ? -1 : 1;
+        const z = -200 - Math.random() * 60;
+        st.from.set(side * 360, 215 + Math.random() * 25, z);
+        st.to.set(-side * 360, 170 + Math.random() * 20, z + (Math.random() - 0.5) * 60);
+        st.t = 0;
+      }
+      return;
+    }
+    st.t += delta;
+    const k = Math.min(1, st.t / DURATION);
+    node.visible = true;
+    node.position.lerpVectors(st.from, st.to, k);
+    dir.subVectors(st.to, st.from).normalize();
+    /* The tail points back along the way it came. */
+    node.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), dir);
+    const fade = Math.sin(Math.min(1, k) * Math.PI);
+    if (head.current) {
+      (head.current.material as THREE.MeshBasicMaterial).opacity = 0.9 * fade;
+      head.current.scale.setScalar(1 + Math.sin(st.clock * 30) * 0.08);
+    }
+    if (tail.current) (tail.current.material as THREE.MeshBasicMaterial).opacity = fade;
+    /* A breath of green in the sky while it passes. */
+    moodStore.tint(0.012 * fade, "#5ef0a8");
+    if (k >= 1) {
+      st.t = -1;
+      st.next = st.clock + 100 + Math.random() * 140;
+    }
+  });
+
+  return (
+    <group ref={group} visible={false} name="cosmos:comet">
+      <mesh ref={tail} position={[-70, 0, 0]}>
+        <planeGeometry args={[140, 14]} />
+        <meshBasicMaterial map={texture} transparent opacity={0} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} side={THREE.DoubleSide} fog={false} />
+      </mesh>
+      <mesh ref={head}>
+        <sphereGeometry args={[3.6, 12, 10]} />
+        <meshBasicMaterial color="#d8ffe9" transparent opacity={0} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} fog={false} />
+      </mesh>
+      <mesh>
+        <sphereGeometry args={[9, 12, 10]} />
+        <meshBasicMaterial color="#5ef0a8" transparent opacity={0.22} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} fog={false} />
+      </mesh>
+    </group>
+  );
+}
+
 export function Cosmos({ reduced, compact }: { reduced: boolean; compact: boolean }) {
   const { scene } = useThree();
   const fog = useMemo(() => new THREE.FogExp2("#070c1a", 0.0042), []);
@@ -877,6 +996,7 @@ export function Cosmos({ reduced, compact }: { reduced: boolean; compact: boolea
       <DistantStructures reduced={reduced} />
       <Floaters reduced={reduced} />
       <Asteroids reduced={reduced} />
+      {!reduced ? <Comet /> : null}
       {!compact ? <Dust count={reduced ? 200 : 900} reduced={reduced} /> : null}
       <Ships reduced={reduced} />
     </group>

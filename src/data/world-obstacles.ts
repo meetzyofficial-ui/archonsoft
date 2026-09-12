@@ -1,4 +1,6 @@
+import { OFFICE_OBSTACLES } from "@/data/departments";
 import { DISPLAYS, GALLERY, type Box } from "@/data/world-map";
+import { TORCH_OBSTACLES } from "@/data/world-torches";
 
 /**
  * Solid things that are not in the plan.
@@ -37,4 +39,6 @@ const PANELS: Box[] = DISPLAYS.filter((d) => d.zone === "hub" && d.form === "ver
   (d): Box => ({ at: [d.at[0], 1.6, d.at[2]], size: [0.8, 3.2, d.size[0] + 0.9] }),
 );
 
-export const WORLD_OBSTACLES: Box[] = [...PYLONS, ...CONSOLES, ...TOTEM, ...PANELS];
+/* The offices: every desk with its chair, and the board wall behind each
+   team, from the same data the scene builds them from. */
+export const WORLD_OBSTACLES: Box[] = [...PYLONS, ...CONSOLES, ...TOTEM, ...PANELS, ...OFFICE_OBSTACLES, ...TORCH_OBSTACLES];

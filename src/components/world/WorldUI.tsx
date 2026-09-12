@@ -370,7 +370,7 @@ export function WorldUI({
 
       {/* Thumbs: the look layer under everything, the stick and the jump
           button over it. */}
-      {mode === "explore" && touch ? <TouchControls jumpLabel={world.jump.split("—").pop()?.trim() ?? "JUMP"} /> : null}
+      {mode === "explore" && touch && !quiet ? <TouchControls jumpLabel={world.jump.split("—").pop()?.trim() ?? "JUMP"} /> : null}
 
       {/* Bottom. Move on the left, found on the right. */}
       {mode === "explore" ? (

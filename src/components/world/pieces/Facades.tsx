@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { MATERIAL } from "@/components/world/pieces/Kit";
 
 /**
@@ -19,7 +20,135 @@ import { MATERIAL } from "@/components/world/pieces/Kit";
  * masses (each set in from the one below); `turn` the yaw. Colours follow
  * the district: the body is graphite-blue, the glass darker, the trim the
  * district's light.
+ *
+ * Every tier is wrapped in a glass curtain wall: one merged mesh for the
+ * whole set, its faces UV-scaled so a tiled texture of panes and mullions
+ * lands at a storey's pitch, with lit interiors in an emissive map — a
+ * ceiling of warm light and the dark line of a desk under it — behind
+ * about a third of the panes. From the plaza a building is glass with
+ * offices behind it; from the water it is a lit facade, not a box.
  */
+
+let windowMaps: { map: THREE.CanvasTexture; emissive: THREE.CanvasTexture } | null = null;
+
+/** A tile of four by four panes: glass in the colour map, lit rooms in the emissive map. */
+function useWindowMaps(light: string) {
+  return useMemo(() => {
+    if (windowMaps) return windowMaps;
+    const size = 512;
+    const pane = size / 4;
+    const make = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = size;
+      canvas.height = size;
+      return canvas;
+    };
+    const glass = make();
+    const lit = make();
+    const g = glass.getContext("2d")!;
+    const e = lit.getContext("2d")!;
+    e.fillStyle = "#000";
+    e.fillRect(0, 0, size, size);
+    let seed = 7;
+    const rand = () => {
+      seed = (seed * 9301 + 49297) % 233280;
+      return seed / 233280;
+    };
+    for (let row = 0; row < 4; row += 1) {
+      for (let col = 0; col < 4; col += 1) {
+        const x = col * pane;
+        const y = row * pane;
+        /* The glass: a dark blue pane with a diagonal sheen. */
+        const grad = g.createLinearGradient(x, y, x + pane, y + pane);
+        grad.addColorStop(0, "#152540");
+        grad.addColorStop(0.5, "#0a1526");
+        grad.addColorStop(1, "#101d34");
+        g.fillStyle = grad;
+        g.fillRect(x, y, pane, pane);
+        /* Spandrel: the floor slab band along the bottom of each storey. */
+        g.fillStyle = "#1a2438";
+        g.fillRect(x, y + pane * 0.8, pane, pane * 0.2);
+        /* Mullions. */
+        g.fillStyle = "#3a4a66";
+        g.fillRect(x, y, pane, 4);
+        g.fillRect(x, y, 4, pane);
+        g.fillRect(x + pane / 2 - 1, y, 2, pane * 0.8);
+        /* A lit room behind about a third of the panes. */
+        if (rand() < 0.36) {
+          const warm = rand() < 0.75;
+          const eg = e.createLinearGradient(x, y, x, y + pane * 0.8);
+          eg.addColorStop(0, warm ? "#ffe2bd" : "#cfe4ff");
+          eg.addColorStop(0.25, warm ? "#d9b78f" : "#9fb9d9");
+          eg.addColorStop(1, warm ? "#5a4530" : "#2d3a52");
+          e.fillStyle = eg;
+          e.fillRect(x + 4, y + 4, pane - 8, pane * 0.8 - 4);
+          /* The desk line and a monitor's glow. */
+          e.fillStyle = "#1a1410";
+          e.fillRect(x + 4, y + pane * 0.55, pane - 8, pane * 0.06);
+          e.fillStyle = warm ? "#fff6e6" : "#e6f2ff";
+          e.fillRect(x + pane * (0.25 + rand() * 0.4), y + pane * 0.4, pane * 0.14, pane * 0.12);
+          /* The mullions in front of the light. */
+          e.fillStyle = "#000";
+          e.fillRect(x + pane / 2 - 1, y, 2, pane * 0.8);
+        }
+      }
+    }
+    const map = new THREE.CanvasTexture(glass);
+    const emissive = new THREE.CanvasTexture(lit);
+    for (const texture of [map, emissive]) {
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.anisotropy = 8;
+    }
+    void light;
+    windowMaps = { map, emissive };
+    return windowMaps;
+  }, [light]);
+}
+
+/** One plane per face of every tier, UVs scaled to the storey pitch, merged. */
+function curtainWalls(list: Facade[]): THREE.BufferGeometry | null {
+  const parts: THREE.BufferGeometry[] = [];
+  const q = new THREE.Quaternion();
+  const e = new THREE.Euler();
+  const STOREY = 3.4;
+  const PANES = 4;
+  for (const f of list) {
+    const [x, y0, z] = f.at;
+    e.set(0, f.turn ?? 0, 0);
+    q.setFromEuler(e);
+    let y = y0;
+    let [w, d] = f.size;
+    for (const h of f.tiers) {
+      const faces: [number, number, number, number, number][] = [
+        [0, d / 2 + 0.03, 0, w, 0],
+        [0, -d / 2 - 0.03, Math.PI, w, 0],
+        [w / 2 + 0.03, 0, Math.PI / 2, d, 0],
+        [-w / 2 - 0.03, 0, -Math.PI / 2, d, 0],
+      ];
+      for (const [ox, oz, yaw, len] of faces) {
+        const plane = new THREE.PlaneGeometry(len, h);
+        const uv = plane.attributes.uv as THREE.BufferAttribute;
+        const across = len / (STOREY * PANES);
+        const up = h / (STOREY * PANES);
+        for (let i = 0; i < uv.count; i += 1) uv.setXY(i, uv.getX(i) * across, uv.getY(i) * up);
+        plane.rotateY(yaw);
+        plane.translate(ox, h / 2, oz);
+        plane.applyQuaternion(q);
+        plane.translate(x, y, z);
+        parts.push(plane);
+      }
+      y += h;
+      w *= 0.8;
+      d *= 0.82;
+    }
+  }
+  if (!parts.length) return null;
+  const merged = mergeGeometries(parts, false);
+  parts.forEach((part) => part.dispose());
+  return merged;
+}
 export type Facade = {
   at: [number, number, number];
   size: [number, number];
@@ -126,9 +255,25 @@ export function Facades({ list }: { list: Facade[] }) {
   }, [list]);
 
   const light = list[0]?.light ?? MATERIAL.warmWhite;
+  const windows = useWindowMaps(light);
+  const curtain = useMemo(() => curtainWalls(list), [list]);
+  useEffect(() => () => curtain?.dispose(), [curtain]);
 
   return (
     <group name="facades">
+      {curtain ? (
+        <mesh geometry={curtain}>
+          <meshStandardMaterial
+            map={windows.map}
+            emissiveMap={windows.emissive}
+            emissive="#ffffff"
+            emissiveIntensity={1.15}
+            roughness={0.16}
+            metalness={0.55}
+            envMapIntensity={1.3}
+          />
+        </mesh>
+      ) : null}
       <instancedMesh ref={bodies} args={[undefined, undefined, counts.tiers]} frustumCulled={false}>
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial color="#1c2a48" roughness={0.6} metalness={0.3} />

@@ -4,6 +4,10 @@ import { useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { moodStore } from "@/components/world/environment/mood";
+import { fireStore } from "@/components/world/pieces/Fire";
+import { Torches } from "@/components/world/pieces/Torches";
+import { TORCHES } from "@/data/world-torches";
+import { body } from "@/components/world/systems/body";
 import {
   Arch,
   Backlight,
@@ -138,6 +142,10 @@ export function Bridges({ texture }: { texture: THREE.Texture }) {
       <Bridge at={[-32, 0]} size={[5, CORRIDOR + 2]} texture={texture} colour={getZone("systems").accent} />
       {/* Shipped to the hall of screens. */}
       <Bridge at={[32, -66]} size={[5, 11.6]} texture={texture} colour={getZone("boards").accent} />
+      {/* Fire at the ends of every bridge. */}
+      {TORCHES.map((list, i) => (
+        <Torches key={i} list={list} />
+      ))}
     </group>
   );
 }
@@ -1123,6 +1131,7 @@ const WHITE = new THREE.Color("#e4ecf8");
 
 export function Lighting() {
   const lamp = useRef<THREE.PointLight>(null);
+  const fire = useRef<THREE.PointLight>(null);
   const hemi = useRef<THREE.HemisphereLight>(null);
   const key = useRef<THREE.DirectionalLight>(null);
   const { camera } = useThree();
@@ -1143,6 +1152,14 @@ export function Lighting() {
       key.current.intensity = 2.2 * level;
       key.current.color.copy(moodStore.current.key);
     }
+    /* The fire on the explorer lights the black armour and the deck around
+       it: one warm point at chest height, flickering with the flames. It
+       lives here, with the other lights, so every shader is compiled with
+       it from the start rather than the moment the robot first burns. */
+    if (fire.current) {
+      fire.current.position.set(body.x, body.floor + body.lift + 1.55, body.z);
+      fire.current.intensity = (9 + fireStore.heat * 9) * (1 + fireStore.flicker * 0.12);
+    }
   });
 
   return (
@@ -1154,6 +1171,7 @@ export function Lighting() {
       <directionalLight position={[44, 30, -20]} intensity={0.8} color="#6fcbff" />
       <directionalLight position={[-20, 24, -60]} intensity={0.7} color="#8c7bff" />
       <pointLight ref={lamp} intensity={26} distance={34} decay={2} color="#9ad6ff" />
+      <pointLight ref={fire} intensity={16} distance={9} decay={2} color="#ff7a2a" />
     </>
   );
 }

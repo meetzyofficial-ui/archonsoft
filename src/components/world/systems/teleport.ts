@@ -33,6 +33,13 @@ export const teleportStore = {
     if (!dest) return;
     pending = dest;
   },
+  /**
+   * Somewhere that is not on the rail: an office, say. Anything shaped
+   * like a destination — an id, feet and a facing — can be asked for.
+   */
+  requestTo(dest: Destination) {
+    pending = dest;
+  },
   /** The walking loop takes the request; nobody else. */
   take(): Destination | null {
     const next = pending;

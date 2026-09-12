@@ -188,7 +188,9 @@ export type DisplaySubject =
   | { kind: "project"; slug: string }
   | { kind: "lab"; slug: string }
   | { kind: "system"; layer: string }
-  | { kind: "note"; title: Localized; body: Localized };
+  | { kind: "note"; title: Localized; body: Localized }
+  /** The company's services, composed from the departments. */
+  | { kind: "services" };
 
 /**
  * What a screen says.
@@ -536,9 +538,9 @@ const HUB_DISPLAYS: Display[] = [
     id: "hub-shipped",
     zone: "hub",
     form: "vertical",
-    at: [14.2, 2.7, 31],
+    at: [14.0, 3.0, 32.6],
     turn: -Math.PI / 2 - 0.22,
-    size: [4.6, 2.2],
+    size: [5.4, 2.6],
     subject: { kind: "note", title: { en: "Shipped", tr: "Yayında" }, body: {
       en: "Two live products. Through the gate.",
       tr: "İki canlı ürün. Kapıdan geç.",
@@ -548,9 +550,9 @@ const HUB_DISPLAYS: Display[] = [
     id: "hub-boards",
     zone: "hub",
     form: "vertical",
-    at: [16.4, 3.0, 27.4],
+    at: [16.4, 3.2, 27.6],
     turn: -Math.PI / 2 - 0.12,
-    size: [4.6, 2.2],
+    size: [5.4, 2.6],
     subject: { kind: "note", title: { en: "The hall of screens", tr: "Ekranlar koridoru" }, body: {
       en: "DP Pano, off the east side of the shipped hall.",
       tr: "DP Pano, yayın holünün doğu tarafında.",
@@ -560,9 +562,9 @@ const HUB_DISPLAYS: Display[] = [
     id: "hub-labs",
     zone: "hub",
     form: "vertical",
-    at: [18.6, 3.3, 23.8],
+    at: [18.8, 3.4, 22.6],
     turn: -Math.PI / 2,
-    size: [4.6, 2.2],
+    size: [5.4, 2.6],
     subject: { kind: "note", title: { en: "Archon Labs", tr: "Archon Labs" }, body: {
       en: "Ten concept products, running. East.",
       tr: "On konsept ürün, çalışır hâlde. Doğu.",
@@ -572,13 +574,24 @@ const HUB_DISPLAYS: Display[] = [
     id: "hub-systems",
     zone: "hub",
     form: "vertical",
-    at: [20.8, 3.6, 20.2],
+    at: [21.2, 3.6, 17.6],
     turn: -Math.PI / 2 + 0.1,
-    size: [4.6, 2.2],
+    size: [5.4, 2.6],
     subject: { kind: "note", title: { en: "Systems", tr: "Sistemler" }, body: {
       en: "What runs behind an interface. West.",
       tr: "Bir arayüzün arkasında ne çalışır. Batı.",
     } },
+  },
+  /* What the company does, at the size of a building's face: on the east
+     edge of the plaza, high, read from the whole hub. */
+  {
+    id: "hub-services",
+    zone: "hub",
+    form: "wall",
+    at: [28.6, 12.6, 6],
+    turn: -Math.PI / 2,
+    size: [9.6, 5.6],
+    subject: { kind: "services" },
   },
 ];
 

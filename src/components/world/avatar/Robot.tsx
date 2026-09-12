@@ -4,7 +4,9 @@ import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { guideStore } from "@/components/world/npc/Guides";
+import { fireStore, Flames, type Emitter } from "@/components/world/pieces/Fire";
 import { Glow } from "@/components/world/pieces/Kit";
+import { qualityStore } from "@/components/world/systems/quality";
 import { mergeParts, useMerged, type Part } from "@/components/world/pieces/merge";
 import { body, STRIDE } from "@/components/world/systems/body";
 
@@ -41,24 +43,44 @@ import { body, STRIDE } from "@/components/world/systems/body";
  * black glass. Reading the figure from across a plaza: white and silver
  * armour over a dark frame, cyan where it is alive.
  */
-const GUNMETAL = { color: "#2e3745", roughness: 0.5, metalness: 0.9, envMapIntensity: 1.1 } as const;
-const TITANIUM = { color: "#7c8798", roughness: 0.44, metalness: 0.9, envMapIntensity: 1.2 } as const;
-const SILVER = { color: "#cdd6df", roughness: 0.18, metalness: 0.96, envMapIntensity: 1.7 } as const;
-const ARMOUR = { color: "#f2f5f8", roughness: 0.3, metalness: 0.04, envMapIntensity: 1.1, clearcoat: 0.6, clearcoatRoughness: 0.18 } as const;
-/* Dark titanium: the frame under the armour, seen at the joints and along
-   the backs of the limbs. */
-const DARK_TI = { color: "#3d4655", roughness: 0.46, metalness: 0.86, envMapIntensity: 1.15 } as const;
-const GRAPHITE = { color: "#181e27", roughness: 0.66, metalness: 0.5 } as const;
-const CAVITY = { color: "#070b12", roughness: 0.85, metalness: 0.3 } as const;
-const VISOR = { color: "#050d1a", roughness: 0.04, metalness: 0.92, envMapIntensity: 2.2, clearcoat: 1, clearcoatRoughness: 0.05 } as const;
+/*
+ * Matte black, and fire.
+ *
+ * The machine is black through and through — black ceramic armour with the
+ * faintest sheen, dark titanium where the plates meet, black gunmetal for
+ * the frame, matte graphite in the joints, black glass over the eyes — so
+ * that the only colour on it is what burns: flame off the shoulders, the
+ * back, the wrists and the crown, a core of the same fire in the chest, and
+ * the orange the fire throws onto the black around it. The surfaces are
+ * rough enough not to mirror the world and smooth enough to catch the fire
+ * as a warm rim; none of them is glossy plastic.
+ */
+const GUNMETAL = { color: "#12151b", roughness: 0.56, metalness: 0.9, envMapIntensity: 0.8 } as const;
+const TITANIUM = { color: "#222831", roughness: 0.5, metalness: 0.88, envMapIntensity: 0.8 } as const;
+/* Dark titanium trims: the one surface allowed a controlled metallic light. */
+const SILVER = { color: "#2c333d", roughness: 0.38, metalness: 0.92, envMapIntensity: 1.1 } as const;
+/* Black ceramic: the armour. Barely metallic, a thin clear coat for one soft highlight. */
+const ARMOUR = { color: "#0e1115", roughness: 0.6, metalness: 0.06, envMapIntensity: 0.7, clearcoat: 0.3, clearcoatRoughness: 0.45 } as const;
+const DARK_TI = { color: "#181d25", roughness: 0.52, metalness: 0.86, envMapIntensity: 0.8 } as const;
+const GRAPHITE = { color: "#0a0d11", roughness: 0.82, metalness: 0.4 } as const;
+const CAVITY = { color: "#04060a", roughness: 0.9, metalness: 0.3 } as const;
+const VISOR = { color: "#030710", roughness: 0.05, metalness: 0.94, envMapIntensity: 1.8, clearcoat: 1, clearcoatRoughness: 0.06 } as const;
 const CYAN = "#5ee6ff";
 const BLUE = "#2f9dff";
 const AMBER = "#ffb347";
-const VIOLET = "#9a86ff";
-const MAGENTA = "#ff6fd8";
+/* The fire's own colours, for the lights let into the armour. */
+const EMBER = "#ff7a2a";
+const FLAME = "#ffb066";
+const VIOLET = EMBER;
+const MAGENTA = "#ff9a4a";
 const ONE = new THREE.Vector3(1, 1, 1);
 
 const V3 = (x: number, y: number, z: number): [number, number, number] => [x, y, z];
+
+/** Where fire comes from: an empty the flame cloud reads every frame. */
+function Vent({ at, strength, span = 1, trail = false }: { at: [number, number, number]; strength: number; span?: number; trail?: boolean }) {
+  return <object3D name="vent" position={at} userData={{ strength, span, trail }} />;
+}
 
 /** One merged piece with one material: the way most of the body is drawn. */
 function Piece({ parts, material }: { parts: () => Part[]; material: Record<string, unknown> }) {
@@ -147,6 +169,9 @@ function Head() {
       <mesh geometry={cores}>
         <meshBasicMaterial color="#eafcff" toneMapped={false} />
       </mesh>
+      <Vent at={[0, 0.26, -0.06]} strength={0.55} span={0.7} />
+      <Vent at={[-0.13, 0.16, -0.05]} strength={0.3} span={0.5} />
+      <Vent at={[0.13, 0.16, -0.05]} strength={0.3} span={0.5} />
       {/* A small amber sensor on the right temple. */}
       <mesh position={[0.163, 0.155, -0.005]} rotation={[0.2, Math.PI / 2, 0.1]}>
         <circleGeometry args={[0.008, 8]} />
@@ -230,6 +255,10 @@ function Chest() {
         <planeGeometry args={[0.3, 0.006]} />
         <Glow colour={VIOLET} opacity={0.55} />
       </mesh>
+      {/* Fire off the back: two vents under the scapulae, one at the spine. */}
+      <Vent at={[-0.15, 0.12, -0.2]} strength={0.9} span={1.1} />
+      <Vent at={[0.15, 0.12, -0.2]} strength={0.9} span={1.1} />
+      <Vent at={[0, -0.08, -0.21]} strength={0.6} span={0.9} />
       {/* The mark, small, on the left pectoral: three bars, each shorter. */}
       {[0, 1, 2].map((i) => (
         <mesh key={i} position={[-0.2 + (0.05 - i * 0.013) / 2, 0.135 - i * 0.02, 0.2]} rotation={[0.1, -0.15, 0]}>
@@ -304,10 +333,11 @@ function Hand({ side }: { side: number }) {
         <boxGeometry args={[0.09, 0.09, 0.016]} />
         <meshPhysicalMaterial {...ARMOUR} />
       </mesh>
+      <Vent at={[0, -0.06, 0.03]} strength={0.5} span={0.6} />
       {/* The palm core. */}
       <mesh position={[0, -0.045, 0.027]}>
         <circleGeometry args={[0.014, 10]} />
-        <Glow colour={CYAN} opacity={0.6} />
+        <Glow colour={FLAME} opacity={0.7} />
       </mesh>
       <group name="fingers" position={[0, -0.1, 0]}>
         <mesh geometry={fingers} position={[0, -0.1, 0]}>
@@ -350,10 +380,11 @@ function Forearm({ side }: { side: number }) {
       <Piece parts={armour} material={ARMOUR} />
       <Piece parts={rail} material={SILVER} />
       <Piece parts={silver} material={SILVER} />
+      <Vent at={[0, -0.2, -0.08]} strength={0.45} span={0.7} />
       {/* Wrist accent. */}
       <mesh position={[0, -0.3, 0.062]}>
         <planeGeometry args={[0.05, 0.016]} />
-        <Glow colour={CYAN} />
+        <Glow colour={EMBER} />
       </mesh>
     </>
   );
@@ -408,10 +439,11 @@ function Shin({ side }: { side: number }) {
       <Piece parts={shinPlate} material={ARMOUR} />
       <Piece parts={calf} material={SILVER} />
       <Piece parts={metal} material={TITANIUM} />
+      <Vent at={[0, -0.02, -0.08]} strength={0.35} span={0.6} />
       {/* The shin light, and an amber tell at the knee. */}
       <mesh position={[0, -0.25, 0.106]}>
         <planeGeometry args={[0.024, 0.3]} />
-        <Glow colour={CYAN} opacity={0.75} />
+        <Glow colour={EMBER} opacity={0.75} />
       </mesh>
       <mesh position={[side * 0.094, 0, 0]} rotation={[0, (side * Math.PI) / 2, 0]}>
         <circleGeometry args={[0.012, 10]} />
@@ -440,15 +472,16 @@ function Foot() {
       <Piece parts={dark} material={GRAPHITE} />
       <Piece parts={armour} material={ARMOUR} />
       <Piece parts={silver} material={SILVER} />
+      <Vent at={[0, -0.09, -0.12]} strength={0.4} span={0.8} trail />
       {/* A cyan line under the sole, and the thruster flare that opens in
           the air. */}
       <mesh position={[0, -0.112, 0.05]} rotation={[Math.PI / 2, 0, 0]}>
         <planeGeometry args={[0.14, 0.3]} />
-        <Glow colour={CYAN} opacity={0.35} />
+        <Glow colour={EMBER} opacity={0.35} />
       </mesh>
       <mesh name="flare" position={[0, -0.13, 0.02]} rotation={[Math.PI / 2, 0, 0]} scale={[1, 1, 1]}>
         <circleGeometry args={[0.14, 16]} />
-        <meshBasicMaterial color={CYAN} transparent opacity={0} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} side={THREE.DoubleSide} />
+        <meshBasicMaterial color={EMBER} transparent opacity={0} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} side={THREE.DoubleSide} />
       </mesh>
     </>
   );
@@ -474,11 +507,12 @@ function Pauldron({ side }: { side: number }) {
       <Piece parts={silver} material={SILVER} />
       <Piece parts={armour} material={ARMOUR} />
       <Piece parts={lower} material={GUNMETAL} />
+      <Vent at={[side * 0.07, 0.14, -0.02]} strength={1} span={1.2} />
       {/* The shoulder strip: a short bar of cyan on the plate, and an amber
           module on the left shoulder only. */}
       <mesh position={[side * 0.12, 0.0, 0.02]} rotation={[0, 0, side * -0.4]}>
         <boxGeometry args={[0.08, 0.012, 0.1]} />
-        <Glow colour={CYAN} opacity={0.6} />
+        <Glow colour={EMBER} opacity={0.6} />
       </mesh>
       {side < 0 ? (
         <>
@@ -532,6 +566,38 @@ export function Robot() {
   const eyes = useRef<THREE.Object3D | null>(null);
   const flares = useRef<THREE.Object3D[] | null>(null);
   const ears = useRef<THREE.Object3D[] | null>(null);
+  const vents = useRef<THREE.Object3D[] | null>(null);
+  const previous = useRef(new THREE.Vector3(body.x, 0, body.z));
+  const worldVelocity = useRef(new THREE.Vector3());
+  const ventAt = useRef(new THREE.Vector3());
+  const inverse = useRef(new THREE.Quaternion());
+  const heat = useRef(1);
+
+  /* The fire reads the vents in the root's frame: where each is right now,
+     how hard it burns, and how fast the body is moving so the flames trail. */
+  const readFire = (out: Emitter[], state: { heat: number; velocity: THREE.Vector3 }) => {
+    const node = root.current;
+    if (!node) return;
+    if (!vents.current) {
+      const found: THREE.Object3D[] = [];
+      node.traverse((part) => {
+        if (part.name === "vent") found.push(part);
+      });
+      vents.current = found;
+    }
+    const moving = Math.min(1, body.pace * 2.2);
+    for (const vent of vents.current) {
+      vent.getWorldPosition(ventAt.current);
+      node.worldToLocal(ventAt.current);
+      const data = vent.userData as { strength: number; span: number; trail: boolean };
+      const strength = data.trail ? data.strength * moving : data.strength;
+      if (strength <= 0.02) continue;
+      out.push({ at: ventAt.current.clone(), strength, span: data.span });
+    }
+    state.heat = heat.current;
+    inverse.current.copy(node.quaternion).invert();
+    state.velocity.copy(worldVelocity.current).applyQuaternion(inverse.current);
+  };
 
   /* The core: three left-aligned bars of cyan light let into the chest,
      in one piece; a blue hexagon of light behind them. */
@@ -549,8 +615,13 @@ export function Robot() {
     const t = time.current;
     const s = smooth.current;
 
-    /* Where the feet are — and how far off the floor. */
+    /* Where the feet are — and how far off the floor; and how fast, for the fire. */
     node.position.set(body.x, body.floor, body.z);
+    if (delta > 0) {
+      worldVelocity.current.set((body.x - previous.current.x) / delta, 0, (body.z - previous.current.z) / delta);
+      if (worldVelocity.current.length() > 12) worldVelocity.current.setLength(12);
+    }
+    previous.current.set(body.x, 0, body.z);
     if (figure.current) {
       figure.current.position.y = body.lift;
       /* The wind-up compresses the body; the landing compresses it again
@@ -680,6 +751,12 @@ export function Robot() {
       m.opacity = 0.78 + Math.sin(t * 2.2) * 0.08 + excite * 0.4;
       eyes.current.scale.y = 1 - Math.max(0, Math.sin(t * 0.9) - 0.985) * 40;
     }
+    /* How hard it burns: a low idle flame, more on the move, a burst in the
+       air, a blaze through a teleport; and it breathes. */
+    const wantHeat = 0.7 + pace * 0.55 + airborne * 0.5 + body.glow * 1.6 + Math.max(0, body.landing - 0.6) * 0.8 + Math.sin(t * 1.3) * 0.06;
+    heat.current += (wantHeat - heat.current) * Math.min(1, 6 * delta);
+    fireStore.heat = heat.current;
+    fireStore.flicker = Math.sin(t * 17) * 0.5 + Math.sin(t * 29 + 1) * 0.3 + Math.sin(t * 7) * 0.2;
     const beat = Math.sin(t * (1.7 + pace * 2.2));
     if (core.current) (core.current.material as THREE.MeshBasicMaterial).opacity = 0.62 + beat * (0.16 + pace * 0.1) + excite;
     if (coreHalo.current) {
@@ -730,7 +807,7 @@ export function Robot() {
         disc.current.scale.setScalar(1.35 + s.run * 0.3);
       }
       disc.current.scale.lerp(ONE, Math.min(1, 6 * delta));
-      (disc.current.material as THREE.MeshBasicMaterial).opacity = (0.08 + (disc.current.scale.x - 1) * 0.5) * (1 - air * 0.5);
+      (disc.current.material as THREE.MeshBasicMaterial).opacity = (0.09 + (disc.current.scale.x - 1) * 0.5) * (1 - air * 0.5) * (0.7 + heat.current * 0.3 + fireStore.flicker * 0.08);
     }
   });
 
@@ -740,7 +817,7 @@ export function Robot() {
           figure itself rides on `figure`, which lifts with the jump. */}
       <mesh ref={column} position={[0, 2.2, 0]} visible={false}>
         <cylinderGeometry args={[0.7, 0.9, 4.4, 16, 1, true]} />
-        <meshBasicMaterial color={CYAN} transparent opacity={0} toneMapped={false} depthWrite={false} side={THREE.DoubleSide} blending={THREE.AdditiveBlending} />
+        <meshBasicMaterial color={EMBER} transparent opacity={0} toneMapped={false} depthWrite={false} side={THREE.DoubleSide} blending={THREE.AdditiveBlending} />
       </mesh>
       <mesh ref={ring} position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} visible={false}>
         <ringGeometry args={[0.55, 0.68, 40]} />
@@ -753,7 +830,7 @@ export function Robot() {
       <group ref={figure}>
         <mesh ref={shell} position={[0, 1.08, 0]} visible={false}>
           <capsuleGeometry args={[0.46, 1.3, 6, 14]} />
-          <meshBasicMaterial color="#bfefff" transparent opacity={0} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
+          <meshBasicMaterial color="#ffc08a" transparent opacity={0} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
         </mesh>
 
         {/* Legs. Hips at 1.04m; thigh 0.5, shin 0.48, foot. */}
@@ -776,10 +853,10 @@ export function Robot() {
           <group ref={chest} position={[0, 0.6, 0]}>
             <Chest />
             <mesh ref={coreHalo} geometry={haloGeometry}>
-              <meshBasicMaterial color={BLUE} transparent opacity={0.16} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
+              <meshBasicMaterial color={EMBER} transparent opacity={0.2} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
             </mesh>
             <mesh ref={core} geometry={coreGeometry}>
-              <meshBasicMaterial color={CYAN} transparent opacity={0.7} toneMapped={false} />
+              <meshBasicMaterial color={FLAME} transparent opacity={0.8} toneMapped={false} />
             </mesh>
           </group>
 
@@ -823,11 +900,13 @@ export function Robot() {
         </group>
       </group>
 
-      {/* The light the body throws on the deck. */}
+      {/* The light the fire throws on the deck. */}
       <mesh ref={disc} position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[0.7, 24]} />
-        <meshBasicMaterial color={CYAN} transparent opacity={0.1} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
+        <circleGeometry args={[0.9, 24]} />
+        <meshBasicMaterial color={EMBER} transparent opacity={0.12} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
       </mesh>
+      {/* The fire itself. */}
+      <Flames count={qualityStore.tier === "desktop" ? 1500 : qualityStore.tier === "high" ? 1000 : 600} read={readFire} scale={0.62} />
     </group>
   );
 }

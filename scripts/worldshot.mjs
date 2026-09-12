@@ -15,7 +15,7 @@ fs.mkdirSync(out, { recursive: true });
 /* `GPU=1` runs headed Chrome on the real graphics card; the default is the
    software renderer, which is enough for layout but not for judging light. */
 const browser = process.env.GPU
-  ? await chromium.launch({ headless: false, channel: "chrome", args: ["--window-size=1460,900"] })
+  ? await chromium.launch({ headless: false, channel: "chrome", args: ["--window-size=1460,900", "--disable-backgrounding-occluded-windows", "--disable-renderer-backgrounding"] })
   : await chromium.launch({ args: ["--enable-unsafe-swiftshader", "--use-gl=angle", "--use-angle=swiftshader"] });
 const ctx = await browser.newContext({ viewport: { width: 1440, height: 860 }, deviceScaleFactor: 1 });
 const page = await ctx.newPage();

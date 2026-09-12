@@ -1,3 +1,4 @@
+import { DEPARTMENTS } from "@/data/departments";
 import { LABS } from "@/data/labs";
 import { PROJECTS } from "@/data/projects";
 import { PROJECT_GUIDES, type ProjectGuide } from "@/data/world-guides";
@@ -245,6 +246,23 @@ function prepare(display: Display, locale: Locale): PreparedDisplay {
         title: t(layer.label, locale),
         body: t(layer.detail, locale),
         accent: "#8fa3c4",
+      },
+      action: locale === "tr" ? "Oku" : "Read",
+    };
+  }
+
+  if (subject.kind === "services") {
+    return {
+      ...display,
+      content: {
+        eyebrow: "Archon Soft",
+        title: locale === "tr" ? "Hizmetlerimiz" : "What we do",
+        body:
+          locale === "tr"
+            ? "Web ve mobil yazılımdan yapay zekaya, tasarımdan 3D dünyalara: bir ürünün ihtiyaç duyduğu her katman, tek stüdyodan. Lobideki ekibe sorun."
+            : "From web and mobile software to AI, from design to 3D worlds: every layer a product needs, from one studio. Ask the team in the lobby.",
+        layers: DEPARTMENTS.filter((one) => one.office).map((one) => ({ label: t(one.name, locale), detail: t(one.tagline, locale) })),
+        accent: "#f2a889",
       },
       action: locale === "tr" ? "Oku" : "Read",
     };

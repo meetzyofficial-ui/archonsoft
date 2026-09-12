@@ -52,13 +52,13 @@ const COATS: Record<Kind, { body: string; belly: string; ear: string }[]> = {
 
 /** Authored, like the people. */
 export const ANIMALS: Animal[] = [
-  { kind: "dog", at: [-12.6, 0, 13.8], facing: -Math.PI / 2 + 0.6, coat: 0, mode: "sit" },
+  { kind: "dog", at: [-9.2, 0, 19.4], facing: -Math.PI / 2 + 0.6, coat: 0, mode: "sit" },
   { kind: "cat", at: [-28.4, 0.44, 24], facing: Math.PI / 2, coat: 1, mode: "sit" },
   { kind: "cat", at: [10, 0, 12], facing: 0, coat: 0, mode: "wander", roam: 5 },
-  { kind: "dog", at: [-8, 0, -58.5], facing: Math.PI / 2, coat: 2, mode: "idle" },
+  { kind: "dog", at: [-6, 0, -54.5], facing: Math.PI / 2, coat: 2, mode: "idle" },
   { kind: "cat", at: [19, 0, -52], facing: Math.PI, coat: 2, mode: "wander", roam: 3 },
   { kind: "dog", at: [24.5, 9, -6], facing: Math.PI / 2, coat: 3, mode: "sit" },
-  { kind: "cat", at: [46, 0, -73], facing: -Math.PI / 2, coat: 3, mode: "wander", roam: 3.5 },
+  { kind: "cat", at: [40, 0, -74], facing: -Math.PI / 2, coat: 3, mode: "wander", roam: 2.5 },
   { kind: "dog", at: [22, 0, 20], facing: -Math.PI / 2, coat: 1, mode: "idle" },
 ];
 

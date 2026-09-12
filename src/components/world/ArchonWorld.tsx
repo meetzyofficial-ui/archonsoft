@@ -4,6 +4,9 @@ import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArchonIcon } from "@/components/chrome/Wordmark";
 import { Conversation, Detail, HostCard, WorldUI } from "@/components/world/WorldUI";
+import { OfficeCard } from "@/components/world/OfficeCard";
+import { journeyStore } from "@/components/world/systems/journey";
+import { teleportStore } from "@/components/world/systems/teleport";
 import type { WorldCopy } from "@/components/world/WorldGate";
 import { discovery } from "@/components/world/systems/discovery";
 import { stopSound } from "@/components/world/systems/audio";
@@ -127,6 +130,37 @@ export function ArchonWorld({
     setTalking(null);
     setHosting(true);
   }, []);
+  /* The offices: the lobby team, or a department's. Opening one closes
+     every other card; arriving at an office by teleport opens its card by
+     itself, a moment after the visitor is set down. */
+  const [officing, setOfficing] = useState<string | null>(null);
+  const officeTalk = useCallback((id: string) => {
+    setOpen(null);
+    setTalking(null);
+    setHosting(false);
+    setOfficing(id);
+  }, []);
+  useEffect(() => {
+    let wasIn = false;
+    let timer = 0;
+    const unsubscribe = teleportStore.subscribe(() => {
+      const reading = teleportStore.get();
+      if (reading.direction === "in") wasIn = true;
+      else if (wasIn && reading.direction === null) {
+        wasIn = false;
+        const awaiting = journeyStore.get().awaiting;
+        if (awaiting) {
+          journeyStore.set({ awaiting: null });
+          timer = window.setTimeout(() => officeTalk(awaiting), 700);
+        }
+      }
+    });
+    return () => {
+      unsubscribe();
+      window.clearTimeout(timer);
+    };
+  }, [officeTalk]);
+  const officeCopy = useMemo(() => ({ label: copy.office.label, action: copy.office.talk }), [copy.office.label, copy.office.talk]);
   /* Stable, so the scene — memoised — is not re-rendered by every beat of
      the opening's caption. */
   const becomeReady = useCallback(() => setReady(true), []);
@@ -135,8 +169,8 @@ export function ArchonWorld({
   /* A card over the world needs the mouse back: the pointer lock is
      released when one opens, so its controls can be clicked. */
   useEffect(() => {
-    if ((open || talking || hosting) && document.pointerLockElement) document.exitPointerLock?.();
-  }, [hosting, open, talking]);
+    if ((open || talking || hosting || officing) && document.pointerLockElement) document.exitPointerLock?.();
+  }, [hosting, officing, open, talking]);
 
   const [tourZone, setTourZone] = useState<ZoneId>("hub");
   const [leaving, setLeaving] = useState(false);
@@ -237,12 +271,12 @@ export function ArchonWorld({
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
       if (document.pointerLockElement) return;
-      if (open || talking || hosting) return;
+      if (open || talking || hosting || officing) return;
       exit();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [exit, hosting, open, talking]);
+  }, [exit, hosting, officing, open, talking]);
 
   /* The site underneath is made inert while the world is up: `aria-hidden`
      alone takes it out of the accessibility tree but leaves every link in it
@@ -350,6 +384,8 @@ export function ArchonWorld({
             onTalk={talk}
             onHost={hostTalk}
             host={hostAction}
+            onOffice={officeTalk}
+            office={officeCopy}
             onReady={becomeReady}
           />
         ) : null}
@@ -483,11 +519,14 @@ export function ArchonWorld({
           onTalk={talk}
           onHost={hostTalk}
           onExit={exit}
-          quiet={Boolean(open || talking || hosting)}
+          quiet={Boolean(open || talking || hosting || officing)}
         />
       ) : null}
 
       {hosting ? <HostCard world={copy} copy={payload.copy} locale={lang} onClose={() => setHosting(false)} /> : null}
+      {officing ? (
+        <OfficeCard key={`${officing}:${lang}`} officeId={officing} world={copy} locale={lang} touch={touch} onClose={() => setOfficing(null)} />
+      ) : null}
 
       {open ? <Detail display={open} copy={payload.copy} onClose={() => setOpen(null)} /> : null}
       {talking ? (

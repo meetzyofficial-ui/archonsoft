@@ -279,9 +279,18 @@ export function Explorer({ active }: { active: boolean }) {
       here.camBack = back;
       here.camUp = up ?? CAM_UP;
     };
+    /* Stand somewhere, facing a way: the harness walking to an office. */
+    (window as unknown as { __archonPlace?: (x: number, z: number, deg?: number) => void }).__archonPlace = (x, z, deg) => {
+      here.x = x;
+      here.z = z;
+      here.vx = 0;
+      here.vz = 0;
+      if (deg !== undefined) here.yaw = (deg * Math.PI) / 180;
+    };
     return () => {
       delete (window as unknown as { __archonTurn?: unknown }).__archonTurn;
       delete (window as unknown as { __archonBody?: unknown }).__archonBody;
+      delete (window as unknown as { __archonPlace?: unknown }).__archonPlace;
     };
   }, [active]);
 

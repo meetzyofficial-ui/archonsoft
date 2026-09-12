@@ -1269,6 +1269,10 @@ function LightFalls({ width, depth, colour }: { width: number; depth: number; co
  * masses of different sizes, so no two silhouettes are alike; every tree in
  * a group is drawn with the others, five draws in all. The crowns sway.
  */
+/* Leaf greens, and what the fruit trees carry. */
+const LEAF_COLOURS = ["#496b50", "#3f7a4a", "#557a3c", "#6d8a36", "#496b50", "#8a6a2a", "#3a6b4a", "#a0602c"];
+const FRUIT_COLOURS = ["#d8352f", "#ff8a2a", "#f2d33a"];
+
 export function Trees({
   at,
   blossom = 0.4,
@@ -1292,10 +1296,12 @@ export function Trees({
   const halos = useRef<THREE.InstancedMesh>(null);
   const shrubs = useRef<THREE.InstancedMesh>(null);
   const rocks = useRef<THREE.InstancedMesh>(null);
+  const fruits = useRef<THREE.InstancedMesh>(null);
   const count = at.length;
   const CROWNS = 5;
   const BRANCHES = 2;
   const SHRUBS = 2;
+  const FRUITS = 9;
   /* Six silhouettes: how the masses sit on the trunk. */
   const seeds = useMemo(
     () =>
@@ -1303,10 +1309,18 @@ export function Trees({
         const pink = (i * 0.618) % 1 < blossom;
         const kind = i % 6;
         const h = 2.2 + ((i * 7) % 5) * 0.5 + (kind === 4 ? 1.2 : 0);
+        /* The green ones are not one green: most are, some run to a
+           yellow-green or an amber, one in six is a copper. And one in
+           three of the green trees carries fruit — apples, oranges or
+           lemons, by the tree. */
+        const leaf = LEAF_COLOURS[(i * 7 + kind) % LEAF_COLOURS.length]!;
+        const fruit = !pink && i % 3 === 1 ? FRUIT_COLOURS[(i * 5) % FRUIT_COLOURS.length]! : null;
         return {
           pink,
           kind,
           h,
+          leaf,
+          fruit,
           lean: (((i * 3) % 5) - 2) * 0.035,
           yaw: i * 1.7,
           crowns: Array.from({ length: CROWNS }, (_, k) => {
@@ -1338,6 +1352,21 @@ export function Trees({
   const p = useMemo(() => new THREE.Vector3(), []);
   const sc = useMemo(() => new THREE.Vector3(), []);
   const ZERO = useMemo(() => new THREE.Matrix4().makeScale(0, 0, 0), []);
+
+  /* Colours once: the leaves by tree, the fruit by tree. */
+  useEffect(() => {
+    const colour = new THREE.Color();
+    seeds.forEach((seed, i) => {
+      colour.set(seed.leaf);
+      for (let k = 0; k < CROWNS; k += 1) greens.current?.setColorAt(i * CROWNS + k, colour);
+      if (seed.fruit) {
+        colour.set(seed.fruit);
+        for (let k = 0; k < FRUITS; k += 1) fruits.current?.setColorAt(i * FRUITS + k, colour);
+      }
+    });
+    if (greens.current?.instanceColor) greens.current.instanceColor.needsUpdate = true;
+    if (fruits.current?.instanceColor) fruits.current.instanceColor.needsUpdate = true;
+  }, [seeds]);
 
   useFrame((_, delta) => {
     time.current += Math.min(delta, 0.05);
@@ -1384,6 +1413,27 @@ export function Trees({
           halos.current?.setMatrixAt(i, ZERO);
         }
       });
+      /* The fruit: small spheres on the outside of the crowns. */
+      for (let k = 0; k < FRUITS; k += 1) {
+        const idx = i * FRUITS + k;
+        if (!seed.fruit) {
+          fruits.current?.setMatrixAt(idx, ZERO);
+          continue;
+        }
+        const crown = seed.crowns[k % CROWNS]!;
+        const a = k * 2.3 + i * 0.7;
+        const b = (k % 3) * 0.9 - 0.6;
+        p.set(
+          x + crown.ox + Math.cos(a) * Math.cos(b) * crown.r * 0.98,
+          y + seed.h + crown.oy + crown.r * 0.5 + Math.sin(b) * crown.r * crown.squash * 0.9 + sway * 3,
+          z + crown.oz + Math.sin(a) * Math.cos(b) * crown.r * 0.98,
+        );
+        const fr = 0.085 + (k % 2) * 0.02;
+        sc.set(fr, fr * 1.05, fr);
+        e.set(0, a, 0);
+        q.setFromEuler(e);
+        fruits.current?.setMatrixAt(idx, matrix.compose(p, q, sc));
+      }
       /* Low shrubs at the foot. */
       for (let k = 0; k < SHRUBS; k += 1) {
         const a = seed.yaw + k * 2.6;
@@ -1404,7 +1454,7 @@ export function Trees({
         rocks.current?.setMatrixAt(i, matrix.compose(p, q, sc));
       }
     });
-    for (const ref of [trunks, branches, greens, pinks, clusters, halos, shrubs, rocks]) {
+    for (const ref of [trunks, branches, greens, pinks, clusters, halos, shrubs, rocks, fruits]) {
       if (ref.current) ref.current.instanceMatrix.needsUpdate = true;
     }
   });
@@ -1421,7 +1471,11 @@ export function Trees({
       </instancedMesh>
       <instancedMesh ref={greens} args={[undefined, undefined, count * CROWNS]} frustumCulled={false}>
         <icosahedronGeometry args={[1, 1]} />
-        <meshStandardMaterial color={MATERIAL.green} roughness={0.95} flatShading />
+        <meshStandardMaterial color="#ffffff" roughness={0.95} flatShading />
+      </instancedMesh>
+      <instancedMesh ref={fruits} args={[undefined, undefined, count * FRUITS]} frustumCulled={false}>
+        <sphereGeometry args={[1, 8, 6]} />
+        <meshStandardMaterial color="#ffffff" roughness={0.45} metalness={0.05} />
       </instancedMesh>
       <instancedMesh ref={pinks} args={[undefined, undefined, count * CROWNS]} frustumCulled={false}>
         <icosahedronGeometry args={[1, 1]} />

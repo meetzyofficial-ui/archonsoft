@@ -69,8 +69,8 @@ const G = 9; // the gallery deck
 export const POPULATION: Citizen[] = [
   /* The hub: pairs in conversation on the flanks, people looking up at the
      mark, two resting on the kerbs, readers by the wayfinding panels. */
-  { at: [-14, 0, 12], facing: -Math.PI / 2 - 0.3, variant: 0, behaviour: "talk" },
-  { at: [-15.3, 0, 12.7], facing: Math.PI / 2 - 0.4, variant: 1, behaviour: "talk" },
+  { at: [-5, 0, 5], facing: -Math.PI / 2 - 0.3, variant: 0, behaviour: "talk" },
+  { at: [-6.3, 0, 5.7], facing: Math.PI / 2 - 0.4, variant: 1, behaviour: "talk" },
   { at: [16, 0, 8], facing: Math.PI / 2 + 0.3, variant: 2, behaviour: "talk" },
   { at: [17.2, 0, 8.9], facing: -Math.PI / 2 + 0.2, variant: 3, behaviour: "talk" },
   { at: [-11, 0, -6], facing: 0.45, variant: 4, behaviour: "look" },
@@ -80,7 +80,7 @@ export const POPULATION: Citizen[] = [
   { at: [20.5, 0, 17], facing: -Math.PI / 2 - 0.2, variant: 8, behaviour: "tablet" },
   { at: [11, 0, 26.5], facing: -Math.PI / 2, variant: 9, behaviour: "look" },
   { at: [-22.5, 0, 22], facing: 0.2, variant: 10, behaviour: "stand" },
-  { at: [-12, 0, 28], facing: 0, variant: 11, behaviour: "walk", path: [[-12, 28], [-12, -22]] },
+  { at: [-8, 0, 28], facing: 0, variant: 11, behaviour: "walk", path: [[-8, 28], [-8, -22]] },
   { at: [12, 0, -22], facing: Math.PI, variant: 0, behaviour: "walk", path: [[12, -22], [12, 26]] },
   { at: [-20, 0, -16], facing: -Math.PI / 2, variant: 2, behaviour: "walk", path: [[-20, -16], [20, -16]] },
   /* The bridges. */
@@ -90,11 +90,11 @@ export const POPULATION: Citizen[] = [
   { at: [-9, 0, -56], facing: -Math.PI / 2 - 0.4, variant: 1, behaviour: "talk" },
   { at: [-10.3, 0, -56.9], facing: Math.PI / 2 - 0.3, variant: 8, behaviour: "talk" },
   { at: [8.5, 0, -50], facing: -Math.PI / 2 + 0.4, variant: 9, behaviour: "look" },
-  { at: [17, 0, -60], facing: 0.3, variant: 3, behaviour: "tablet" },
-  { at: [-17, 0, -62], facing: -0.6, variant: 5, behaviour: "stand" },
+  { at: [22, 0, -56], facing: 0.3, variant: 3, behaviour: "tablet" },
+  { at: [-22, 0, -57], facing: -0.6, variant: 5, behaviour: "stand" },
   { at: [-6, 0, -30], facing: 0, variant: 10, behaviour: "walk", path: [[-6, -30], [-6, -66]] },
   /* The hall of screens: DP Pano's visitors. */
-  { at: [50, 0, -62], facing: -Math.PI / 2, variant: 11, behaviour: "look" },
+  { at: [53.5, 0, -60], facing: -Math.PI / 2, variant: 11, behaviour: "look" },
   { at: [48, 0, -70.5], facing: -Math.PI / 2 + 0.2, variant: 7, behaviour: "look" },
   { at: [72, 0, -58], facing: Math.PI / 2 + 0.3, variant: 0, behaviour: "talk" },
   { at: [73.1, 0, -58.9], facing: -Math.PI / 2 + 0.3, variant: 2, behaviour: "talk" },

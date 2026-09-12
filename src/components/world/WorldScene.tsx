@@ -24,10 +24,13 @@ import { Animals } from "@/components/world/npc/Animals";
 import { Crowd } from "@/components/world/npc/Crowd";
 import { Guides } from "@/components/world/npc/Guides";
 import { Host } from "@/components/world/npc/Host";
+import { Office } from "@/components/world/npc/Office";
 import { useContactTexture } from "@/components/world/pieces/Kit";
 import { Explorer } from "@/components/world/systems/Explorer";
 import { detectTier, GOVERNOR, QUALITY, qualityStore, type Tier } from "@/components/world/systems/quality";
 import { EYE, VIEWPOINTS, type ZoneId } from "@/data/world-map";
+import { OFFICES, DEPARTMENTS } from "@/data/departments";
+import { t } from "@/lib/i18n";
 import type { PreparedDisplay, PreparedGuide, WorldPayload } from "@/lib/worldPayload";
 
 /**
@@ -52,6 +55,8 @@ export const WorldScene = memo(function WorldScene({
   onTalk,
   onHost,
   host,
+  onOffice,
+  office,
   onReady,
 }: {
   payload: WorldPayload;
@@ -65,6 +70,8 @@ export const WorldScene = memo(function WorldScene({
   onTalk: (guide: PreparedGuide) => void;
   onHost: () => void;
   host: { label: string; action: string };
+  onOffice: (id: string) => void;
+  office: { label: string; action: string };
   onReady?: () => void;
 }) {
   /* The quality tier decides the pixel ratio the world opens at; the
@@ -185,6 +192,8 @@ export const WorldScene = memo(function WorldScene({
         onTalk={onTalk}
         onHost={onHost}
         host={host}
+        onOffice={onOffice}
+        office={office}
         tier={tier}
         onReady={onReady}
       />
@@ -202,6 +211,8 @@ function World({
   onTalk,
   onHost,
   host,
+  onOffice,
+  office,
   tier,
   onReady,
 }: {
@@ -214,6 +225,8 @@ function World({
   onTalk: (guide: PreparedGuide) => void;
   onHost: () => void;
   host: { label: string; action: string };
+  onOffice: (id: string) => void;
+  office: { label: string; action: string };
   tier: Tier;
   onReady?: () => void;
 }) {
@@ -284,6 +297,28 @@ function World({
       {/* The host by the arrival, at once; the population and the animals a
           few frames later, so the first frame is not held up building them. */}
       <Host label={host.label} action={host.action} onTalk={onHost} />
+      {/* The company: the lobby team at the arrival, at once; the department
+          offices with their districts. */}
+      {OFFICES.map((one) =>
+        one.department === null ? (
+          <Office key={one.id} id={one.id} office={one.office} label={office.label} action={office.action} onTalk={onOffice} compact={compact} />
+        ) : null,
+      )}
+      <Staged frames={compact ? 3 : 2}>
+        {OFFICES.map((one) =>
+          one.department !== null ? (
+            <Office
+              key={one.id}
+              id={one.id}
+              office={one.office}
+              label={t(DEPARTMENTS.find((d) => d.id === one.department)!.name, payload.locale)}
+              action={office.action}
+              onTalk={onOffice}
+              compact={compact}
+            />
+          ) : null,
+        )}
+      </Staged>
       <Staged frames={compact ? 5 : 3}>
         <Crowd compact={compact} />
       </Staged>
