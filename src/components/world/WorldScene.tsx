@@ -363,7 +363,12 @@ function Boot({
       if (cancelled) return;
       rig.prime();
       try {
-        await gl.compileAsync(scene, camera);
+        /* In parallel on the driver's threads where the extension exists;
+           otherwise in one go, now, which is still before anything shows.
+           Asked directly, because the renderer warns to the console when
+           it is asked for the parallel path on a driver without it. */
+        if (gl.extensions.has("KHR_parallel_shader_compile")) await gl.compileAsync(scene, camera);
+        else gl.compile(scene, camera);
       } catch {
         /* A context that cannot compile ahead still renders; it just compiles on sight. */
       }
