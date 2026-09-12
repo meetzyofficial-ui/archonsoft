@@ -47,9 +47,25 @@ const TELEPORT_IN = 0.46;
 const ACCELERATION = 34;
 const DAMPING = 11;
 const LOOK = 0.0021;
+/*
+ * The stick. Its magnitude maps to pace through a curve that is gentle in
+ * the middle — a thumb resting a third of the way out strolls — and reaches
+ * a full walk near the rim; running takes the rim itself, held for a
+ * moment, so a stroll never turns into a sprint because a thumb slipped.
+ * The run on a phone is a little slower than the desktop's shift-run: the
+ * screen is smaller and the same metres per second read as flying.
+ */
+const STICK_DEAD = 0.08;
+const STICK_RIM = 0.94;
+const STICK_RUN_HOLD = 0.22;
+const TOUCH_RUN = 6.4;
+const TOUCH_ACCELERATION = 20;
+const TOUCH_DAMPING = 13;
 /* A thumb drag turns the view about as far as a mouse move of the same
-   length: a little more, because a thumb has less room. */
-const TOUCH_LOOK = 0.0042;
+   length: a little more, because a thumb has less room. The turn is eased
+   over a few frames so a finger's pixel steps never read as jitter. */
+const TOUCH_LOOK = 0.0038;
+const TOUCH_LOOK_EASE = 26;
 const PITCH_MIN = -0.55;
 const PITCH_MAX = 0.62;
 
@@ -157,6 +173,10 @@ export function Explorer({ active }: { active: boolean }) {
     /* QA only: a closer camera, for looking at a character. */
     camBack: CAM_BACK,
     camUp: CAM_UP,
+    /* Touch: the turn still to be applied, and how long the stick has been at the rim. */
+    turnX: 0,
+    turnY: 0,
+    rim: 0,
   });
 
   /* Looking. Pointer lock is requested by the canvas. */
@@ -275,9 +295,18 @@ export function Explorer({ active }: { active: boolean }) {
        jumps — the same loop the keyboard drives. */
     if (touchInput.active) {
       const [dx, dy] = touchInput.takeLook();
-      if (dx || dy) {
-        here.yaw -= dx * TOUCH_LOOK;
-        here.pitch = THREE.MathUtils.clamp(here.pitch + dy * TOUCH_LOOK, PITCH_MIN, PITCH_MAX);
+      here.turnX += dx * TOUCH_LOOK;
+      here.turnY += dy * TOUCH_LOOK;
+      /* Eased: most of the pending turn this frame, the rest over the next
+         few, independent of the frame rate. */
+      const k = 1 - Math.exp(-TOUCH_LOOK_EASE * delta);
+      if (here.turnX || here.turnY) {
+        here.yaw -= here.turnX * k;
+        here.pitch = THREE.MathUtils.clamp(here.pitch + here.turnY * k, PITCH_MIN, PITCH_MAX);
+        here.turnX *= 1 - k;
+        here.turnY *= 1 - k;
+        if (Math.abs(here.turnX) < 1e-5) here.turnX = 0;
+        if (Math.abs(here.turnY) < 1e-5) here.turnY = 0;
       }
       if (touchInput.jump) {
         touchInput.jump = false;
@@ -285,17 +314,20 @@ export function Explorer({ active }: { active: boolean }) {
       }
     }
     const stick = touchInput.active ? Math.min(1, Math.hypot(touchInput.x, touchInput.y)) : 0;
+    const onStick = stick > STICK_DEAD;
+    /* The rim, held, runs; leaving it stops the run at once. */
+    here.rim = stick >= STICK_RIM ? here.rim + delta : 0;
 
     let forward =
       (keys.has("w") || keys.has("arrowup") ? 1 : 0) - (keys.has("s") || keys.has("arrowdown") ? 1 : 0);
     let strafe =
       (keys.has("d") || keys.has("arrowright") ? 1 : 0) - (keys.has("a") || keys.has("arrowleft") ? 1 : 0);
     let running = keys.has("shift");
-    if (stick > 0.08 && !forward && !strafe) {
+    const byStick = onStick && !forward && !strafe;
+    if (byStick) {
       forward = touchInput.y;
       strafe = touchInput.x;
-      /* Pushed to the rim, the stick runs. */
-      running = stick > 0.86;
+      running = here.rim >= STICK_RUN_HOLD;
     }
 
     FORWARD.set(-Math.sin(here.yaw), 0, -Math.cos(here.yaw));
@@ -305,14 +337,21 @@ export function Explorer({ active }: { active: boolean }) {
     let targetZ = FORWARD.z * forward + RIGHT.z * strafe;
     const length = Math.hypot(targetX, targetZ);
     if (length > 0) {
-      /* Analog: a half-pushed stick walks at half pace. */
-      const analog = stick > 0.08 && !keys.has("w") && !keys.has("a") && !keys.has("s") && !keys.has("d") ? Math.min(1, stick / 0.86) : 1;
-      const speed = (running ? RUN : WALK) * analog;
+      let speed: number;
+      if (byStick) {
+        /* Analog: the response curve, then the run over the top of it. */
+        const reach = THREE.MathUtils.clamp((stick - STICK_DEAD) / (STICK_RIM - STICK_DEAD), 0, 1);
+        const pace = Math.pow(reach, 1.35);
+        speed = running ? TOUCH_RUN : WALK * (0.3 + 0.7 * pace);
+      } else {
+        speed = running ? RUN : WALK;
+      }
       targetX = (targetX / length) * speed;
       targetZ = (targetZ / length) * speed;
     }
 
-    const rate = length > 0 ? ACCELERATION : DAMPING;
+    /* Thumbs get a slightly softer start and a short, controlled stop. */
+    const rate = length > 0 ? (byStick ? TOUCH_ACCELERATION : ACCELERATION) : touchInput.active ? TOUCH_DAMPING : DAMPING;
     here.vx += (targetX - here.vx) * Math.min(1, rate * delta);
     here.vz += (targetZ - here.vz) * Math.min(1, rate * delta);
     if (Math.abs(here.vx) < 0.004) here.vx = 0;
@@ -343,7 +382,7 @@ export function Explorer({ active }: { active: boolean }) {
       if (here.windup <= 0) {
         here.windup = 0;
         here.airborne = true;
-        const running = keys.has("shift") && Math.hypot(here.vx, here.vz) > WALK * 0.8;
+        const running = (keys.has("shift") || here.rim >= STICK_RUN_HOLD) && Math.hypot(here.vx, here.vz) > WALK * 0.8;
         here.vy = running ? JUMP_RUNNING : JUMP_STANDING;
       }
     }

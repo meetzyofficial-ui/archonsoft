@@ -127,6 +127,9 @@ export function ArchonWorld({
     setTalking(null);
     setHosting(true);
   }, []);
+  /* Stable, so the scene — memoised — is not re-rendered by every beat of
+     the opening's caption. */
+  const becomeReady = useCallback(() => setReady(true), []);
   const hostAction = useMemo(() => ({ label: copy.host.label, action: `${copy.host.talk}` }), [copy.host.label, copy.host.talk]);
 
   /* A card over the world needs the mouse back: the pointer lock is
@@ -347,7 +350,7 @@ export function ArchonWorld({
             onTalk={talk}
             onHost={hostTalk}
             host={hostAction}
-            onReady={() => setReady(true)}
+            onReady={becomeReady}
           />
         ) : null}
       </div>

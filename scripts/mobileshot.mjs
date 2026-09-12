@@ -29,9 +29,18 @@ for (const [tag, viewport] of [["portrait", { width: 390, height: 844 }], ["land
   const frames = await page.evaluate(() => new Promise((r) => { const times = []; let last = performance.now(); const f = () => { const now = performance.now(); times.push(now - last); last = now; if (times.length < 90) requestAnimationFrame(f); else r(times); }; requestAnimationFrame(f); }));
   await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
   await page.screenshot({ path: `.qa/world/mobile-${tag}-moving.png` });
+  /* Close-ups: the robot, face on; the entrance panels. */
+  if (tag === "portrait") {
+    await page.evaluate(() => { window.__archonTurn?.(180, 0); window.__archonZoom?.(3.0, 1.3); });
+    await page.waitForTimeout(1200);
+    await page.screenshot({ path: `.qa/world/mobile-${tag}-robot.png` });
+    await page.evaluate(() => { window.__archonZoom?.(8.4, 2.9); window.__archonTurn?.(150, 4); });
+    await page.waitForTimeout(1200);
+    await page.screenshot({ path: `.qa/world/mobile-${tag}-panels.png` });
+  }
   const sorted = [...frames].sort((a, b) => a - b);
   const avg = frames.reduce((a, b) => a + b, 0) / frames.length;
-  console.log(`${tag}: first paint ${painted}ms · steering frame ${avg.toFixed(1)}ms avg / ${sorted[Math.floor(sorted.length * 0.95)].toFixed(1)}ms p95 / ${sorted[sorted.length - 1].toFixed(1)}ms max · info ${JSON.stringify(await page.evaluate(() => window.__archonInfo?.()))} · errors ${JSON.stringify(errors)}`);
+  console.log(`${tag}: first paint ${painted}ms · steering frame ${avg.toFixed(1)}ms avg / ${sorted[Math.floor(sorted.length * 0.95)].toFixed(1)}ms p95 / ${sorted[sorted.length - 1].toFixed(1)}ms max · info ${JSON.stringify(await page.evaluate(() => window.__archonInfo?.()))} · quality ${JSON.stringify(await page.evaluate(() => window.__archonQuality?.()))} · errors ${JSON.stringify(errors)}`);
   await ctx.close();
 }
 await browser.close();

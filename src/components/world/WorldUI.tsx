@@ -949,16 +949,22 @@ function TouchControls({ jumpLabel }: { jumpLabel: string }) {
     }
     if (knob.current) knob.current.style.transform = `translate(${dx}px, ${dy}px)`;
     const mag = Math.min(1, len / RADIUS);
-    /* A dead zone in the middle, so a resting thumb does not creep. */
-    const live = mag < 0.12 ? 0 : (mag - 0.12) / 0.88;
-    touchInput.x = len > 0 ? (dx / Math.max(len, 1e-6)) * live * Math.min(1, len / RADIUS) : 0;
-    touchInput.y = len > 0 ? (-dy / Math.max(len, 1e-6)) * live * Math.min(1, len / RADIUS) : 0;
+    /* A dead zone in the middle, so a resting thumb does not creep; from
+       there the magnitude is linear to the rim. The pace curve and the run
+       threshold live in the walking loop, which reads this once a frame. */
+    const live = mag < 0.1 ? 0 : (mag - 0.1) / 0.9;
+    const nx = len > 1e-6 ? dx / len : 0;
+    const ny = len > 1e-6 ? dy / len : 0;
+    touchInput.x = nx * live;
+    touchInput.y = -ny * live;
+    if (base.current) base.current.dataset.live = live > 0.93 ? "run" : live > 0 ? "walk" : "";
   };
   const releaseStick = () => {
     stickPointer.current = null;
     touchInput.x = 0;
     touchInput.y = 0;
     if (knob.current) knob.current.style.transform = "translate(0px, 0px)";
+    if (base.current) base.current.dataset.live = "";
   };
 
   return (
@@ -982,11 +988,12 @@ function TouchControls({ jumpLabel }: { jumpLabel: string }) {
         onPointerUp={(event) => lookPointers.current.delete(event.pointerId)}
         onPointerCancel={(event) => lookPointers.current.delete(event.pointerId)}
       />
-      {/* The stick. */}
+      {/* The stick: a glass dial with a tick ring, a rim that lights when
+          the thumb reaches it, and a knob that follows the thumb. */}
       <div
         ref={base}
         data-joystick
-        className="pointer-events-auto absolute z-10 flex size-[132px] items-center justify-center rounded-full border border-[rgba(255,244,232,0.22)] bg-[rgba(10,18,36,0.38)] backdrop-blur"
+        className="group pointer-events-auto absolute z-10 flex size-[128px] items-center justify-center rounded-full border border-[rgba(255,244,232,0.26)] bg-[radial-gradient(circle_at_50%_40%,rgba(28,44,78,0.55),rgba(8,14,28,0.5))] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05),0_8px_30px_rgba(0,0,0,0.35)] backdrop-blur-md"
         style={{
           left: "calc(env(safe-area-inset-left) + 1.25rem)",
           bottom: "calc(env(safe-area-inset-bottom) + 1.5rem)",
@@ -1011,18 +1018,44 @@ function TouchControls({ jumpLabel }: { jumpLabel: string }) {
         }}
         onLostPointerCapture={releaseStick}
       >
-        <span aria-hidden="true" className="absolute inset-3 rounded-full border border-[rgba(255,244,232,0.1)]" />
+        {/* The tick ring, and the rim that lights at a run. */}
+        <span
+          aria-hidden="true"
+          className="absolute inset-[7px] rounded-full opacity-60"
+          style={{
+            background:
+              "repeating-conic-gradient(from 0deg, rgba(255,244,232,0.42) 0deg 1.6deg, transparent 1.6deg 15deg)",
+            WebkitMask: "radial-gradient(circle, transparent 54px, #000 55px)",
+            mask: "radial-gradient(circle, transparent 54px, #000 55px)",
+          }}
+        />
+        <span
+          aria-hidden="true"
+          className="absolute inset-0 rounded-full border-2 border-transparent transition-colors duration-150 group-data-[live=run]:border-[rgba(94,230,255,0.75)] group-data-[live=run]:shadow-[0_0_18px_rgba(94,230,255,0.35)]"
+        />
+        <span aria-hidden="true" className="absolute inset-[22px] rounded-full border border-[rgba(255,244,232,0.12)]" />
+        {/* Cardinal marks. */}
+        {[0, 90, 180, 270].map((deg) => (
+          <span
+            key={deg}
+            aria-hidden="true"
+            className="absolute left-1/2 top-1/2 h-[7px] w-[2px] -translate-x-1/2 rounded bg-[rgba(255,244,232,0.5)]"
+            style={{ transform: `translate(-50%, -50%) rotate(${deg}deg) translateY(-50px)` }}
+          />
+        ))}
         <div
           ref={knob}
-          className="size-14 rounded-full border border-[rgba(154,214,255,0.55)] bg-[rgba(154,214,255,0.18)] shadow-[0_0_14px_rgba(154,214,255,0.25)] transition-transform duration-75"
-        />
+          className="relative size-[52px] rounded-full border border-[rgba(154,214,255,0.7)] bg-[radial-gradient(circle_at_50%_35%,rgba(154,214,255,0.42),rgba(154,214,255,0.12)_70%)] shadow-[0_0_16px_rgba(94,230,255,0.35),inset_0_1px_0_rgba(255,255,255,0.35)] transition-transform duration-75 group-data-[live=run]:border-[rgba(94,230,255,1)] group-data-[live=run]:shadow-[0_0_22px_rgba(94,230,255,0.6),inset_0_1px_0_rgba(255,255,255,0.35)]"
+        >
+          <span aria-hidden="true" className="absolute left-1/2 top-1/2 size-[6px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[rgba(234,252,255,0.9)]" />
+        </div>
       </div>
-      {/* The jump button. */}
+      {/* The jump button: a glass disc with a chevron and the word. */}
       <button
         type="button"
         data-jump
         aria-label={jumpLabel}
-        className="pointer-events-auto absolute z-10 flex size-[84px] items-center justify-center rounded-full border border-[rgba(255,244,232,0.3)] bg-[rgba(10,18,36,0.42)] backdrop-blur active:border-[var(--accent)] active:bg-[rgba(154,214,255,0.22)]"
+        className="group pointer-events-auto absolute z-10 flex size-[80px] flex-col items-center justify-center gap-0.5 rounded-full border border-[rgba(255,244,232,0.3)] bg-[radial-gradient(circle_at_50%_35%,rgba(28,44,78,0.6),rgba(8,14,28,0.55))] shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_8px_30px_rgba(0,0,0,0.35)] backdrop-blur-md transition-[transform,box-shadow] duration-100 active:scale-95 active:border-[rgba(94,230,255,0.9)] active:shadow-[0_0_22px_rgba(94,230,255,0.45)]"
         style={{
           right: "calc(env(safe-area-inset-right) + 1.25rem)",
           bottom: "calc(env(safe-area-inset-bottom) + 1.75rem)",
@@ -1034,6 +1067,11 @@ function TouchControls({ jumpLabel }: { jumpLabel: string }) {
           touchInput.jump = true;
         }}
       >
+        <span aria-hidden="true" className="absolute inset-[6px] rounded-full border border-[rgba(255,244,232,0.12)]" />
+        <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5 text-[var(--accent)]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M6 14l6-6 6 6" />
+          <path d="M6 19l6-6 6 6" opacity="0.45" />
+        </svg>
         <span className="mono-micro text-[var(--fg)]">{jumpLabel}</span>
       </button>
     </>

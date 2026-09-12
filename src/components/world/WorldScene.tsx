@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { Robot } from "@/components/world/avatar/Robot";
 import {
@@ -19,13 +19,14 @@ import {
 import { Display } from "@/components/world/displays/Display";
 import { Cosmos } from "@/components/world/environment/Cosmos";
 import { Ocean } from "@/components/world/environment/Ocean";
-import { Reflections } from "@/components/world/environment/Reflections";
+import { createReflections } from "@/components/world/environment/Reflections";
 import { Animals } from "@/components/world/npc/Animals";
 import { Crowd } from "@/components/world/npc/Crowd";
 import { Guides } from "@/components/world/npc/Guides";
 import { Host } from "@/components/world/npc/Host";
 import { useContactTexture } from "@/components/world/pieces/Kit";
 import { Explorer } from "@/components/world/systems/Explorer";
+import { detectTier, GOVERNOR, QUALITY, qualityStore, type Tier } from "@/components/world/systems/quality";
 import { EYE, VIEWPOINTS, type ZoneId } from "@/data/world-map";
 import type { PreparedDisplay, PreparedGuide, WorldPayload } from "@/lib/worldPayload";
 
@@ -41,7 +42,7 @@ import type { PreparedDisplay, PreparedGuide, WorldPayload } from "@/lib/worldPa
 
 export type WorldMode = "explore" | "tour" | "overture";
 
-export function WorldScene({
+export const WorldScene = memo(function WorldScene({
   payload,
   mode,
   compact,
@@ -66,21 +67,21 @@ export function WorldScene({
   host: { label: string; action: string };
   onReady?: () => void;
 }) {
-  /* A phone gets the guided tour, fewer particles and no dust. */
-  /* The pixel ratio follows the device: a phone with four cores and little
-     memory renders at 1×, a strong one at 1.25×, a desktop up to 1.5×. */
-  const dpr = useMemo<[number, number]>(() => {
-    if (!compact) return [1, 1.5];
-    if (typeof navigator === "undefined") return [1, 1];
-    const cores = navigator.hardwareConcurrency ?? 4;
-    const memory = (navigator as unknown as { deviceMemory?: number }).deviceMemory ?? 4;
-    return cores >= 6 && memory >= 6 ? [1, 1.25] : [1, 1];
+  /* The quality tier decides the pixel ratio the world opens at; the
+     governor inside the scene steps it from there, and only on evidence. */
+  const tier = useMemo(() => {
+    const found = detectTier(compact);
+    /* Published before the scene renders, so the panels paint at the tier's
+       scale the first time rather than repainting later. */
+    qualityStore.tier = found;
+    return found;
   }, [compact]);
+  const start = Math.min(QUALITY[tier].dpr.start, typeof window === "undefined" ? 1 : window.devicePixelRatio || 1);
   return (
     <Canvas
       /* Capped so a high-density display does not render four times the pixels
          a scene made mostly of flat surfaces needs. */
-      dpr={dpr}
+      dpr={start}
       gl={{ antialias: true, powerPreference: "high-performance", alpha: false }}
       /* A long lens. Wide angles exaggerate convergence and make a large room
          look like a small one seen from close up; architecture is photographed
@@ -112,6 +113,7 @@ export function WorldScene({
         /* The frame budget, readable from the console and the QA harness:
            draw calls and triangles for the last rendered frame. */
         (window as unknown as { __archonInfo?: () => unknown }).__archonInfo = () => ({
+          programs: gl.info.programs?.length ?? 0,
           calls: gl.info.render.calls,
           triangles: gl.info.render.triangles,
           points: gl.info.render.points,
@@ -141,7 +143,35 @@ export function WorldScene({
           });
           return { tagged, shown, faces };
         };
-        onReady?.();
+        (window as unknown as { __archonQuality?: () => unknown }).__archonQuality = () => ({ ...qualityStore });
+        /* The scene graph itself, for the QA harness to inspect, and a pick:
+           what is under a point of the frame, in normalised device
+           coordinates. */
+        (window as unknown as { __archonScene?: () => THREE.Scene }).__archonScene = () => scene;
+        (window as unknown as { __archonPick?: (x: number, y: number) => unknown }).__archonPick = (x, y) => {
+          const caster = new THREE.Raycaster();
+          caster.setFromCamera(new THREE.Vector2(x, y), camera);
+          return caster.intersectObjects(scene.children, true).slice(0, 4).map((hit) => {
+            const names: string[] = [];
+            let owner: THREE.Object3D | null = hit.object;
+            while (owner) {
+              if (owner.name) names.push(owner.name);
+              owner = owner.parent;
+            }
+            const mesh = hit.object as THREE.Mesh;
+            const material = mesh.material as THREE.MeshBasicMaterial;
+            return {
+              names,
+              geometry: mesh.geometry?.type,
+              params: (mesh.geometry as unknown as { parameters?: unknown })?.parameters,
+              material: material?.type,
+              color: material?.color?.getHexString?.(),
+              map: Boolean(material?.map),
+              opacity: material?.opacity,
+              distance: Math.round(hit.distance * 10) / 10,
+            };
+          });
+        };
       }}
       frameloop={reduced && mode === "tour" ? "demand" : "always"}
     >
@@ -155,10 +185,12 @@ export function WorldScene({
         onTalk={onTalk}
         onHost={onHost}
         host={host}
+        tier={tier}
+        onReady={onReady}
       />
     </Canvas>
   );
-}
+});
 
 function World({
   payload,
@@ -170,6 +202,8 @@ function World({
   onTalk,
   onHost,
   host,
+  tier,
+  onReady,
 }: {
   payload: WorldPayload;
   mode: WorldMode;
@@ -180,19 +214,26 @@ function World({
   onTalk: (guide: PreparedGuide) => void;
   onHost: () => void;
   host: { label: string; action: string };
+  tier: Tier;
+  onReady?: () => void;
 }) {
   const texture = useContactTexture();
   useEffect(() => () => texture.dispose(), [texture]);
 
   const open = useCallback((display: PreparedDisplay) => onOpen(display), [onOpen]);
   const talk = useCallback((guide: PreparedGuide) => onTalk(guide), [onTalk]);
+  /* Everything with a shape, so the boot can hide it while it compiles.
+     The lights stay outside: the compiler reads them from the scene. */
+  const world = useRef<THREE.Group>(null);
 
   return (
     <>
+      <Lighting />
+      <Boot tier={tier} compact={compact} world={world} onReady={onReady} />
+      <Governor tier={tier} />
+      <group ref={world}>
       <Cosmos reduced={reduced} compact={compact} />
       <Ocean reduced={reduced} />
-      <Lighting />
-      <Reflections compact={compact} />
 
       {mode === "explore" ? (
         <>
@@ -249,8 +290,187 @@ function World({
       <Staged frames={compact ? 8 : 6}>
         <Animals compact={compact} />
       </Staged>
+      </group>
     </>
   );
+}
+
+/* ------------------------------------------------------------------ boot */
+
+/** Resolve after `count` animation frames. */
+const frames = (count: number) =>
+  new Promise<void>((resolve) => {
+    let left = count;
+    const tick = () => (left-- <= 0 ? resolve() : requestAnimationFrame(tick));
+    requestAnimationFrame(tick);
+  });
+
+/**
+ * The boot.
+ *
+ * The world is mounted behind the opening screen, and what it does in
+ * those first seconds decides whether the sweep, and the first steps after
+ * it, stutter. Measured on a throttled phone, three things did: every
+ * shader compiled synchronously the first time its object was drawn, in
+ * lumps of a second as the staged districts, the crowd and the animals
+ * arrived; the environment map, set a few seconds in, changed every lit
+ * material's shader and recompiled the lot in the middle of the sweep; and
+ * each panel texture was uploaded the first time the camera turned to it.
+ *
+ * So, in order, while the scene is hidden: wait for the staged parts to
+ * mount; prime the environment with a placeholder of the right type; have
+ * every material in the scene compiled against it — in parallel on the
+ * GPU's own threads where the driver allows, and either way before anything
+ * is on screen; upload every texture a few per frame; show the scene and
+ * take the real environment photograph, which now costs no compiles; then
+ * tell the opening it may begin. A failsafe reports ready after twelve
+ * seconds regardless — the chain runs on and the photograph is still taken
+ * — so a very slow driver still gets a world.
+ */
+function Boot({
+  tier,
+  compact,
+  world,
+  onReady,
+}: {
+  tier: Tier;
+  compact: boolean;
+  world: React.RefObject<THREE.Group | null>;
+  onReady?: () => void;
+}) {
+  const { gl, scene, camera } = useThree();
+  const done = useRef(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const ready = () => {
+      if (done.current || cancelled) return;
+      done.current = true;
+      onReady?.();
+    };
+    const rig = createReflections(gl, scene, QUALITY[tier].reflections);
+    const group = world.current;
+    if (group) group.visible = false;
+    const failsafe = window.setTimeout(() => {
+      if (group) group.visible = true;
+      ready();
+    }, 12000);
+    let later = 0;
+
+    (async () => {
+      /* The staged constructions land over the first frames. */
+      await frames(compact ? 10 : 8);
+      if (cancelled) return;
+      rig.prime();
+      try {
+        await gl.compileAsync(scene, camera);
+      } catch {
+        /* A context that cannot compile ahead still renders; it just compiles on sight. */
+      }
+      if (cancelled) return;
+      /* Textures: everything a material holds, uploaded a few per frame so
+         no one frame carries them all — before the capture, which would
+         otherwise upload the lot in one go. */
+      const textures = new Set<THREE.Texture>();
+      scene.traverse((object) => {
+        const material = (object as THREE.Mesh).material as THREE.Material | THREE.Material[] | undefined;
+        for (const one of Array.isArray(material) ? material : material ? [material] : []) {
+          const maps = one as unknown as Record<string, unknown>;
+          for (const key of ["map", "alphaMap", "emissiveMap", "roughnessMap", "normalMap"]) {
+            const map = maps[key];
+            if (map && (map as THREE.Texture).isTexture) textures.add(map as THREE.Texture);
+          }
+        }
+      });
+      let count = 0;
+      for (const one of textures) {
+        gl.initTexture(one);
+        count += 1;
+        if (count % 6 === 0) {
+          await frames(1);
+          if (cancelled) return;
+        }
+      }
+      if (group) group.visible = true;
+      await frames(1);
+      if (cancelled) return;
+      rig.capture();
+      ready();
+      /* A desktop photographs the world once more when the captures on the
+         screens have had time to land; the shaders do not change for it. */
+      if (!compact) later = window.setTimeout(() => rig.capture(), 3500);
+    })();
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(failsafe);
+      if (later) window.clearTimeout(later);
+      if (group) group.visible = true;
+      rig.dispose();
+    };
+    // Boots once per scene; the tier and the callbacks are fixed for its life.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gl, scene]);
+
+  return null;
+}
+
+/* -------------------------------------------------------------- governor */
+
+/**
+ * The pixel-ratio governor.
+ *
+ * The world opens at the tier's sharpest ratio and stays there unless the
+ * frame time says otherwise: a smoothed frame over the slow threshold for a
+ * second and a half steps the ratio down by a tenth; under the fast
+ * threshold for six seconds steps it back up. One step at a time, four
+ * seconds apart at least, applied between frames by the renderer's own
+ * resize — never a jump the eye would read as the picture changing.
+ */
+function Governor({ tier }: { tier: Tier }) {
+  const { setDpr, viewport } = useThree();
+  const state = useRef({ slow: 0, fast: 0, since: 0, dpr: 0 });
+  const profile = QUALITY[tier];
+
+  useEffect(() => {
+    qualityStore.tier = tier;
+    qualityStore.dpr = viewport.dpr;
+    state.current.dpr = viewport.dpr;
+  }, [tier, viewport.dpr]);
+
+  useFrame((_, raw) => {
+    const here = state.current;
+    const ms = Math.min(raw, 0.25) * 1000;
+    /* A slow exponential average: one bad frame is not a slow phone. */
+    qualityStore.frame += (ms - qualityStore.frame) * 0.08;
+    here.since += raw;
+    if (qualityStore.frame > GOVERNOR.slowMs) {
+      here.slow += raw;
+      here.fast = 0;
+    } else if (qualityStore.frame < GOVERNOR.fastMs) {
+      here.fast += raw;
+      here.slow = 0;
+    } else {
+      here.slow = 0;
+      here.fast = 0;
+    }
+    if (here.since < GOVERNOR.cooldown) return;
+    const ceiling = Math.min(profile.dpr.max, typeof window === "undefined" ? 1 : window.devicePixelRatio || 1);
+    let next = here.dpr;
+    if (here.slow > GOVERNOR.slowFor && here.dpr - GOVERNOR.step >= profile.dpr.min - 1e-6) next = here.dpr - GOVERNOR.step;
+    else if (here.fast > GOVERNOR.fastFor && here.dpr + GOVERNOR.step <= ceiling + 1e-6) next = here.dpr + GOVERNOR.step;
+    if (next === here.dpr) return;
+    next = Math.round(next * 100) / 100;
+    here.dpr = next;
+    here.since = 0;
+    here.slow = 0;
+    here.fast = 0;
+    qualityStore.dpr = next;
+    qualityStore.steps += 1;
+    setDpr(next);
+  });
+
+  return null;
 }
 
 /* ---------------------------------------------------------------- staged */

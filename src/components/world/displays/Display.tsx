@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useSyncExternalStore } from "react";
 import * as THREE from "three";
-import { Contact, MATERIAL } from "@/components/world/pieces/Kit";
+import { Backlight, Contact, MATERIAL } from "@/components/world/pieces/Kit";
 import { DataSurface, Mount, paintPanel } from "@/components/world/pieces/Surface";
 import { discovery } from "@/components/world/systems/discovery";
 import { focusStore, interactables } from "@/components/world/systems/focus";
@@ -82,11 +82,19 @@ export function Display({
      need the pixels a fifteen-metre billboard does, and a world that gives
      every panel a 1024px canvas spends most of its texture memory on things
      nobody stands closer than eight metres to. */
-  const resolution = w > 20 ? 1536 : w > 10 ? 1280 : w > 4 ? 1024 : 768;
+  const resolution = w > 20 ? 2048 : w > 10 ? 1536 : w > 4 ? 1280 : 1024;
+
+  /* How hard the LED behind it works: the panels by the entrance and the
+     big installations at full, an ordinary wall or console at two thirds,
+     one cell of an array at a third. And where the floor is, for the pool
+     of light — a panel on a mast or in a wall throws none. */
+  const strength =
+    display.zone === "hub" && display.form === "vertical" ? 1 : display.form === "immersive" || display.form === "billboard" ? 0.85 : display.form === "array" ? 0.35 : 0.65;
+  const foot = display.form === "vertical" || display.form === "kiosk" || display.form === "terminal" || display.form === "immersive" ? display.at[1] : undefined;
 
   const screen = (
     <>
-      <Backlight size={display.size} texture={texture} />
+      <Backlight size={display.size} strength={strength} foot={foot} forward={display.form === "immersive" ? 1.2 : 0.3} />
       <Mount
         size={display.size}
         texture={texture}
@@ -133,32 +141,6 @@ export function Display({
           {screen}
         </ConsoleHousing>
       ) : null}
-    </group>
-  );
-}
-
-/* ------------------------------------------------------------ backlight */
-
-/**
- * The white LED behind a panel.
- *
- * Two planes and no lights: a soft radial halo on the air behind the glass,
- * a thin white line of light around the panel's perimeter where it leaks
- * past the frame. It is what makes a panel read as a lit thing from across
- * a plaza, and it costs two draws.
- */
-function Backlight({ size, texture }: { size: [number, number]; texture: THREE.Texture }) {
-  const [w, h] = size;
-  return (
-    <group>
-      <mesh position={[0, 0, -0.16]}>
-        <planeGeometry args={[w * 1.6, h * 1.9]} />
-        <meshBasicMaterial map={texture} color="#ffffff" transparent opacity={0.32} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
-      </mesh>
-      <mesh position={[0, 0, -0.05]}>
-        <planeGeometry args={[w + 0.14, h + 0.14]} />
-        <meshBasicMaterial color="#f4f8ff" transparent opacity={0.55} toneMapped={false} depthWrite={false} />
-      </mesh>
     </group>
   );
 }

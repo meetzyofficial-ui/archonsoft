@@ -192,6 +192,116 @@ export function Contact({
   );
 }
 
+/* ------------------------------------------------------------ backlight */
+
+let glowTexture: THREE.CanvasTexture | null = null;
+
+/**
+ * A white radial glow with its alpha in the alpha channel and white in the
+ * colour — which the contact blot, black in colour, is not: a black texture
+ * under a white additive material adds nothing, and that is exactly what
+ * the old backlight did.
+ */
+export function useGlowTexture() {
+  return useMemo(() => {
+    if (glowTexture) return glowTexture;
+    const size = 256;
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+      const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+      g.addColorStop(0, "rgba(255,255,255,1)");
+      g.addColorStop(0.18, "rgba(255,255,255,0.78)");
+      g.addColorStop(0.42, "rgba(255,255,255,0.3)");
+      g.addColorStop(0.7, "rgba(255,255,255,0.07)");
+      g.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, size, size);
+    }
+    glowTexture = new THREE.CanvasTexture(canvas);
+    glowTexture.colorSpace = THREE.SRGBColorSpace;
+    return glowTexture;
+  }, []);
+}
+
+/** Four flat bars around a rectangle in the XY plane, `t` wide, outside it. */
+function frameParts(w: number, h: number, t: number, z: number) {
+  return [
+    { geometry: new THREE.PlaneGeometry(w + t * 2, t), at: [0, h / 2 + t / 2, z] as [number, number, number] },
+    { geometry: new THREE.PlaneGeometry(w + t * 2, t), at: [0, -h / 2 - t / 2, z] as [number, number, number] },
+    { geometry: new THREE.PlaneGeometry(t, h), at: [-w / 2 - t / 2, 0, z] as [number, number, number] },
+    { geometry: new THREE.PlaneGeometry(t, h), at: [w / 2 + t / 2, 0, z] as [number, number, number] },
+  ];
+}
+
+/**
+ * The white LED behind a panel.
+ *
+ * What makes a screen read as a lit thing from across a plaza, and what the
+ * reference frames all have: a clean line of white light around the glass
+ * where the backlight leaks past the frame, a soft halo on the air behind
+ * it, and — for a panel that stands near the ground — a pool of the same
+ * light on the deck below. Three or four draws, no light sources, and
+ * everything crisp where it should be crisp: the rim is geometry, not a
+ * blurred texture, so it stays a line at any distance; only the halo and
+ * the pool are soft.
+ *
+ * `strength` scales the whole thing: the panels by the entrance at one, a
+ * far billboard at half, a cell in an array lower still. Not every panel is
+ * equally important and a world where they all shout the same says nothing.
+ */
+export function Backlight({
+  size,
+  strength = 1,
+  inset = 0.05,
+  foot,
+  forward = 0,
+}: {
+  size: [number, number];
+  strength?: number;
+  /** The gap between the panel's edge and the inner edge of the rim. */
+  inset?: number;
+  /** How far below the panel's centre the floor is, for the pool of light; none for a panel in the air. */
+  foot?: number;
+  /** How far in front of the panel the pool's centre sits. */
+  forward?: number;
+}) {
+  const [w, h] = size;
+  const glow = useGlowTexture();
+  const rim = 0.035;
+  const soft = 0.2;
+  const rimGeometry = useMerged(() => frameParts(w + inset * 2, h + inset * 2, rim, 0.002), [w, h, inset]);
+  const softGeometry = useMerged(
+    () => frameParts(w + inset * 2 + rim * 2, h + inset * 2 + rim * 2, soft, -0.03),
+    [w, h, inset],
+  );
+  return (
+    <group>
+      {/* The halo on the air behind. */}
+      <mesh position={[0, 0, -0.22]}>
+        <planeGeometry args={[w * 1.45 + 1.2, h * 1.6 + 1.2]} />
+        <meshBasicMaterial map={glow} color="#ffffff" transparent opacity={0.72 * strength} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
+      </mesh>
+      {/* The line of light, and the soft edge outside it. */}
+      <mesh geometry={rimGeometry}>
+        <meshBasicMaterial color="#ffffff" transparent opacity={Math.min(1, 0.96 * strength)} toneMapped={false} depthWrite={false} />
+      </mesh>
+      <mesh geometry={softGeometry}>
+        <meshBasicMaterial color="#ffffff" transparent opacity={0.2 * strength} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
+      </mesh>
+      {/* The pool on the deck. */}
+      {foot !== undefined ? (
+        <mesh position={[0, -foot + 0.025, forward + 0.5]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[w + 2.4, 2.8]} />
+          <meshBasicMaterial map={glow} color="#ffffff" transparent opacity={0.42 * strength} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
+        </mesh>
+      ) : null}
+    </group>
+  );
+}
+
 /* ----------------------------------------------------------------- glow */
 
 /** An unlit emissive material, shared where the colour is shared. */

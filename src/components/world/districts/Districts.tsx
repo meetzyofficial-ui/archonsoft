@@ -6,6 +6,7 @@ import * as THREE from "three";
 import { moodStore } from "@/components/world/environment/mood";
 import {
   Arch,
+  Backlight,
   BuiltWall,
   Colonnade,
   Deck,
@@ -713,7 +714,7 @@ function Station({
           const x = -span / 2 + i * spacing;
           return (
             <group key={photo.src} position={[x, 0, 0]}>
-              <Screen size={[w, photoHeight]} accent={accent} frame={theme.frame} texture={texture} />
+              <Screen size={[w, photoHeight]} accent={accent} frame={theme.frame} />
               <PhotoSurface src={photo.src} size={[w - 0.08, photoHeight - 0.08]} />
             </group>
           );
@@ -932,7 +933,7 @@ function Wayfinding({ locale }: { locale: Locale }) {
  * lit edge in the station's colour, and a faint glow on the air behind it.
  * The screenshot is laid on the glass by `PhotoSurface`.
  */
-function Screen({ size, accent, frame, texture }: { size: [number, number]; accent: string; frame: string; texture: THREE.Texture }) {
+function Screen({ size, accent, frame }: { size: [number, number]; accent: string; frame: string }) {
   const [w, h] = size;
   const t = 0.06;
   const frameGeometry = useMerged(
@@ -964,16 +965,9 @@ function Screen({ size, accent, frame, texture }: { size: [number, number]; acce
       <mesh geometry={edgeGeometry}>
         <Glow colour={accent} opacity={0.85} />
       </mesh>
-      {/* The white LED behind the glass: a halo on the air, and a line of
-          light round the frame where it leaks past. */}
-      <mesh position={[0, 0, -0.16]}>
-        <planeGeometry args={[w * 1.6, h * 1.9]} />
-        <meshBasicMaterial map={texture} color="#ffffff" transparent opacity={0.3} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
-      </mesh>
-      <mesh position={[0, 0, -0.045]}>
-        <planeGeometry args={[w + t * 2 + 0.06, h + t * 2 + 0.06]} />
-        <meshBasicMaterial color="#f4f8ff" transparent opacity={0.5} toneMapped={false} depthWrite={false} />
-      </mesh>
+      {/* The white LED behind the glass: a line of light just outside the
+          frame, a halo on the air behind. */}
+      <Backlight size={size} strength={0.8} inset={t + 0.01} />
     </group>
   );
 }

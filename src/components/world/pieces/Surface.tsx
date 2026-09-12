@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type MutableRefObject } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import { QUALITY, qualityStore } from "@/components/world/systems/quality";
 import type { PanelContent } from "@/data/world-map";
 
 /**
@@ -27,7 +28,7 @@ export type SurfacePaint = (ctx: CanvasRenderingContext2D, w: number, h: number)
 /* --------------------------------------------------------------- drawing */
 
 const SANS = '600 1px "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif';
-const MONO = '1px ui-monospace, "SF Mono", Menlo, Consolas, monospace';
+const MONO = '500 1px ui-monospace, "SF Mono", Menlo, Consolas, monospace';
 
 const font = (spec: string, px: number) => spec.replace("1px", `${px}px`);
 
@@ -101,19 +102,38 @@ export function paintPanel(content: PanelContent): SurfacePaint {
     for (let line = 0; line < h; line += Math.max(3, Math.round(6 * scale))) {
       ctx.fillRect(0, line, w, 1);
     }
-    /* The lit edge along the top, and a hairline of white light inside the
-       frame all round: the backlight leaking past the glass. */
+    /* The backlight, in the glass itself: white light coming in from every
+       edge and fading toward the middle, so the panel reads as lit from
+       behind at any distance — a mip of this is a bright-edged plate, not a
+       grey one. */
+    const leak = Math.round(w * 0.075);
+    const edges: [number, number, number, number][] = [
+      [0, 0, 0, leak],
+      [0, h, 0, h - leak],
+      [0, 0, leak, 0],
+      [w, 0, w - leak, 0],
+    ];
+    for (const [x0, y0, x1, y1] of edges) {
+      const g = ctx.createLinearGradient(x0, y0, x1, y1);
+      g.addColorStop(0, "rgba(255,255,255,0.26)");
+      g.addColorStop(0.35, "rgba(255,255,255,0.07)");
+      g.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, w, h);
+    }
+    /* The lit edge along the top in the product's colour, and a crisp line
+       of white light just inside the frame all the way round. */
     ctx.fillStyle = content.accent;
     ctx.fillRect(0, 0, w, Math.max(2, 3 * scale));
-    ctx.strokeStyle = "rgba(255,255,255,0.14)";
-    ctx.lineWidth = Math.max(1, 2 * scale);
+    ctx.strokeStyle = "rgba(255,255,255,0.82)";
+    ctx.lineWidth = Math.max(2, 3 * scale);
     ctx.strokeRect(ctx.lineWidth / 2, ctx.lineWidth / 2, w - ctx.lineWidth, h - ctx.lineWidth);
 
-    /* Type glows a little: a soft white shadow under every glyph, small
-       enough that the letters stay crisp. */
+    /* Type is drawn sharp; the glow, where there is one, is a separate pass
+       underneath. Sharp first, glow after, never one through the other. */
     const glow = (on: boolean) => {
-      ctx.shadowColor = on ? "rgba(214,236,255,0.55)" : "rgba(0,0,0,0)";
-      ctx.shadowBlur = on ? Math.max(4, 10 * scale) : 0;
+      ctx.shadowColor = on ? "rgba(214,236,255,0.5)" : "rgba(0,0,0,0)";
+      ctx.shadowBlur = on ? Math.max(6, 14 * scale) : 0;
     };
 
     let y = pad + 26 * scale;
@@ -125,22 +145,24 @@ export function paintPanel(content: PanelContent): SurfacePaint {
 
     ctx.fillStyle = "#ffffff";
     const titleSize = Math.round(Math.min(92, w * 0.086));
-    ctx.font = font(SANS, titleSize);
+    ctx.font = font(SANS.replace("600", "700"), titleSize);
+    /* The glow pass, then the same title again with hard edges over it. */
     glow(true);
-    y = wrap(ctx, content.title, pad, y + titleSize * 0.78, w - pad * 2, titleSize * 1.08, 2);
+    ctx.globalAlpha = 0.7;
+    wrap(ctx, content.title, pad, y + titleSize * 0.78, w - pad * 2, titleSize * 1.08, 2);
+    ctx.globalAlpha = 1;
     glow(false);
+    y = wrap(ctx, content.title, pad, y + titleSize * 0.78, w - pad * 2, titleSize * 1.08, 2);
 
     y += 22 * scale;
     ctx.fillStyle = "rgba(255,255,255,0.22)";
     ctx.fillRect(pad, y, w - pad * 2, Math.max(1, 1.5 * scale));
     y += 44 * scale;
 
-    ctx.fillStyle = "rgba(236,243,252,0.96)";
-    const bodySize = Math.round(Math.min(36, Math.max(26, w * 0.033)));
-    ctx.font = font(SANS.replace("600", "400"), bodySize);
-    glow(true);
-    y = wrap(ctx, content.body, pad, y, w - pad * 2, bodySize * 1.58, 4);
-    glow(false);
+    ctx.fillStyle = "#f6f9fd";
+    const bodySize = Math.round(Math.min(38, Math.max(28, w * 0.035)));
+    ctx.font = font(SANS.replace("600", "500"), bodySize);
+    y = wrap(ctx, content.body, pad, y, w - pad * 2, bodySize * 1.55, 4);
 
     if (content.layers?.length) {
       y += 26 * scale;
@@ -150,8 +172,8 @@ export function paintPanel(content: PanelContent): SurfacePaint {
         ctx.fillRect(pad, y - bodySize * 0.72, 3 * scale, bodySize * 0.9);
         ctx.fillStyle = "#f2f6fc";
         label(ctx, layer.label, pad + 16 * scale, y, Math.round(bodySize * 0.74));
-        ctx.fillStyle = "rgba(205,215,236,0.78)";
-        ctx.font = font(SANS.replace("600", "400"), Math.round(bodySize * 0.82));
+        ctx.fillStyle = "rgba(220,228,244,0.9)";
+        ctx.font = font(SANS.replace("600", "500"), Math.round(bodySize * 0.84));
         y = wrap(
           ctx,
           layer.detail,
@@ -168,7 +190,7 @@ export function paintPanel(content: PanelContent): SurfacePaint {
     if (content.meta?.length) {
       let cursor = pad;
       const metaY = h - pad;
-      ctx.fillStyle = "rgba(205,215,236,0.86)";
+      ctx.fillStyle = "rgba(226,233,246,0.94)";
       for (const item of content.meta) {
         const size = Math.round(Math.min(24, w * 0.023));
         const end = label(ctx, item, cursor, metaY, size);
@@ -219,6 +241,7 @@ export function DataSurface({
   pulse?: number | null;
 }) {
   const material = useRef<THREE.MeshBasicMaterial>(null);
+  const gl = useThree((state) => state.gl);
   useFrame(({ clock }) => {
     if (pulse === null || !material.current) return;
     const k = 0.5 + 0.5 * Math.sin((clock.elapsedTime / 3.1) * Math.PI * 2 - pulse);
@@ -226,8 +249,13 @@ export function DataSurface({
   });
   const texture = useMemo(() => {
     const [w, h] = size;
-    const width = resolution;
-    const height = Math.round((resolution * h) / w);
+    /* Painted at the tier's scale of the asked-for resolution — a low tier
+       paints at three quarters, never less — and filtered with as much
+       anisotropy as the GPU has, which is what keeps a line of type legible
+       on a panel seen from an angle. */
+    const profile = QUALITY[qualityStore.tier];
+    const width = Math.round(resolution * profile.textureScale);
+    const height = Math.round((width * h) / w);
     const canvas = document.createElement("canvas");
     canvas.width = width;
     canvas.height = height;
@@ -235,11 +263,13 @@ export function DataSurface({
     if (ctx) paint(ctx, width, height);
     const result = new THREE.CanvasTexture(canvas);
     result.colorSpace = THREE.SRGBColorSpace;
-    result.anisotropy = 4;
+    result.anisotropy = Math.min(profile.anisotropy, gl.capabilities.getMaxAnisotropy());
+    result.minFilter = THREE.LinearMipmapLinearFilter;
+    result.magFilter = THREE.LinearFilter;
     return result;
     // The paint function closes over content that never changes for a display.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resolution, size[0], size[1]]);
+  }, [resolution, size[0], size[1], gl]);
 
   useEffect(() => () => texture.dispose(), [texture]);
 
@@ -272,6 +302,7 @@ export function PhotoSurface({
 }) {
   const [texture, setTexture] = useState<THREE.Texture | null>(null);
   const material = useRef<THREE.MeshBasicMaterial>(null);
+  const gl = useThree((state) => state.gl);
 
   useEffect(() => {
     let cancelled = false;
@@ -284,7 +315,7 @@ export function PhotoSurface({
         return;
       }
       result.colorSpace = THREE.SRGBColorSpace;
-      result.anisotropy = 4;
+      result.anisotropy = Math.min(QUALITY[qualityStore.tier].anisotropy, gl.capabilities.getMaxAnisotropy());
       loaded = result;
       setTexture(result);
       if (material.current) {
@@ -296,7 +327,7 @@ export function PhotoSurface({
       cancelled = true;
       loaded?.dispose();
     };
-  }, [src]);
+  }, [src, gl]);
 
   useEffect(() => {
     if (!material.current) return;
