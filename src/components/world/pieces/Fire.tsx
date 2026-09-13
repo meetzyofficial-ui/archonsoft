@@ -194,6 +194,7 @@ export function Flames({
   scale = 1,
   sparkRatio = 0.25,
   smokeRatio = 0,
+  lod,
 }: {
   count: number;
   read: (emitters: Emitter[], state: { heat: number; velocity: THREE.Vector3 }) => void;
@@ -201,6 +202,13 @@ export function Flames({
   sparkRatio?: number;
   /** A share of the count as smoke over the flames; none on a phone. */
   smokeRatio?: number;
+  /**
+   * World fire, by distance from the camera: full inside a fifth of `far`,
+   * thinning to a third of its particles toward `far`, and not drawn past
+   * it. The particles are in random order, so a shorter draw range is an
+   * even thinning — the flame keeps its shape. The robot's fire has none.
+   */
+  lod?: { center: THREE.Vector3; far: number };
 }) {
   const flames = useRef<THREE.Points>(null);
   const sparks = useRef<THREE.Points>(null);
@@ -210,6 +218,7 @@ export function Flames({
   const materials = useMemo(() => [makeMaterial(false), makeMaterial(true), makeMaterial(2)], []);
   const geometries = useRef<THREE.BufferGeometry[] | null>(null);
   const built = useRef(0);
+  const root = useRef<THREE.Group>(null);
 
   useEffect(
     () => () => {
@@ -219,7 +228,15 @@ export function Flames({
     [materials],
   );
 
-  useFrame(({ gl, clock }) => {
+  useFrame(({ gl, clock, camera }) => {
+    if (lod && root.current) {
+      const distance = camera.position.distanceTo(lod.center);
+      const shown = distance < lod.far;
+      if (root.current.visible !== shown) root.current.visible = shown;
+      if (!shown) return;
+      const keep = THREE.MathUtils.clamp(1 - ((distance - lod.far * 0.2) / (lod.far * 0.8)) * 0.67, 0.33, 1);
+      geometries.current?.forEach((g, i) => g.setDrawRange(0, Math.ceil((i === 0 ? count : i === 1 ? count * sparkRatio : count * smokeRatio) * keep)));
+    }
     emitters.length = 0;
     read(emitters, state);
     const n = Math.min(MAX_EMITTERS, emitters.length);
@@ -259,7 +276,7 @@ export function Flames({
   });
 
   return (
-    <group name="fire">
+    <group name="fire" ref={root}>
       {smokeRatio > 0 ? <points ref={smoke} material={materials[2]} frustumCulled={false} renderOrder={2} /> : null}
       <points ref={flames} material={materials[0]} frustumCulled={false} renderOrder={3} />
       {sparkRatio > 0 ? <points ref={sparks} material={materials[1]} frustumCulled={false} renderOrder={3} /> : null}

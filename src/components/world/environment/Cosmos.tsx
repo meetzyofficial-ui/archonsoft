@@ -901,6 +901,11 @@ function useCometTexture() {
  * the sky lifts a little green while it passes. It never comes near the
  * ground; it is a thing to catch sight of, not an event to survive.
  */
+const AHEAD = new THREE.Vector3();
+const ACROSS = new THREE.Vector3();
+const SCREEN = new THREE.Vector3();
+const view = { visible: false, inView: false, x: 0, y: 0, height: 0 };
+
 function Comet() {
   const group = useRef<THREE.Group>(null);
   const head = useRef<THREE.Mesh>(null);
@@ -915,12 +920,15 @@ function Comet() {
     (window as unknown as { __archonComet?: () => void }).__archonComet = () => {
       state.current.next = state.current.clock;
     };
+    /* QA: where the pass is on screen — normalised device coordinates. */
+    (window as unknown as { __archonCometView?: () => unknown }).__archonCometView = () => ({ ...view });
     return () => {
       delete (window as unknown as { __archonComet?: unknown }).__archonComet;
+      delete (window as unknown as { __archonCometView?: unknown }).__archonCometView;
     };
   }, []);
 
-  useFrame((_, raw) => {
+  useFrame(({ camera }, raw) => {
     const delta = Math.min(raw, 0.05);
     const st = state.current;
     st.clock += delta;
@@ -928,15 +936,30 @@ function Comet() {
     if (!node) return;
     if (st.t < 0) {
       node.visible = false;
+      view.visible = false;
       if (st.clock >= st.next) {
         /* A new pass: high, far, on a line that falls a little. */
         const side = Math.random() < 0.5 ? -1 : 1;
-        /* Low over the campus and in front of the skyline: it enters at one
-           side of the sky, crosses above the plaza on a falling diagonal, and
-           leaves at the other — the whole pass in view from the ground. */
-        st.from.set(side * 270, 46 + Math.random() * 8, -36 - Math.random() * 10);
-        st.to.set(-side * 270, 24 + Math.random() * 6, 10 + Math.random() * 12);
+        /* Low over the campus and in front of the skyline, and in front of
+           the visitor: it enters at one side of whatever they are facing,
+           crosses the middle of their view on a falling diagonal a hundred
+           and sixty metres out, and leaves at the other — the whole pass in
+           view from the ground, wherever they happen to be looking. */
+        camera.getWorldDirection(AHEAD);
+        AHEAD.y = 0;
+        if (AHEAD.lengthSq() < 1e-4) AHEAD.set(0, 0, -1);
+        AHEAD.normalize();
+        ACROSS.set(-AHEAD.z, 0, AHEAD.x);
+        /* A tall phone sees a narrow slice of sky: the pass is shortened to
+           it, so it crosses the screen rather than flashing through. */
+        const aspect = (camera as THREE.PerspectiveCamera).aspect ?? 1.6;
+        const half = 250 * THREE.MathUtils.clamp(aspect / 1.6, 0.4, 1);
+        const cx = camera.position.x + AHEAD.x * 160;
+        const cz = camera.position.z + AHEAD.z * 160;
+        st.from.set(cx + ACROSS.x * side * half - AHEAD.x * 20, camera.position.y + 34 + Math.random() * 6, cz + ACROSS.z * side * half - AHEAD.z * 20);
+        st.to.set(cx - ACROSS.x * side * half + AHEAD.x * 20, camera.position.y + 16 + Math.random() * 5, cz - ACROSS.z * side * half + AHEAD.z * 20);
         worldEvents.emit("comet");
+        view.inView = false;
         st.t = 0;
       }
       return;
@@ -945,6 +968,12 @@ function Comet() {
     const k = Math.min(1, st.t / DURATION);
     node.visible = true;
     node.position.lerpVectors(st.from, st.to, k);
+    SCREEN.copy(node.position).project(camera);
+    view.visible = true;
+    view.x = SCREEN.x;
+    view.y = SCREEN.y;
+    view.height = node.position.y;
+    if (Math.abs(SCREEN.x) < 1 && Math.abs(SCREEN.y) < 1 && SCREEN.z < 1) view.inView = true;
     dir.subVectors(st.to, st.from).normalize();
     /* The tail points back along the way it came. */
     node.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), dir);

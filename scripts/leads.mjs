@@ -103,7 +103,7 @@ fs.mkdirSync(".qa/world", { recursive: true });
     const data = await response.json();
     check("the route accepts it", response.status() === 200 && data.ok === true, JSON.stringify(data));
     check("the lead is kept", data.stored === "file" || data.stored === "firestore", data.stored);
-    check("the record carries a status", ["new", "notified", "notification_partial", "notification_pending"].includes(data.status), data.status);
+    check("the record carries a status", ["new", "notified", "notification_partial", "failed"].includes(data.status), data.status);
     check("the notifications report honestly", ["sent", "skipped", "mocked", "failed"].includes(data.notified?.whatsapp) && ["sent", "skipped", "failed"].includes(data.notified?.email), JSON.stringify(data.notified));
     await page.waitForTimeout(600);
     check("the card thanks the visitor", (await card.getAttribute("data-stage")) === "done" && /Talebinizi ekibimize ilettik/.test(await card.innerText()));
@@ -156,15 +156,15 @@ fs.mkdirSync(".qa/world", { recursive: true });
   check("the robot burns: fire particles on it", effects.firePoints > 500, String(effects.firePoints));
   check("fire columns stand on every bridge", effects.torches === 5, String(effects.torches));
   await page.evaluate(() => window.__archonComet?.());
-  /* Sample the pass: somewhere in it the comet is over the plaza, low, in front of the skyline. */
+  /* Sample the pass: it crosses the visitor's view, low, in front of the skyline. */
   let best = null;
   for (let i = 0; i < 24; i += 1) {
-    await page.waitForTimeout(500);
-    const comet = await page.evaluate(() => { const c = window.__archonScene().getObjectByName("cosmos:comet"); return c ? { visible: c.visible, x: c.position.x, y: c.position.y, z: c.position.z } : null; });
+    await page.waitForTimeout(400);
+    const comet = await page.evaluate(() => window.__archonCometView?.());
     if (comet?.visible && (!best || Math.abs(comet.x) < Math.abs(best.x))) best = comet;
-    if (best && Math.abs(best.x) < 60) break;
+    if (comet?.inView && best && Math.abs(best.x) < 0.5) break;
   }
-  check("the comet crosses low, in front of the skyline, over the plaza", best && best.z > -40 && best.y < 60 && Math.abs(best.x) < 60, JSON.stringify(best));
+  check("the comet crosses the visitor's view, low, in front of the skyline", best && best.inView && best.height < 60 && Math.abs(best.x) < 0.6, JSON.stringify(best));
 
   check("no page errors on the desktop journey", errors.length === 0, errors.join(" | ").slice(0, 200));
   await page.close();
@@ -178,7 +178,7 @@ fs.mkdirSync(".qa/world", { recursive: true });
     check(`the privacy notice answers at /${locale}/privacy`, response.status === 200 && /KVKK/.test(html) && /info@archonsoft\.tr/.test(html));
   }
   const status = await (await fetch(`${BASE}/api/lead`)).json();
-  check("the lead route reports what is wired up, without secrets", status.ok === true && ["firestore", "file", "none"].includes(status.store) && ["configured", "missing"].includes(status.email) && ["configured", "mocked", "missing"].includes(status.whatsapp), JSON.stringify(status));
+  check("the lead route reports what is wired up, without secrets", status.ok === true && ["active", "inactive"].includes(status.store) && ["active", "inactive"].includes(status.email) && ["active", "inactive"].includes(status.whatsapp) && ["firestore", "file", "none"].includes(status.detail?.store) && ["configured", "missing"].includes(status.detail?.email) && ["configured", "mocked", "missing"].includes(status.detail?.whatsapp) && Array.isArray(status.missing) && !JSON.stringify(status).includes("BEGIN PRIVATE"), JSON.stringify(status));
 }
 
 /* --------------------------------------------------------------- route */

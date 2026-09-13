@@ -25,6 +25,7 @@ import { Crowd } from "@/components/world/npc/Crowd";
 import { Guides } from "@/components/world/npc/Guides";
 import { Host } from "@/components/world/npc/Host";
 import { Office } from "@/components/world/npc/Office";
+import { NpcShadows } from "@/components/world/npc/shadows";
 import { useContactTexture } from "@/components/world/pieces/Kit";
 import { Explorer } from "@/components/world/systems/Explorer";
 import { detectTier, GOVERNOR, QUALITY, qualityStore, type Tier } from "@/components/world/systems/quality";
@@ -128,14 +129,22 @@ export const WorldScene = memo(function WorldScene({
           textures: gl.info.memory.textures,
         });
         (window as unknown as { __archonLod?: () => unknown }).__archonLod = () => {
+          /* People: how many there are, how many are drawn, and at which tier. */
           let tagged = 0;
           let shown = 0;
+          const tiers = [0, 0, 0];
           const faces: string[] = [];
           const v = new THREE.Vector3();
           scene.traverse((object) => {
-            if (object.userData.lod) {
+            const person = object.userData.person as { tier: number } | undefined;
+            if (person) {
               tagged += 1;
-              if (object.visible) shown += 1;
+              let drawn = true;
+              for (let up: THREE.Object3D | null = object; up; up = up.parent) if (!up.visible) drawn = false;
+              if (drawn && person.tier >= 0) {
+                shown += 1;
+                tiers[person.tier] = (tiers[person.tier] ?? 0) + 1;
+              }
             }
           });
           scene.traverseVisible((object) => {
@@ -148,7 +157,7 @@ export const WorldScene = memo(function WorldScene({
               faces.push(`${root?.parent?.name ?? "?"}:${v.x.toFixed(0)},${v.z.toFixed(0)}`);
             }
           });
-          return { tagged, shown, faces };
+          return { tagged, shown, tiers, faces };
         };
         (window as unknown as { __archonQuality?: () => unknown }).__archonQuality = () => ({ ...qualityStore });
         /* The scene graph itself, for the QA harness to inspect, and a pick:
@@ -284,10 +293,19 @@ function World({
         <Archive texture={texture} />
       </Staged>
 
-      {payload.displays.map((display) => (
-        <Display key={display.id} display={display} texture={texture} onOpen={open} />
-      ))}
+      {/* The panels at the arrival in the first frame; the rest one or two a
+          frame after it, so no single frame paints every canvas. */}
+      {payload.displays.map((display, i) =>
+        display.zone === "hub" ? (
+          <Display key={display.id} display={display} texture={texture} onOpen={open} />
+        ) : (
+          <Staged key={display.id} frames={2 + (i % 8)}>
+            <Display display={display} texture={texture} onOpen={open} />
+          </Staged>
+        ),
+      )}
 
+      <NpcShadows />
       {/* The people. On a phone only the first two of each group, and the
           guides still register so the tour can talk to them. */}
       <Guides
@@ -304,25 +322,23 @@ function World({
           <Office key={one.id} id={one.id} office={one.office} label={office.label} action={office.action} onTalk={onOffice} compact={compact} />
         ) : null,
       )}
-      <Staged frames={compact ? 3 : 2}>
-        {OFFICES.map((one) =>
-          one.department !== null ? (
-            <Office
-              key={one.id}
-              id={one.id}
-              office={one.office}
-              label={t(DEPARTMENTS.find((d) => d.id === one.department)!.name, payload.locale)}
-              action={office.action}
-              onTalk={onOffice}
-              compact={compact}
-            />
-          ) : null,
-        )}
-      </Staged>
-      <Staged frames={compact ? 5 : 3}>
+      {/* One department a frame, then the population, then the animals. */}
+      {OFFICES.filter((one) => one.department !== null).map((one, i) => (
+        <Staged key={one.id} frames={(compact ? 3 : 2) + i}>
+          <Office
+            id={one.id}
+            office={one.office}
+            label={t(DEPARTMENTS.find((d) => d.id === one.department)!.name, payload.locale)}
+            action={office.action}
+            onTalk={onOffice}
+            compact={compact}
+          />
+        </Staged>
+      ))}
+      <Staged frames={compact ? 14 : 12}>
         <Crowd compact={compact} />
       </Staged>
-      <Staged frames={compact ? 8 : 6}>
+      <Staged frames={compact ? 16 : 14}>
         <Animals compact={compact} />
       </Staged>
       </group>
@@ -392,18 +408,31 @@ function Boot({
     }, 12000);
     let later = 0;
 
+    /* Named steps for the boot profiler, when one is listening. */
+    const mark = (name: string) => (window as unknown as { __mark?: (name: string) => void }).__mark?.(name);
     (async () => {
       /* The staged constructions land over the first frames. */
-      await frames(compact ? 10 : 8);
+      await frames(compact ? 18 : 16);
       if (cancelled) return;
+      mark("boot:compile");
       rig.prime();
       try {
         /* In parallel on the driver's threads where the extension exists;
            otherwise in one go, now, which is still before anything shows.
            Asked directly, because the renderer warns to the console when
            it is asked for the parallel path on a driver without it. */
-        if (gl.extensions.has("KHR_parallel_shader_compile")) await gl.compileAsync(scene, camera);
-        else gl.compile(scene, camera);
+        if (gl.extensions.has("KHR_parallel_shader_compile")) {
+          /* Both sets start compiling at once: the screen's, and the
+             reflection capture's, which renders untoned into a float target. */
+          const screen = gl.compileAsync(scene, camera);
+          const capture = rig.prewarm(() => gl.compileAsync(scene, camera)) as Promise<unknown>;
+          await Promise.all([screen, capture]);
+        } else {
+          gl.compile(scene, camera);
+          await frames(1);
+          if (cancelled) return;
+          rig.prewarm(() => gl.compile(scene, camera));
+        }
       } catch {
         /* A context that cannot compile ahead still renders; it just compiles on sight. */
       }
@@ -422,19 +451,31 @@ function Boot({
           }
         }
       });
-      let count = 0;
+      /* By pixels, not by count: a frame uploads about two million texels
+         and its mipmaps, so a handful of small maps share a frame and a
+         large panel has one to itself. */
+      mark("boot:textures");
+      let texels = 0;
       for (const one of textures) {
-        gl.initTexture(one);
-        count += 1;
-        if (count % 6 === 0) {
+        const image = one.image as { width?: number; height?: number } | undefined;
+        const size = (image?.width ?? 256) * (image?.height ?? 256);
+        if (texels > 0 && texels + size > 2_000_000) {
           await frames(1);
           if (cancelled) return;
+          texels = 0;
         }
+        gl.initTexture(one);
+        texels += size;
       }
-      if (group) group.visible = true;
       await frames(1);
       if (cancelled) return;
+      mark("boot:visible");
+      if (group) group.visible = true;
+      await frames(2);
+      if (cancelled) return;
+      mark("boot:capture");
       rig.capture();
+      mark("boot:ready");
       ready();
       /* A desktop photographs the world once more when the captures on the
          screens have had time to land; the shaders do not change for it. */

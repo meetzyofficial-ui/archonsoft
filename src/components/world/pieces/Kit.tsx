@@ -227,30 +227,70 @@ export function useGlowTexture() {
   }, []);
 }
 
-/** Four flat bars around a rectangle in the XY plane, `t` wide, outside it. */
-function frameParts(w: number, h: number, t: number, z: number) {
-  return [
-    { geometry: new THREE.PlaneGeometry(w + t * 2, t), at: [0, h / 2 + t / 2, z] as [number, number, number] },
-    { geometry: new THREE.PlaneGeometry(w + t * 2, t), at: [0, -h / 2 - t / 2, z] as [number, number, number] },
-    { geometry: new THREE.PlaneGeometry(t, h), at: [-w / 2 - t / 2, 0, z] as [number, number, number] },
-    { geometry: new THREE.PlaneGeometry(t, h), at: [w / 2 + t / 2, 0, z] as [number, number, number] },
-  ];
+/**
+ * The light of a white LED around a rectangle, as one piece: a crisp core
+ * line just outside the glass, and outside that a band that falls from the
+ * core's brightness to nothing — the frame glow. Colours ride the vertices
+ * and the whole thing is drawn additively, so the core is a line at any
+ * distance and only the band is soft.
+ */
+function ledFrame(w: number, h: number, core: number, band: number, bandLevel: number, z: number) {
+  const positions: number[] = [];
+  const colours: number[] = [];
+  const indices: number[] = [];
+  const quad = (a: [number, number], b: [number, number], c: [number, number], d: [number, number], inner: number, outer: number) => {
+    const base = positions.length / 3;
+    for (const [[x, y], level] of [[a, inner], [b, inner], [c, outer], [d, outer]] as [[number, number], number][]) {
+      positions.push(x, y, z);
+      colours.push(level, level, level);
+    }
+    indices.push(base, base + 1, base + 2, base, base + 2, base + 3);
+  };
+  const x0 = w / 2;
+  const y0 = h / 2;
+  const x1 = x0 + core;
+  const y1 = y0 + core;
+  /* The band falls in two steps — quickly off the core, then slowly to
+     nothing — the way light off an LED strip does, not a flat bevel. */
+  const xm = x1 + band * 0.25;
+  const ym = y1 + band * 0.25;
+  const x2 = x1 + band;
+  const y2 = y1 + band;
+  const mid = bandLevel * 0.3;
+  /* The core: four bars that meet at the corners. */
+  quad([-x1, y0], [x1, y0], [x1, y1], [-x1, y1], 1, 1);
+  quad([x1, -y0], [-x1, -y0], [-x1, -y1], [x1, -y1], 1, 1);
+  quad([-x0, -y0], [-x0, y0], [-x1, y0], [-x1, -y0], 1, 1);
+  quad([x0, y0], [x0, -y0], [x1, -y0], [x1, y0], 1, 1);
+  /* The band, graded outward; mitred at the corners so they do not double. */
+  const ring = (ix: number, iy: number, ox: number, oy: number, inner: number, outer: number) => {
+    quad([-ix, iy], [ix, iy], [ox, oy], [-ox, oy], inner, outer);
+    quad([ix, -iy], [-ix, -iy], [-ox, -oy], [ox, -oy], inner, outer);
+    quad([-ix, -iy], [-ix, iy], [-ox, oy], [-ox, -oy], inner, outer);
+    quad([ix, iy], [ix, -iy], [ox, -oy], [ox, oy], inner, outer);
+  };
+  ring(x1, y1, xm, ym, bandLevel, mid);
+  ring(xm, ym, x2, y2, mid, 0);
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setAttribute("color", new THREE.Float32BufferAttribute(colours, 3));
+  geometry.setIndex(indices);
+  return geometry;
 }
 
 /**
  * The white LED behind a panel.
  *
- * What makes a screen read as a lit thing from across a plaza, and what the
- * reference frames all have: a clean line of white light around the glass
- * where the backlight leaks past the frame, a soft halo on the air behind
- * it, and — for a panel that stands near the ground — a pool of the same
- * light on the deck below. Three or four draws, no light sources, and
- * everything crisp where it should be crisp: the rim is geometry, not a
- * blurred texture, so it stays a line at any distance; only the halo and
- * the pool are soft.
+ * What makes a screen read as a lit thing from across a plaza: a white core
+ * line around the glass where the backlight leaks past the frame, a graded
+ * glow off that line, a soft halo on the air behind, and — for a panel that
+ * stands near the ground — a faint spill of the same light on the deck. No
+ * light sources, and no bloom: the core stays a line, the halo sits behind
+ * the plate so it never washes over the type, and nothing is pushed past
+ * white.
  *
  * `strength` scales the whole thing: the panels by the entrance at one, a
- * far billboard at half, a cell in an array lower still. Not every panel is
+ * far billboard less, a cell in an array lower still. Not every panel is
  * equally important and a world where they all shout the same says nothing.
  */
 export function Backlight({
@@ -271,37 +311,28 @@ export function Backlight({
 }) {
   const [w, h] = size;
   const glow = useGlowTexture();
-  const rim = 0.035;
-  const soft = 0.2;
-  /* A phone keeps the halo and the crisp rim and drops the soft rim and
-     the pool: two draws fewer for every panel in the world. */
+  /* A phone keeps the core, the frame glow and the halo — they are two draws —
+     and the spill on the deck only for the panels that lead. */
   const lite = qualityStore.tier !== "desktop";
-  const rimGeometry = useMerged(() => frameParts(w + inset * 2, h + inset * 2, rim, 0.002), [w, h, inset]);
-  const softGeometry = useMerged(
-    () => frameParts(w + inset * 2 + rim * 2, h + inset * 2 + rim * 2, soft, -0.03),
-    [w, h, inset],
-  );
+  const frame = useMemo(() => ledFrame(w + inset * 2, h + inset * 2, 0.035, 0.2, 0.42, 0.002), [w, h, inset]);
+  useEffect(() => () => frame.dispose(), [frame]);
+  const spill = foot !== undefined && (!lite || strength >= 0.85);
   return (
     <group>
       {/* The halo on the air behind. */}
       <mesh position={[0, 0, -0.22]}>
         <planeGeometry args={[w * 1.45 + 1.2, h * 1.6 + 1.2]} />
-        <meshBasicMaterial map={glow} color="#ffffff" transparent opacity={0.72 * strength} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
+        <meshBasicMaterial map={glow} color="#ffffff" transparent opacity={0.62 * strength} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
       </mesh>
-      {/* The line of light, and the soft edge outside it. */}
-      <mesh geometry={rimGeometry}>
-        <meshBasicMaterial color="#ffffff" transparent opacity={Math.min(1, 0.96 * strength)} toneMapped={false} depthWrite={false} />
+      {/* The core line and the glow off it. */}
+      <mesh geometry={frame}>
+        <meshBasicMaterial vertexColors transparent opacity={Math.min(1, 0.95 * strength)} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
       </mesh>
-      {!lite ? (
-        <mesh geometry={softGeometry}>
-          <meshBasicMaterial color="#ffffff" transparent opacity={0.2 * strength} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
-        </mesh>
-      ) : null}
-      {/* The pool on the deck. */}
-      {foot !== undefined && !lite ? (
-        <mesh position={[0, -foot + 0.025, forward + 0.5]} rotation={[-Math.PI / 2, 0, 0]}>
+      {/* The spill on the deck. */}
+      {spill ? (
+        <mesh position={[0, -foot! + 0.025, forward + 0.5]} rotation={[-Math.PI / 2, 0, 0]}>
           <planeGeometry args={[w + 2.4, 2.8]} />
-          <meshBasicMaterial map={glow} color="#ffffff" transparent opacity={0.42 * strength} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
+          <meshBasicMaterial map={glow} color="#ffffff" transparent opacity={0.34 * strength} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
         </mesh>
       ) : null}
     </group>
@@ -955,11 +986,13 @@ export function Label({
   align?: "left" | "center";
 }) {
   const texture = useMemo(() => {
-    const scale = 6;
-    const width = 512;
+    /* Painted at twice the layout, so a tag read from a step away is still type. */
+    const density = 2;
+    const scale = 6 * density;
+    const width = 512 * density;
     const rows = lines.length;
-    const lineHeight = 46;
-    const canvasHeight = rows * lineHeight + 40;
+    const lineHeight = 46 * density;
+    const canvasHeight = rows * lineHeight + 40 * density;
     const canvas = document.createElement("canvas");
     canvas.width = width;
     canvas.height = canvasHeight;
@@ -974,14 +1007,14 @@ export function Label({
           ? `500 ${scale * 3.4}px ui-monospace, Menlo, Consolas, monospace`
           : `400 ${scale * 5.2}px Georgia, "Times New Roman", serif`;
         ctx.textAlign = align;
-        const x = align === "center" ? width / 2 : 22;
+        const x = align === "center" ? width / 2 : 22 * density;
         const text = first ? line.toUpperCase().split("").join(" ") : line;
-        ctx.fillText(text, x, 22 + i * lineHeight + lineHeight / 2);
+        ctx.fillText(text, x, 22 * density + i * lineHeight + lineHeight / 2);
       });
     }
     const tex = new THREE.CanvasTexture(canvas);
     tex.colorSpace = THREE.SRGBColorSpace;
-    tex.anisotropy = 4;
+    tex.anisotropy = 8;
     return tex;
   }, [accent, align, colour, lines]);
 

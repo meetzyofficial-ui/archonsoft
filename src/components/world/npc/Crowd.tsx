@@ -5,6 +5,8 @@ import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { animateFace, newFaceState } from "@/components/world/npc/face";
 import { FRAMES, HAIRS, Person, SKINS, WARDROBE } from "@/components/world/npc/Guides";
+import { IMPORTANCE, npcFocus, npcStride, npcTier } from "@/components/world/npc/lod";
+import { rigIn, type PersonRig } from "@/components/world/npc/rig";
 import { useMerged } from "@/components/world/pieces/merge";
 import { body } from "@/components/world/systems/body";
 
@@ -27,10 +29,10 @@ import { body } from "@/components/world/systems/body";
  * waypoints, legs and arms swinging, a pause at each end). Anyone within
  * six metres of the visitor looks up at them.
  *
- * Cost is held down three ways: parts are toggled by distance the way the
- * guides are, nobody further than sixty metres is drawn at all — an
- * instanced silhouette stands in — and the animation of anyone beyond
- * thirty metres is stepped at a quarter of the frame rate.
+ * Cost is held down three ways: each person is one draw at the tier their
+ * distance gives them (`lod.ts`), anyone past the far tier is one instance
+ * of a shared silhouette — nobody past GONE is drawn at all — and the
+ * animation of people in the middle distance and beyond is stepped.
  */
 
 type Behaviour = "stand" | "talk" | "look" | "tablet" | "rest" | "walk";
@@ -114,25 +116,14 @@ export const POPULATION: Citizen[] = [
   { at: [6, 0, 58], facing: 0, variant: 2, behaviour: "stand" },
 ];
 
-/* Beyond FAR a person is an instanced silhouette; inside MID the full rig
-   with its walking-distance parts; inside NEAR the face and the fingers. */
-const FAR = 26;
-const MID = 16;
-const NEAR = 8;
+/* Beyond the far tier a person is an instanced silhouette; beyond GONE, nothing. */
 const GONE = 110;
 const NOTICE = 6;
 const WALK_SPEED = 1.35;
 
-/** How much of a person to draw, by distance. */
-function applyTier(fig: THREE.Object3D, tier: number) {
-  fig.traverse((part) => {
-    const lod = part.userData.lod as number | undefined;
-    if (lod) part.visible = lod <= tier;
-  });
-}
-
 type Rig = {
   fig: THREE.Group;
+  person: PersonRig | null;
   head: THREE.Object3D | null;
   legL: THREE.Object3D | null;
   legR: THREE.Object3D | null;
@@ -147,6 +138,7 @@ type Rig = {
 function rigOf(fig: THREE.Group): Rig {
   return {
     fig,
+    person: rigIn(fig),
     head: fig.getObjectByName("head") ?? null,
     legL: fig.getObjectByName("legL") ?? null,
     legR: fig.getObjectByName("legR") ?? null,
@@ -199,7 +191,6 @@ export function Crowd({ compact }: { compact: boolean }) {
   const p = useMemo(() => new THREE.Vector3(), []);
   const sc = useMemo(() => new THREE.Vector3(), []);
   const ZERO = useMemo(() => new THREE.Matrix4().makeScale(0, 0, 0), []);
-  const frame = useRef(0);
   const silhouette = useMerged(
     () => [
       { geometry: new THREE.CapsuleGeometry(0.17, 0.5, 3, 8), at: [0, 1.24, 0] },
@@ -212,7 +203,6 @@ export function Crowd({ compact }: { compact: boolean }) {
 
   useFrame((_, raw) => {
     const delta = Math.min(raw, 0.05);
-    frame.current += 1;
     people.forEach((c, i) => {
       const fig = figures.current[i];
       if (!fig) return;
@@ -224,16 +214,12 @@ export function Crowd({ compact }: { compact: boolean }) {
       const dz = body.z - st.z;
       const distance = Math.hypot(dx, dz);
 
-      /* Distance decides how much of them exists this frame. */
-      /* A phone hands people to the instanced silhouettes sooner. */
-      const far = compact ? 17 : FAR;
-      const nearAt = compact ? 5 : NEAR;
-      const midAt = compact ? 12 : MID;
-      const wantTier = distance > far ? -1 : distance < nearAt ? 2 : distance < midAt ? 1 : 0;
+      /* Distance decides how much of them exists this frame; a phone hands
+         people to the instanced silhouettes sooner. */
+      const wantTier = npcTier(distance, compact, IMPORTANCE.staff, `crowd:${i}`);
       if (wantTier !== st.tier) {
         st.tier = wantTier;
-        fig.visible = wantTier >= 0;
-        if (wantTier >= 0) applyTier(fig, wantTier);
+        rig.person?.setTier(wantTier);
       }
       /* Far people are the instanced silhouettes — a body, a head, two
          legs, in one dark piece; beyond GONE, nothing. */
@@ -251,10 +237,11 @@ export function Crowd({ compact }: { compact: boolean }) {
       }
       silhouettes.current?.setMatrixAt(i, ZERO);
 
-      /* Beyond thirty metres, animate every fourth frame. */
-      const step = wantTier >= 1 || frame.current % 4 === i % 4;
-      const dt = wantTier >= 1 ? delta : delta * 4;
-      if (!step) return;
+      /* Stepped with distance; a walker is never stepped coarser than every
+         other frame, or their stride would read as a stutter. */
+      const every = c.behaviour === "walk" ? Math.min(2, npcStride(wantTier)) : npcStride(wantTier);
+      if (every > 1 && (npcFocus.frame + i) % every !== 0) return;
+      const dt = delta * every;
       st.t += dt;
       const t = st.t;
 

@@ -22,13 +22,20 @@ import * as THREE from "three";
  * phone. So the boot primes the environment with a placeholder first, has
  * every shader compiled against it while the scene is still hidden, and
  * only then takes the real photograph, which by then costs six renders and
- * no compiles at all.
+ * no compiles at all — the programs the capture itself renders with, into
+ * an untoned float target, are compiled ahead as well.
  */
 export interface ReflectionRig {
   /** A placeholder environment: black, but the right kind of texture. */
   prime(): void;
   /** Photograph the world from the plaza and make it the environment. */
   capture(): void;
+  /**
+   * The capture renders into a float target, untoned, so every material
+   * needs a second program for it. Have them built ahead: `compile` is
+   * called with the capture's target current.
+   */
+  prewarm(compile: () => unknown): unknown;
   dispose(): void;
 }
 
@@ -55,6 +62,15 @@ export function createReflections(gl: THREE.WebGLRenderer, scene: THREE.Scene, s
          of exactly the type the real one will be, so the programs compiled
          against it are the programs the real one uses. */
       apply(pmrem.fromCubemap(target.texture).texture);
+    },
+    prewarm(compile) {
+      const previous = gl.getRenderTarget();
+      gl.setRenderTarget(target, 0);
+      try {
+        return compile();
+      } finally {
+        gl.setRenderTarget(previous);
+      }
     },
     capture() {
       const exposure = gl.toneMappingExposure;

@@ -131,9 +131,11 @@ export function paintPanel(content: PanelContent): SurfacePaint {
 
     /* Type is drawn sharp; the glow, where there is one, is a separate pass
        underneath. Sharp first, glow after, never one through the other. */
+    /* Shadows are measured in canvas pixels, not in the layout's units. */
+    const density = ctx.getTransform().a || 1;
     const glow = (on: boolean) => {
-      ctx.shadowColor = on ? "rgba(214,236,255,0.5)" : "rgba(0,0,0,0)";
-      ctx.shadowBlur = on ? Math.max(6, 14 * scale) : 0;
+      ctx.shadowColor = on ? "rgba(214,236,255,0.42)" : "rgba(0,0,0,0)";
+      ctx.shadowBlur = on ? Math.max(8, 18 * scale) * density : 0;
     };
 
     let y = pad + 26 * scale;
@@ -146,10 +148,16 @@ export function paintPanel(content: PanelContent): SurfacePaint {
     ctx.fillStyle = "#ffffff";
     const titleSize = Math.round(Math.min(92, w * 0.086));
     ctx.font = font(SANS.replace("600", "700"), titleSize);
-    /* The glow pass, then the same title again with hard edges over it. */
+    /* The halo pass draws its glyphs far off the canvas and keeps only
+       their shadow, offset back onto the panel: light behind the letters,
+       with no soft copy of the letters themselves under the sharp ones. */
     glow(true);
-    ctx.globalAlpha = 0.7;
+    ctx.save();
+    ctx.shadowOffsetX = w * 4 * density;
+    ctx.translate(-w * 4, 0);
+    ctx.globalAlpha = 0.8;
     wrap(ctx, content.title, pad, y + titleSize * 0.78, w - pad * 2, titleSize * 1.08, 2);
+    ctx.restore();
     ctx.globalAlpha = 1;
     glow(false);
     y = wrap(ctx, content.title, pad, y + titleSize * 0.78, w - pad * 2, titleSize * 1.08, 2);
@@ -222,6 +230,23 @@ export function paintPanel(content: PanelContent): SurfacePaint {
 /* --------------------------------------------------------------- meshes */
 
 /**
+ * Type, sampled sharp.
+ *
+ * Trilinear filtering blends each pixel toward the next smaller mip, which
+ * is right for a photograph and wrong for a line of type: letters go soft a
+ * few metres before they need to. The panels sample their texture half a
+ * mip level sharper — anisotropic filtering keeps that from shimmering at
+ * an angle — so the type holds its edge until it is genuinely too small.
+ */
+export const sharpen = (shader: { fragmentShader: string }) => {
+  shader.fragmentShader = shader.fragmentShader.replace(
+    "#include <map_fragment>",
+    ["#ifdef USE_MAP", "vec4 sampledDiffuseColor = texture2D( map, vMapUv, -0.6 );", "diffuseColor *= sampledDiffuseColor;", "#endif"].join("\n"),
+  );
+};
+export const sharpenKey = () => "archon-panel-sharp";
+
+/**
  * A surface drawn from data.
  *
  * The canvas is painted once and never again. A texture redrawn every frame is
@@ -233,11 +258,15 @@ export function DataSurface({
   paint,
   size,
   resolution = 1024,
+  density = resolution,
   pulse = null,
 }: {
   paint: SurfacePaint;
   size: [number, number];
+  /** The width the panel is laid out at: type sizes and rules are in these units. */
   resolution?: number;
+  /** The width it is painted at: the same layout, more texels. */
+  density?: number;
   /**
    * A slow breath of brightness, with this phase, for a panel that should
    * draw the eye: normal, a little brighter, normal, over about three
@@ -259,22 +288,28 @@ export function DataSurface({
        anisotropy as the GPU has, which is what keeps a line of type legible
        on a panel seen from an angle. */
     const profile = QUALITY[qualityStore.tier];
-    const width = Math.round(resolution * profile.textureScale);
+    const layoutW = Math.round(resolution * profile.textureScale);
+    const layoutH = Math.round((layoutW * h) / w);
+    const width = Math.max(layoutW, Math.round(density * profile.textureScale));
     const height = Math.round((width * h) / w);
     const canvas = document.createElement("canvas");
     canvas.width = width;
     canvas.height = height;
     const ctx = canvas.getContext("2d");
-    if (ctx) paint(ctx, width, height);
+    if (ctx) {
+      ctx.scale(width / layoutW, height / layoutH);
+      paint(ctx, layoutW, layoutH);
+    }
     const result = new THREE.CanvasTexture(canvas);
     result.colorSpace = THREE.SRGBColorSpace;
     result.anisotropy = Math.min(profile.anisotropy, gl.capabilities.getMaxAnisotropy());
     result.minFilter = THREE.LinearMipmapLinearFilter;
     result.magFilter = THREE.LinearFilter;
+    result.generateMipmaps = true;
     return result;
     // The paint function closes over content that never changes for a display.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resolution, size[0], size[1], gl]);
+  }, [resolution, density, size[0], size[1], gl]);
 
   useEffect(() => () => texture.dispose(), [texture]);
 
@@ -283,7 +318,7 @@ export function DataSurface({
       <planeGeometry args={size} />
       {/* Transparent, so the plate the canvas paints is a hologram the world
           shows through rather than a screen with a black bezel behind it. */}
-      <meshBasicMaterial ref={material} map={texture} toneMapped={false} transparent depthWrite={false} />
+      <meshBasicMaterial ref={material} map={texture} toneMapped={false} transparent depthWrite={false} onBeforeCompile={sharpen} customProgramCacheKey={sharpenKey} />
     </mesh>
   );
 }

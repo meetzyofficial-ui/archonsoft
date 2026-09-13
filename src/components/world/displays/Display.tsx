@@ -8,7 +8,7 @@ import { DataSurface, Mount, paintPanel } from "@/components/world/pieces/Surfac
 import { discovery } from "@/components/world/systems/discovery";
 import { focusStore, interactables } from "@/components/world/systems/focus";
 import { body } from "@/components/world/systems/body";
-import { qualityStore } from "@/components/world/systems/quality";
+import { QUALITY, qualityStore } from "@/components/world/systems/quality";
 import type { PreparedDisplay } from "@/lib/worldPayload";
 
 /* On a phone a panel further than this is not drawn at all — its housing,
@@ -92,11 +92,12 @@ export function Display({
     [display, onOpen],
   );
 
-  /* Resolution follows physical size: a kiosk the size of a laptop does not
-     need the pixels a fifteen-metre billboard does, and a world that gives
-     every panel a 1024px canvas spends most of its texture memory on things
-     nobody stands closer than eight metres to. */
-  const resolution = w > 20 ? 2048 : w > 10 ? 1536 : w > 4 ? 1280 : 1024;
+  /* Resolution follows physical size, at the tier's density — by the
+     square root of the width, because a bigger panel is read from further
+     away — and is capped where a phone's memory would object. */
+  const profile = QUALITY[qualityStore.tier];
+  const layout = w > 20 ? 2048 : w > 10 ? 1536 : w > 4 ? 1280 : 1024;
+  const density = Math.min(profile.panelMax, Math.max(1024, Math.round((Math.sqrt(w) * profile.panelDensity) / 32) * 32));
 
   /* How hard the LED behind it works: the panels by the entrance and the
      big installations at full, an ordinary wall or console at two thirds,
@@ -120,7 +121,8 @@ export function Display({
       <DataSurface
         paint={paint}
         size={display.size}
-        resolution={resolution}
+        resolution={layout}
+        density={Math.max(layout, density)}
         pulse={display.zone === "hub" && display.form === "vertical" ? (display.at[0] % 5) * 1.3 : null}
       />
     </>

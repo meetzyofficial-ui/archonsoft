@@ -127,13 +127,31 @@ async function email(lead: LeadPayload, when: string, names: Names, id: string, 
   }
 }
 
-/** What is wired up, without a single secret: for the QA harness and the report. */
+/** The variables each channel needs, by name — never their values. */
+const REQUIRED = {
+  store: ["FIREBASE_PROJECT_ID", "FIREBASE_CLIENT_EMAIL", "FIREBASE_PRIVATE_KEY"],
+  email: ["RESEND_API_KEY", "CONTACT_FROM_EMAIL"],
+  whatsapp: ["WHATSAPP_TOKEN", "WHATSAPP_PHONE_ID"],
+} as const;
+
+/**
+ * What is wired up, without a single secret: for the QA harness and the
+ * report. Each channel is plainly active or inactive — a mocked WhatsApp or
+ * a development file is not a production channel for email or messages —
+ * with the detail beside it and the names of whatever is missing.
+ */
 export async function GET() {
+  const detail = { store: leadStoreStatus(), email: emailStatus(), whatsapp: whatsappStatus() };
+  const missing = Object.values(REQUIRED)
+    .flat()
+    .filter((name) => !process.env[name]);
   return NextResponse.json({
     ok: true,
-    store: leadStoreStatus(),
-    email: emailStatus(),
-    whatsapp: whatsappStatus(),
+    store: detail.store === "none" ? "inactive" : "active",
+    email: detail.email === "configured" ? "active" : "inactive",
+    whatsapp: detail.whatsapp === "configured" ? "active" : "inactive",
+    detail,
+    missing,
   });
 }
 
@@ -214,7 +232,11 @@ export async function POST(request: Request) {
   ].join("\n");
   const [mail, whatsapp] = await Promise.all([email(lead, when, names, stored.id, stored.where), sendWhatsApp(whatsappText)]);
 
-  /* 3. Say how it went, on the record and in the log. */
+  /* 3. Say how it went, on the record and in the log: `new` when no channel
+     is wired up (the record waits to be read), `notified` when the email
+     went and nothing failed, `notification_partial` when one channel got
+     through, `failed` when every channel tried and none did. The record
+     sat at `notification_pending` in between. */
   const attempted = mail !== "skipped" || whatsapp === "sent" || whatsapp === "failed";
   const status: LeadStatus = !attempted
     ? "new"
@@ -222,9 +244,7 @@ export async function POST(request: Request) {
       ? "notified"
       : mail === "sent" || whatsapp === "sent"
         ? "notification_partial"
-        : stored.where === "none"
-          ? "failed"
-          : "notification_pending";
+        : "failed";
   await updateLead(stored, { status, emailStatus: mail, whatsappStatus: whatsapp, notifiedAt: new Date().toISOString() });
   console.info(`[lead ${stored.id}] stored=${stored.where} email=${mail} whatsapp=${whatsapp} status=${status} dept=${lead.department}/${lead.service} device=${lead.device}`);
 

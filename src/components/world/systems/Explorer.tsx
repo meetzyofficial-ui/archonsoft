@@ -45,8 +45,9 @@ const GRAVITY = 19;
 /* The teleport: out, then in. */
 const TELEPORT_OUT = 0.38;
 const TELEPORT_IN = 0.46;
-const ACCELERATION = 34;
-const DAMPING = 11;
+/* Rates per second for an exponential approach, tuned to feel at 60 fps as the old per-frame steps did. */
+const ACCELERATION = 50;
+const DAMPING = 12;
 const LOOK = 0.0021;
 /*
  * The stick. Its magnitude maps to pace through a curve that is gentle in
@@ -60,8 +61,8 @@ const STICK_DEAD = 0.08;
 const STICK_RIM = 0.94;
 const STICK_RUN_HOLD = 0.22;
 const TOUCH_RUN = 6.4;
-const TOUCH_ACCELERATION = 20;
-const TOUCH_DAMPING = 13;
+const TOUCH_ACCELERATION = 24;
+const TOUCH_DAMPING = 15;
 /* A thumb drag turns the view about as far as a mouse move of the same
    length: a little more, because a thumb has less room. The turn is eased
    over a few frames so a finger's pixel steps never read as jitter. */
@@ -362,8 +363,12 @@ export function Explorer({ active }: { active: boolean }) {
 
     /* Thumbs get a slightly softer start and a short, controlled stop. */
     const rate = length > 0 ? (byStick ? TOUCH_ACCELERATION : ACCELERATION) : touchInput.active ? TOUCH_DAMPING : DAMPING;
-    here.vx += (targetX - here.vx) * Math.min(1, rate * delta);
-    here.vz += (targetZ - here.vz) * Math.min(1, rate * delta);
+    /* Exponential, so the same thumb gives the same pace at 30, 60 or 120
+       frames a second: a fixed fraction per frame would reach top speed
+       faster on a faster phone. */
+    const approach = 1 - Math.exp(-rate * delta);
+    here.vx += (targetX - here.vx) * approach;
+    here.vz += (targetZ - here.vz) * approach;
     if (Math.abs(here.vx) < 0.004) here.vx = 0;
     if (Math.abs(here.vz) < 0.004) here.vz = 0;
 
@@ -485,7 +490,7 @@ export function Explorer({ active }: { active: boolean }) {
        last heading, so stopping does not spin it round to face the camera. */
     body.x = here.x;
     body.z = here.z;
-    body.floor += (here.floor - body.floor) * Math.min(1, 16 * delta);
+    body.floor += (here.floor - body.floor) * (1 - Math.exp(-16 * delta));
     body.yaw = here.yaw;
     body.pace = pace;
     body.walked = here.walked;
@@ -497,7 +502,7 @@ export function Explorer({ active }: { active: boolean }) {
       const heading = Math.atan2(-here.vx, -here.vz);
       let diff = heading - body.facing;
       diff = Math.atan2(Math.sin(diff), Math.cos(diff));
-      body.facing += diff * Math.min(1, 12 * delta);
+      body.facing += diff * (1 - Math.exp(-12 * delta));
     }
 
     /* The camera. Behind, above and over the shoulder of the body, eased

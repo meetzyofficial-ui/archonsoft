@@ -5,9 +5,12 @@ import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { animateFace, newFaceState, type FaceState } from "@/components/world/npc/face";
 import { FRAMES, guideStore, HAIRS, Person, SKINS, WARDROBE } from "@/components/world/npc/Guides";
+import { IMPORTANCE, npcStep, npcStride, npcTier } from "@/components/world/npc/lod";
+import { rigIn } from "@/components/world/npc/rig";
 import { screenTexture, SCREEN_ASPECT } from "@/components/world/npc/screens";
 import { Backlight, Glow, MATERIAL } from "@/components/world/pieces/Kit";
 import { useMerged, type Part } from "@/components/world/pieces/merge";
+import { sharpen, sharpenKey } from "@/components/world/pieces/Surface";
 import { body } from "@/components/world/systems/body";
 import { worldEvents } from "@/components/world/systems/events";
 import { interactables } from "@/components/world/systems/focus";
@@ -34,8 +37,6 @@ import { DESK, deskSlots, officeFacing, type Office as OfficeSpec } from "@/data
  * office it cannot see into.
  */
 
-const NEAR_AT = 14;
-const MID_AT = 40;
 const NOTICE_AT = 7.5;
 const TALK_AT = 5.6;
 /* Beyond this the room is not drawn at all. */
@@ -101,7 +102,6 @@ export function Office({
   const root = useRef<THREE.Group>(null);
   const figures = useRef<(THREE.Group | null)[]>([]);
   const prototype = useRef<THREE.Group>(null);
-  const tier = useRef(-2);
   const time = useRef(Math.random() * 10);
   const posed = useRef(false);
   const thanked = useRef(0);
@@ -324,6 +324,11 @@ export function Office({
     return texture;
   }, []);
   useEffect(() => () => glowTexture.dispose(), [glowTexture]);
+  const sideGlass = useMerged(
+    () => [-1, 1].map((side) => ({ geometry: new THREE.BoxGeometry(depth - 0.7, 2.92, 0.04), at: V3(side * (span / 2), 1.5, backZ + (depth - 0.5) / 2), turn: V3(0, Math.PI / 2, 0) })),
+    [span, backZ, depth],
+  );
+  const glassExtras = useRef<THREE.Group>(null);
   const prototypeParts = useMerged((): Part[] => [{ geometry: new THREE.IcosahedronGeometry(0.36, 1), at: V3(0, 0, 0) }], []);
 
   useEffect(
@@ -370,28 +375,11 @@ export function Office({
     const shown = distance < (compact ? CULL_AT.compact : CULL_AT.desktop);
     if (node.visible !== shown) node.visible = shown;
     if (!shown) return;
+    const glassNear = distance < 60;
+    if (glassExtras.current && glassExtras.current.visible !== glassNear) glassExtras.current.visible = glassNear;
     const talking = guideStore.talking === `office:${id}`;
     if (thanked.current > 0) thanked.current = Math.max(0, thanked.current - delta / 2.6);
 
-    /* On a phone the people are drawn only within forty metres; beyond
-       that the room stands with its desks and its board, which is what a
-       phone can see of it anyway. */
-    const wantTier = distance < (compact ? 6 : NEAR_AT) ? 2 : distance < (compact ? 22 : MID_AT) ? 1 : compact ? -1 : 0;
-    if (wantTier !== tier.current) {
-      tier.current = wantTier;
-      for (const fig of figures.current) {
-        if (!fig) continue;
-        fig.visible = wantTier >= 0;
-        fig.traverse((part) => {
-          const lod = part.userData.lod as number | undefined;
-          if (lod) part.visible = lod <= wantTier;
-        });
-      }
-    }
-    if (wantTier < 0) {
-      posed.current = true;
-      return;
-    }
 
     if (prototype.current) {
       prototype.current.rotation.y = t * 0.5;
@@ -409,6 +397,14 @@ export function Office({
       const dx = local.x - worker.x;
       const dz = local.z - worker.z;
       const near = Math.hypot(dx, dz);
+      /* How much of this person, by distance and by who they are: the one
+         explaining is whole; the room's host and the lobby team hold their
+         detail further out than the people behind them. */
+      const reach = talking && i === 0 ? IMPORTANCE.speaking : i === 0 ? IMPORTANCE.host : id === "lobby" ? IMPORTANCE.lobby : IMPORTANCE.staff;
+      const tier = npcTier(near, compact, reach, `office:${id}:${i}`);
+      rigIn(fig)?.setTier(tier);
+      if (tier < 0 || !npcStep(tier, i)) return;
+      const delta = Math.min(raw, 0.05) * npcStride(tier);
       const toward = Math.atan2(dx, dz);
       const speaker = talking && i === 0;
       const noticing = worker.attentive && near < NOTICE_AT ? THREE.MathUtils.clamp(1 - (near - 2) / (NOTICE_AT - 2), 0.35, 1) : 0;
@@ -532,27 +528,25 @@ export function Office({
         </mesh>
         <mesh>
           <planeGeometry args={[boardW, boardH]} />
-          <meshBasicMaterial map={screen} toneMapped={false} />
+          <meshBasicMaterial map={screen} toneMapped={false} onBeforeCompile={sharpen} customProgramCacheKey={sharpenKey} />
         </mesh>
         <mesh position={[0, -boardH / 2 - 0.12, 0]}>
           <planeGeometry args={[boardW, 0.03]} />
           <Glow colour={office.accent} opacity={0.9} />
         </mesh>
       </group>
-      {/* Side glass and the canopy: a desktop's room; a phone keeps the frame. */}
-      {!compact
-        ? [-1, 1].map((side) => (
-            <mesh key={side} position={[side * (span / 2), 1.5, backZ + (depth - 0.5) / 2]} rotation={[0, Math.PI / 2, 0]}>
-              <boxGeometry args={[depth - 0.7, 2.92, 0.04]} />
-              <meshPhysicalMaterial color="#1a2a48" transparent opacity={0.28} roughness={0.08} metalness={0.3} envMapIntensity={1.4} depthWrite={false} />
-            </mesh>
-          ))
-        : null}
+      {/* Side glass and the canopy: a desktop's room, near enough to see
+          through; a phone, and a distant room, keep the frame. */}
       {!compact ? (
-        <mesh position={[0, 3.26, backZ + (depth - 0.5) / 2]}>
-          <boxGeometry args={[span + 0.1, 0.05, depth - 0.5]} />
-          <meshPhysicalMaterial color="#223a66" transparent opacity={0.22} roughness={0.1} metalness={0.4} envMapIntensity={1.2} depthWrite={false} />
-        </mesh>
+        <group ref={glassExtras}>
+          <mesh geometry={sideGlass}>
+            <meshPhysicalMaterial color="#1a2a48" transparent opacity={0.28} roughness={0.08} metalness={0.3} envMapIntensity={1.4} depthWrite={false} />
+          </mesh>
+          <mesh position={[0, 3.26, backZ + (depth - 0.5) / 2]}>
+            <boxGeometry args={[span + 0.1, 0.05, depth - 0.5]} />
+            <meshPhysicalMaterial color="#223a66" transparent opacity={0.22} roughness={0.1} metalness={0.4} envMapIntensity={1.2} depthWrite={false} />
+          </mesh>
+        </group>
       ) : null}
       {/* The sign: a small lit plate in the department's colour at the front corner. */}
       <mesh position={[-span / 2 + 0.7, 2.5, backZ + depth - 0.56]}>

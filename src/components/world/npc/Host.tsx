@@ -5,9 +5,12 @@ import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { animateFace, newFaceState } from "@/components/world/npc/face";
 import { FRAMES, Person, WARDROBE } from "@/components/world/npc/Guides";
+import { IMPORTANCE, npcTier } from "@/components/world/npc/lod";
+import { rigIn } from "@/components/world/npc/rig";
 import { guideStore } from "@/components/world/npc/Guides";
 import { Glow } from "@/components/world/pieces/Kit";
 import { body } from "@/components/world/systems/body";
+import { qualityStore } from "@/components/world/systems/quality";
 import { buildRects, slide } from "@/components/world/systems/collision";
 import { interactables, zoneStore } from "@/components/world/systems/focus";
 import { COLLIDERS, floorAt, type ZoneId } from "@/data/world-map";
@@ -153,14 +156,13 @@ export function Host({
     const dz = body.z - here.z;
     const distance = Math.hypot(dx, dz);
 
-    /* Detail: she is full detail out to forty metres. */
-    const wantTier = distance < 40 ? 2 : distance < 80 ? 1 : 0;
+    /* Detail: she is the one the visitor looks at, so she holds her detail
+       further out than anyone, and is never hidden — at worst a silhouette. */
+    const speaking = guideStore.talking === "host";
+    const wantTier = Math.max(0, npcTier(distance, qualityStore.tier !== "desktop", speaking ? IMPORTANCE.speaking : IMPORTANCE.host * 1.5, HOST_ID));
     if (wantTier !== here.tier) {
       here.tier = wantTier;
-      node.traverse((part) => {
-        const lod = part.userData.lod as number | undefined;
-        if (lod) part.visible = lod <= wantTier;
-      });
+      rigIn(node)?.setTier(wantTier);
     }
 
     /* Following: keep a place behind and to the visitor's right. */
@@ -237,13 +239,12 @@ export function Host({
       head.rotation.z = close * 0.06;
       /* Her face: a smile when the visitor is near, curiosity as they
          arrive, speech while her card is open. */
-      const speaking = guideStore.talking === "host" ? 1 : 0;
       animateFace(node, here.face, {
         t: here.t,
         dt: delta,
         smile: distance < NOTICE ? 0.55 + close * 0.35 : following ? 0.3 : 0.1,
         curious: distance < NOTICE && here.nearFor < 2 ? 0.7 : 0.1,
-        talking: speaking,
+        talking: speaking ? 1 : 0,
         gazeYaw: THREE.MathUtils.clamp(toward - head.rotation.y, -0.35, 0.35),
         gazePitch: -0.04,
       });

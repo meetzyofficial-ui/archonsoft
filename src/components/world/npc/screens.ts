@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import type { ScreenKind } from "@/data/departments";
+import { QUALITY, qualityStore } from "@/components/world/systems/quality";
 
 /**
  * What is on the monitors.
@@ -506,11 +507,17 @@ export function screenTexture(kind: ScreenKind, accent: string, anisotropy = 8):
   const key = `${kind}:${accent}`;
   const cached = cache.get(key);
   if (cached) return cached;
+  /* Laid out at 512 by 320 and painted at the tier's multiple of it: the
+     same board is a monitor at a desk and four metres of wall behind it. */
+  const scale = QUALITY[qualityStore.tier].screenScale;
   const canvas = document.createElement("canvas");
-  canvas.width = W;
-  canvas.height = H;
+  canvas.width = Math.round(W * scale);
+  canvas.height = Math.round(H * scale);
   const ctx = canvas.getContext("2d");
-  if (ctx) paint(kind, accent, ctx);
+  if (ctx) {
+    ctx.scale(canvas.width / W, canvas.height / H);
+    paint(kind, accent, ctx);
+  }
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.anisotropy = anisotropy;

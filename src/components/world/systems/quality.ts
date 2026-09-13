@@ -12,8 +12,8 @@
  *
  * The rule that shapes every number here: text stays sharp. A low tier
  * loses distant geometry, reflections and people before it loses a legible
- * panel — so no tier renders below 0.85× and no tier paints a panel below
- * three quarters of its full resolution.
+ * panel — so no tier renders below 0.95× and no tier paints a panel below
+ * 85% of its full resolution.
  */
 
 export type Tier = "desktop" | "high" | "medium" | "low";
@@ -23,6 +23,16 @@ export interface QualityProfile {
   dpr: { start: number; min: number; max: number };
   /** Panel textures are painted at this fraction of their full resolution. */
   textureScale: number;
+  /**
+   * Panel type is painted at this many texels per square-root metre of
+   * panel width, up to `panelMax` on the long side — a five-metre panel at
+   * about 1900 on a desktop and 1600 on a good phone — so a phone never
+   * allocates a desktop's memory.
+   */
+  panelDensity: number;
+  panelMax: number;
+  /** The office monitors and boards are painted at this multiple of their layout. */
+  screenScale: number;
   /** Anisotropic filtering requested for textures read at grazing angles; capped by the GPU. */
   anisotropy: number;
   /** The cube capture behind every reflection. */
@@ -30,10 +40,13 @@ export interface QualityProfile {
 }
 
 export const QUALITY: Record<Tier, QualityProfile> = {
-  desktop: { dpr: { start: 1.5, min: 1.0, max: 1.5 }, textureScale: 1, anisotropy: 16, reflections: 128 },
-  high: { dpr: { start: 1.5, min: 1.15, max: 1.5 }, textureScale: 1, anisotropy: 16, reflections: 128 },
-  medium: { dpr: { start: 1.15, min: 1.0, max: 1.25 }, textureScale: 1, anisotropy: 8, reflections: 64 },
-  low: { dpr: { start: 1.0, min: 0.85, max: 1.0 }, textureScale: 0.75, anisotropy: 8, reflections: 64 },
+  /* Phones render sharper than they used to: the people are one draw each
+     now, and a phone's text at half its native density was the softest
+     thing in the world. The governor still steps down on a slow device. */
+  desktop: { dpr: { start: 1.5, min: 1.0, max: 2.0 }, textureScale: 1, anisotropy: 16, reflections: 128, panelDensity: 830, panelMax: 2560, screenScale: 2 },
+  high: { dpr: { start: 2.0, min: 1.3, max: 2.0 }, textureScale: 1, anisotropy: 16, reflections: 128, panelDensity: 720, panelMax: 2048, screenScale: 2 },
+  medium: { dpr: { start: 1.6, min: 1.15, max: 1.75 }, textureScale: 1, anisotropy: 8, reflections: 64, panelDensity: 620, panelMax: 2048, screenScale: 1.5 },
+  low: { dpr: { start: 1.25, min: 0.95, max: 1.35 }, textureScale: 0.85, anisotropy: 8, reflections: 64, panelDensity: 520, panelMax: 1536, screenScale: 1.25 },
 };
 
 /**
