@@ -95,6 +95,9 @@ fs.mkdirSync(".qa/world", { recursive: true });
   if (production) {
     /* On production the brief is not sent: a QA row must never reach the studio. */
     check("production: the brief is filled but not sent", true);
+    /* Put it away unsent, so the next rooms are spoken to from the world. */
+    await card.locator("[data-office-close]").click();
+    await page.waitForTimeout(400);
   } else {
     const [response] = await Promise.all([
       page.waitForResponse((r) => r.url().endsWith("/api/lead") && r.request().method() === "POST"),
