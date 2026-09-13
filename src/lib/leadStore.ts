@@ -7,20 +7,24 @@ import path from "node:path";
  *
  * Firestore, through its REST API, when a service account is configured:
  * a signed JWT is exchanged for a short-lived token and the document is
- * written to `world_leads`. No SDK — the two requests are all it takes, and
- * the private key never leaves the server. Without a service account the
- * lead still goes out by email and WhatsApp, and in development it is
- * appended to a local file so the flow can be tested end to end.
+ * written to `world_leads`, then its status is patched as the notifications
+ * go out. No SDK — the requests are all it takes, and the private key never
+ * leaves the server. Without a service account the lead still goes out by
+ * email and WhatsApp, and in development it is appended to a local file so
+ * the flow can be tested end to end.
  *
  * Server-only: it reads `node:crypto` and `node:fs`, which no client bundle
  * has, so a client import fails the build.
  */
 
-export type StoredLead = Record<string, unknown> & { createdAt: string };
+export type LeadStatus = "new" | "notification_pending" | "notified" | "notification_partial" | "failed";
 
-type Stored = { where: "firestore" | "file" | "none"; id: string };
+export type StoredLead = Record<string, unknown> & { createdAt: string; status: LeadStatus };
+
+export type Stored = { where: "firestore" | "file" | "none"; id: string };
 
 const FIRESTORE_SCOPE = "https://www.googleapis.com/auth/datastore";
+const COLLECTION = "world_leads";
 
 function firestoreConfig() {
   const projectId = process.env.FIREBASE_PROJECT_ID;
@@ -28,6 +32,13 @@ function firestoreConfig() {
   const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
   if (!projectId || !clientEmail || !privateKey) return null;
   return { projectId, clientEmail, privateKey };
+}
+
+/** Whether a store is configured at all, for the status endpoint. */
+export function leadStoreStatus(): "firestore" | "file" | "none" {
+  if (firestoreConfig()) return "firestore";
+  if (process.env.NODE_ENV !== "production" || process.env.LEADS_FILE) return "file";
+  return "none";
 }
 
 let cachedToken: { value: string; expires: number } | null = null;
@@ -76,15 +87,19 @@ function toValue(value: unknown): Record<string, unknown> {
   return { stringValue: String(value) };
 }
 
+function documentUrl(projectId: string, id?: string) {
+  const base = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/${COLLECTION}`;
+  return id ? `${base}/${encodeURIComponent(id)}` : base;
+}
+
 async function toFirestore(lead: StoredLead, id: string): Promise<void> {
   const config = firestoreConfig();
   if (!config) throw new Error("NOT_CONFIGURED");
   const token = await accessToken(config);
-  const url = `https://firestore.googleapis.com/v1/projects/${config.projectId}/databases/(default)/documents/world_leads?documentId=${encodeURIComponent(id)}`;
   const fields: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(lead)) fields[key] = toValue(value);
   fields.createdAt = { timestampValue: lead.createdAt };
-  const response = await fetch(url, {
+  const response = await fetch(`${documentUrl(config.projectId)}?documentId=${encodeURIComponent(id)}`, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
     body: JSON.stringify({ fields }),
@@ -92,8 +107,30 @@ async function toFirestore(lead: StoredLead, id: string): Promise<void> {
   if (!response.ok) throw new Error(`FIRESTORE_${response.status}`);
 }
 
+/** Patch a few fields of a stored lead — the notification outcome, mostly. */
+async function patchFirestore(id: string, patch: Record<string, unknown>): Promise<void> {
+  const config = firestoreConfig();
+  if (!config) return;
+  const token = await accessToken(config);
+  const fields: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(patch)) fields[key] = toValue(value);
+  const mask = Object.keys(patch)
+    .map((key) => `updateMask.fieldPaths=${encodeURIComponent(key)}`)
+    .join("&");
+  const response = await fetch(`${documentUrl(config.projectId, id)}?${mask}`, {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ fields }),
+  });
+  if (!response.ok) throw new Error(`FIRESTORE_${response.status}`);
+}
+
+function leadsFile() {
+  return process.env.LEADS_FILE ?? path.join(process.cwd(), ".qa", "leads.jsonl");
+}
+
 async function toFile(lead: StoredLead, id: string): Promise<void> {
-  const file = process.env.LEADS_FILE ?? path.join(process.cwd(), ".qa", "leads.jsonl");
+  const file = leadsFile();
   await mkdir(path.dirname(file), { recursive: true });
   await appendFile(file, `${JSON.stringify({ id, ...lead })}\n`, "utf8");
 }
@@ -106,7 +143,7 @@ export async function storeLead(lead: StoredLead): Promise<Stored> {
       await toFirestore(lead, id);
       return { where: "firestore", id };
     } catch (error) {
-      console.error("[lead] firestore failed:", error instanceof Error ? error.message : error);
+      console.error("[lead] firestore failed:", error instanceof Error ? error.message : "unknown");
     }
   }
   if (process.env.NODE_ENV !== "production" || process.env.LEADS_FILE) {
@@ -114,8 +151,28 @@ export async function storeLead(lead: StoredLead): Promise<Stored> {
       await toFile(lead, id);
       return { where: "file", id };
     } catch (error) {
-      console.error("[lead] file failed:", error instanceof Error ? error.message : error);
+      console.error("[lead] file failed:", error instanceof Error ? error.message : "unknown");
     }
   }
   return { where: "none", id };
+}
+
+/**
+ * Record how the notifications went. Best effort: a failure here is logged
+ * and swallowed, because the lead itself is already kept.
+ */
+export async function updateLead(stored: Stored, patch: { status: LeadStatus } & Record<string, unknown>): Promise<void> {
+  if (stored.where === "firestore") {
+    try {
+      await patchFirestore(stored.id, patch);
+    } catch (error) {
+      console.error("[lead] firestore status update failed:", error instanceof Error ? error.message : "unknown");
+    }
+  } else if (stored.where === "file") {
+    try {
+      await appendFile(leadsFile(), `${JSON.stringify({ id: stored.id, update: patch })}\n`, "utf8");
+    } catch {
+      /* The row is already there; the update is a courtesy. */
+    }
+  }
 }

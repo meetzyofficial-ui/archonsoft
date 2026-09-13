@@ -1,12 +1,19 @@
 "use client";
 
+import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useSyncExternalStore } from "react";
 import * as THREE from "three";
 import { Backlight, Contact, MATERIAL } from "@/components/world/pieces/Kit";
 import { DataSurface, Mount, paintPanel } from "@/components/world/pieces/Surface";
 import { discovery } from "@/components/world/systems/discovery";
 import { focusStore, interactables } from "@/components/world/systems/focus";
+import { body } from "@/components/world/systems/body";
+import { qualityStore } from "@/components/world/systems/quality";
 import type { PreparedDisplay } from "@/lib/worldPayload";
+
+/* On a phone a panel further than this is not drawn at all — its housing,
+   its light and its glass — and comes back as the visitor approaches. */
+const PHONE_CULL_AT = 85;
 
 /**
  * A display, and the thing it is mounted in.
@@ -63,6 +70,13 @@ export function Display({
   const [w] = display.size;
   /* Filled in by the mount; called by the walking loop. */
   const near = useRef<((nearness: number) => void) | null>(null);
+  const root = useRef<THREE.Group>(null);
+  useFrame(() => {
+    const node = root.current;
+    if (!node || qualityStore.tier === "desktop") return;
+    const far = Math.hypot(body.x - display.at[0], body.z - display.at[2]) > PHONE_CULL_AT + w;
+    if (node.visible === far) node.visible = !far;
+  });
 
   useEffect(
     () =>
@@ -113,7 +127,7 @@ export function Display({
   );
 
   return (
-    <group position={display.at} rotation={[0, display.turn, 0]} name={`display:${display.id}`}>
+    <group ref={root} position={display.at} rotation={[0, display.turn, 0]} name={`display:${display.id}`}>
       {display.form === "wall" ? <WallHousing size={display.size}>{screen}</WallHousing> : null}
       {display.form === "array" ? <ArrayHousing size={display.size}>{screen}</ArrayHousing> : null}
       {display.form === "immersive" ? (

@@ -112,9 +112,29 @@ function paint(kind: ScreenKind, accent: string, ctx: Ctx) {
         ctx.fillStyle = "rgba(255,255,255,0.18)";
         ctx.fillRect(92, 34 + i * 16, 10, 5);
       }
-      bars(ctx, 110, 34, 300, 17, 16, ["#7fb3ff", "#c9a2ff", "#7fd6a8", "#ffd58a", text[0]!], r, true);
-      panel(ctx, W - 96, 22, 96, H - 22, "#0a1020", line);
-      bars(ctx, W - 88, 34, 80, 12, 14, [text[1]!], r, false);
+      bars(ctx, 110, 34, 170, 17, 16, ["#7fb3ff", "#c9a2ff", "#7fd6a8", "#ffd58a", text[0]!], r, true);
+      /* A browser preview beside the code: the page the code makes. */
+      panel(ctx, 300, 30, 200, 262, "#f6f7fa", line);
+      panel(ctx, 300, 30, 200, 16, "#e6e8ee");
+      ctx.fillStyle = "#c9cdd6";
+      ctx.fillRect(330, 35, 120, 6);
+      panel(ctx, 310, 56, 180, 60, "#111827");
+      ctx.fillStyle = "#f6f7fa";
+      ctx.fillRect(320, 70, 90, 8);
+      ctx.fillStyle = accent;
+      ctx.fillRect(320, 88, 50, 14);
+      for (let i = 0; i < 3; i += 1) {
+        panel(ctx, 310 + i * 60, 126, 54, 44, "#e9edf5");
+        ctx.fillStyle = "#1c2030";
+        ctx.fillRect(316 + i * 60, 134, 30, 4);
+        ctx.fillStyle = "#8a93a6";
+        ctx.fillRect(316 + i * 60, 144, 40, 3);
+        ctx.fillRect(316 + i * 60, 152, 34, 3);
+      }
+      for (let i = 0; i < 5; i += 1) {
+        ctx.fillStyle = i % 2 ? "#dfe3ec" : "#eef1f6";
+        ctx.fillRect(310, 182 + i * 20, 180, 14);
+      }
       panel(ctx, 0, H - 18, W, 18, "#152341");
       ctx.fillStyle = accent;
       ctx.fillRect(0, H - 18, 62, 18);
@@ -313,6 +333,136 @@ function paint(kind: ScreenKind, accent: string, ctx: Ctx) {
       }
       ctx.fillStyle = accent;
       ctx.fillRect(0, 28, 110, 3);
+      break;
+    }
+    case "marketing": {
+      panel(ctx, 0, 0, 96, H, "#0a1020", line);
+      bars(ctx, 10, 20, 76, 12, 18, [text[1]!], r, false);
+      /* Campaign tiles with a trend each. */
+      for (let i = 0; i < 4; i += 1) {
+        panel(ctx, 108 + i * 98, 12, 90, 64, panelDark, line);
+        ctx.fillStyle = text[1]!;
+        ctx.fillRect(116 + i * 98, 22, 46, 5);
+        ctx.fillStyle = i % 2 ? "#7fd6a8" : accent;
+        ctx.fillRect(116 + i * 98, 36, 28 + r() * 30, 12);
+        ctx.strokeStyle = i % 2 ? "#7fd6a8" : accent;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        for (let k = 0; k <= 6; k += 1) {
+          const px = 116 + i * 98 + k * 12;
+          const py = 66 - r() * 12;
+          if (k) ctx.lineTo(px, py);
+          else ctx.moveTo(px, py);
+        }
+        ctx.stroke();
+      }
+      /* The funnel. */
+      panel(ctx, 108, 86, 180, 122, panelDark, line);
+      const stages = [160, 128, 96, 64, 40];
+      stages.forEach((w, i) => {
+        ctx.fillStyle = `rgba(255,213,138,${0.9 - i * 0.15})`;
+        ctx.fillRect(108 + (180 - w) / 2, 96 + i * 22, w, 16);
+      });
+      /* Channel bars. */
+      panel(ctx, 296, 86, 206, 122, panelDark, line);
+      const channels = ["#ffd58a", "#6aa8ff", "#f2a889", "#7fd6a8", "#c9a2ff"];
+      channels.forEach((c, i) => {
+        const h = 30 + r() * 70;
+        ctx.fillStyle = c;
+        ctx.fillRect(310 + i * 38, 200 - h, 24, h);
+      });
+      /* Schedule rows. */
+      for (let i = 0; i < 5; i += 1) {
+        panel(ctx, 108, 218 + i * 20, 394, 16, i % 2 ? "#0f172a" : panelDark);
+        ctx.fillStyle = channels[i % channels.length]!;
+        ctx.fillRect(114, 222 + i * 20, 6, 8);
+        bars(ctx, 128, 222 + i * 20, 300, 1, 10, [text[0]!, text[1]!], r, false);
+        panel(ctx, 400 + r() * 40, 221 + i * 20, 40 + r() * 40, 10, "#1f3a5a");
+      }
+      break;
+    }
+    case "consulting": {
+      /* A strategy board: swimlanes with cards, a roadmap along the top. */
+      panel(ctx, 0, 0, W, H, "#141821");
+      panel(ctx, 0, 0, W, 26, "#1c212b");
+      for (let q = 0; q < 4; q += 1) {
+        panel(ctx, 24 + q * 118, 36, 110, 14, "#1f2530", line);
+        ctx.fillStyle = text[1]!;
+        ctx.fillRect(30 + q * 118, 41, 40, 4);
+        panel(ctx, 24 + q * 118 + r() * 20, 54, 60 + r() * 50, 8, [accent, "#6aa8ff", "#7fd6a8", "#f2a889"][q]!);
+      }
+      const lanes = ["#3b2f5a", "#2f4a3a", "#4a3a2a"];
+      lanes.forEach((lane, li) => {
+        panel(ctx, 24, 76 + li * 76, W - 48, 68, "#181d27", line);
+        ctx.fillStyle = text[1]!;
+        ctx.fillRect(32, 84 + li * 76, 44, 4);
+        let x = 90;
+        while (x < W - 100) {
+          const w = 56 + r() * 40;
+          panel(ctx, x, 84 + li * 76 + r() * 30, w, 26, ["#fff1a8", "#c8f7e0", "#ffd6c4", "#dbe7ff"][Math.floor(r() * 4)]!);
+          ctx.fillStyle = "rgba(20,24,33,0.7)";
+          ctx.fillRect(x + 6, 90 + li * 76 + 4, w * 0.6, 3);
+          ctx.fillRect(x + 6, 90 + li * 76 + 11, w * 0.4, 3);
+          x += w + 10;
+        }
+        void lane;
+      });
+      break;
+    }
+    case "innovation": {
+      panel(ctx, 0, 0, 110, H, "#0a1020", line);
+      bars(ctx, 12, 20, 86, 12, 18, [text[1]!], r, false);
+      /* A concept sketch: wireframe object on a grid, with callouts. */
+      panel(ctx, 120, 12, 262, 200, "#0c1220", line);
+      ctx.strokeStyle = "rgba(255,255,255,0.07)";
+      for (let i = 0; i <= 12; i += 1) {
+        ctx.beginPath();
+        ctx.moveTo(120 + i * 21.8, 12);
+        ctx.lineTo(120 + i * 21.8, 212);
+        ctx.stroke();
+      }
+      for (let i = 0; i <= 9; i += 1) {
+        ctx.beginPath();
+        ctx.moveTo(120, 12 + i * 22.2);
+        ctx.lineTo(382, 12 + i * 22.2);
+        ctx.stroke();
+      }
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = 1.5;
+      const cx = 251;
+      const cy = 112;
+      for (let ring = 0; ring < 3; ring += 1) {
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, 60 - ring * 14, 26 + ring * 12, (ring * Math.PI) / 5, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.beginPath();
+      ctx.arc(cx, cy, 8, 0, Math.PI * 2);
+      ctx.fillStyle = accent;
+      ctx.fill();
+      /* Callouts. */
+      [[300, 40], [330, 160], [160, 60]].forEach(([x, y]) => {
+        ctx.strokeStyle = "rgba(255,255,255,0.4)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(cx + (x! - cx) * 0.3, cy + (y! - cy) * 0.3);
+        ctx.lineTo(x!, y!);
+        ctx.stroke();
+        panel(ctx, x! - 4, y! - 14, 44, 12, "#1a2438");
+        ctx.fillStyle = text[0]!;
+        ctx.fillRect(x!, y! - 10, 30, 4);
+      });
+      /* Notes and a checklist. */
+      panel(ctx, 392, 12, 110, 200, panelDark, line);
+      for (let i = 0; i < 7; i += 1) {
+        ctx.fillStyle = i < 3 ? "#7fd6a8" : "rgba(255,255,255,0.25)";
+        ctx.fillRect(400, 22 + i * 26, 10, 10);
+        bars(ctx, 416, 24 + i * 26, 84, 1, 10, [text[1]!], r, false);
+      }
+      for (let i = 0; i < 4; i += 1) {
+        panel(ctx, 120, 222 + i * 22, 382, 18, i % 2 ? "#0f172a" : panelDark);
+        bars(ctx, 128, 227 + i * 22, 360, 1, 10, [text[0]!, text[1]!], r, false);
+      }
       break;
     }
     case "lobby":

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { MATERIAL } from "@/components/world/pieces/Kit";
+import { qualityStore } from "@/components/world/systems/quality";
 
 /**
  * Facades: the buildings of the campus.
@@ -290,10 +291,12 @@ export function Facades({ list }: { list: Facade[] }) {
         <cylinderGeometry args={[0.4, 0.5, 1, 6]} />
         <meshStandardMaterial color="#c9d2de" roughness={0.45} metalness={0.5} flatShading />
       </instancedMesh>
-      <instancedMesh ref={lit} args={[undefined, undefined, counts.lights]} frustumCulled={false}>
-        <boxGeometry args={[1, 1, 1]} />
-        <meshBasicMaterial color={light} toneMapped={false} transparent opacity={0.5} />
-      </instancedMesh>
+      {qualityStore.tier === "desktop" ? (
+        <instancedMesh ref={lit} args={[undefined, undefined, counts.lights]} frustumCulled={false}>
+          <boxGeometry args={[1, 1, 1]} />
+          <meshBasicMaterial color={light} toneMapped={false} transparent opacity={0.5} />
+        </instancedMesh>
+      ) : null}
       <instancedMesh ref={rocks} args={[undefined, undefined, list.length]} frustumCulled={false}>
         <cylinderGeometry args={[0.5, 0.1, 1, 7, 1]} />
         <meshStandardMaterial color="#1a2032" roughness={0.95} flatShading />

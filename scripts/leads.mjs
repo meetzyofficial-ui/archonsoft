@@ -79,6 +79,10 @@ fs.mkdirSync(".qa/world", { recursive: true });
   const formText = await card.innerText();
   check("an empty brief is refused with the fields named", /Adınızı yazın/.test(formText) && /onayınız gerekiyor/.test(formText));
 
+  check("the brief opens short: name, email, project", (await card.locator("input, textarea, select").count()) <= 5);
+  await card.locator("[data-office-more]").click();
+  await page.waitForTimeout(200);
+  check("more detail unfolds the optional fields", (await card.locator("select[name=budget]").count()) === 1);
   await card.locator("input[name=name]").fill("QA Ziyaretçi");
   await card.locator("input[name=company]").fill("QA Studio");
   await card.locator("input[name=email]").fill("qa@example.com");
@@ -99,13 +103,16 @@ fs.mkdirSync(".qa/world", { recursive: true });
     const data = await response.json();
     check("the route accepts it", response.status() === 200 && data.ok === true, JSON.stringify(data));
     check("the lead is kept", data.stored === "file" || data.stored === "firestore", data.stored);
+    check("the record carries a status", ["new", "notified", "notification_partial", "notification_pending"].includes(data.status), data.status);
     check("the notifications report honestly", ["sent", "skipped", "mocked", "failed"].includes(data.notified?.whatsapp) && ["sent", "skipped", "failed"].includes(data.notified?.email), JSON.stringify(data.notified));
     await page.waitForTimeout(600);
     check("the card thanks the visitor", (await card.getAttribute("data-stage")) === "done" && /Talebinizi ekibimize ilettik/.test(await card.innerText()));
     check("with a reference", /wl_[a-z0-9_]+/i.test(await card.innerText()));
     if (data.stored === "file") {
-      const rows = fs.readFileSync(".qa/leads.jsonl", "utf8").trim().split("\n");
-      const last = JSON.parse(rows[rows.length - 1]);
+      const rows = fs.readFileSync(".qa/leads.jsonl", "utf8").trim().split(/\r?\n/).map((row) => JSON.parse(row));
+      const last = rows.filter((row) => row.department).pop();
+      const update = rows.filter((row) => row.update && row.id === last.id).pop();
+      check("the stored row is followed by its notification status", Boolean(update?.update?.status), JSON.stringify(update?.update));
       check("the stored row carries the journey", last.department === "web" && last.service === "saas" && last.source === "archon_world" && Array.isArray(last.journey), JSON.stringify(last.journey));
       check("and the locale and device", last.locale === "tr" && last.device === "desktop");
     }
@@ -115,8 +122,63 @@ fs.mkdirSync(".qa/world", { recursive: true });
     check("back to the lobby closes the card and teleports home", (await page.locator("[data-office-card]").count()) === 0 && back && Math.abs(back.z - 16) < 1.5, `${back?.x?.toFixed(1)},${back?.z?.toFixed(1)}`);
   }
   await page.screenshot({ path: ".qa/world/leads-desktop.png" });
+
+  /* The three rooms the lobby used to handle: marketing, consulting, innovation. */
+  for (const [dept, at, word] of [
+    ["marketing", [8.5, -8, -90], /PAZARLAMA|Pazarlama/],
+    ["consulting", [-8.5, -8, 90], /DANIŞMANLIK|Danışmanlık/],
+    ["other", [-6.5, -34, 90], /ÖZEL PROJE|Özel Proje/],
+  ]) {
+    await page.evaluate(([x, z, d]) => window.__archonPlace?.(x, z, d), at);
+    await page.locator("[data-focus='true']").waitFor({ timeout: 4000 }).catch(() => {});
+    await page.waitForTimeout(1400);
+    const label = (await page.locator(".world-overlay").innerText()).replace(/\s+/g, " ");
+    check(`${dept}: its room is in the world and in focus`, word.test(label), label.slice(-120));
+    await page.keyboard.press("e");
+    await page.waitForTimeout(600);
+    check(`${dept}: talking opens the department stage`, (await card.getAttribute("data-office")) === dept && (await card.getAttribute("data-stage")) === "department");
+    await page.screenshot({ path: `.qa/world/leads-${dept}.png` });
+    await card.locator("[data-office-close]").click();
+    await page.waitForTimeout(300);
+  }
+
+  /* The world's effects, by the scene. */
+  const effects = await page.evaluate(() => {
+    const scene = window.__archonScene();
+    let firePoints = 0;
+    let torches = 0;
+    scene.traverse((o) => {
+      if (o.name === "fire") o.traverse((p) => { if (p.isPoints) firePoints += p.geometry.attributes.position?.count ?? 0; });
+      if (o.name === "torches") torches += 1;
+    });
+    return { firePoints, torches };
+  });
+  check("the robot burns: fire particles on it", effects.firePoints > 500, String(effects.firePoints));
+  check("fire columns stand on every bridge", effects.torches === 5, String(effects.torches));
+  await page.evaluate(() => window.__archonComet?.());
+  /* Sample the pass: somewhere in it the comet is over the plaza, low, in front of the skyline. */
+  let best = null;
+  for (let i = 0; i < 24; i += 1) {
+    await page.waitForTimeout(500);
+    const comet = await page.evaluate(() => { const c = window.__archonScene().getObjectByName("cosmos:comet"); return c ? { visible: c.visible, x: c.position.x, y: c.position.y, z: c.position.z } : null; });
+    if (comet?.visible && (!best || Math.abs(comet.x) < Math.abs(best.x))) best = comet;
+    if (best && Math.abs(best.x) < 60) break;
+  }
+  check("the comet crosses low, in front of the skyline, over the plaza", best && best.z > -40 && best.y < 60 && Math.abs(best.x) < 60, JSON.stringify(best));
+
   check("no page errors on the desktop journey", errors.length === 0, errors.join(" | ").slice(0, 200));
   await page.close();
+}
+
+/* ------------------------------------------------------------- privacy */
+{
+  for (const locale of ["tr", "en"]) {
+    const response = await fetch(`${BASE}/${locale}/privacy`);
+    const html = await response.text();
+    check(`the privacy notice answers at /${locale}/privacy`, response.status === 200 && /KVKK/.test(html) && /info@archonsoft\.tr/.test(html));
+  }
+  const status = await (await fetch(`${BASE}/api/lead`)).json();
+  check("the lead route reports what is wired up, without secrets", status.ok === true && ["firestore", "file", "none"].includes(status.store) && ["configured", "missing"].includes(status.email) && ["configured", "mocked", "missing"].includes(status.whatsapp), JSON.stringify(status));
 }
 
 /* --------------------------------------------------------------- route */
@@ -170,13 +232,22 @@ fs.mkdirSync(".qa/world", { recursive: true });
   check("phone: the card opens as a sheet", (await card.getAttribute("data-stage")) === "lobby");
   check("phone: the joystick is put away while the card is up", (await page.locator("[data-joystick]").count()) === 0);
   await card.locator("[data-department='consulting']").tap();
-  await page.waitForTimeout(500);
-  check("phone: consulting is handled by the lobby team, here", (await card.getAttribute("data-stage")) === "department" && /Danışmanlık/.test(await card.innerText()));
+  await page.waitForTimeout(400);
+  check("phone: consulting has a room; the team says where it is taking the visitor", (await card.locator("[data-office-going]").count()) === 1 && /Danışmanlık/.test(await card.innerText()));
+  await page.waitForTimeout(3600);
+  check("phone: the strategy room's card opens on arrival", (await card.getAttribute("data-office")) === "consulting" && (await card.getAttribute("data-stage")) === "department");
   await card.locator("[data-service='discovery']").tap();
   await page.waitForTimeout(500);
   check("phone: the brief opens", (await card.locator("[data-office-form]").count()) === 1);
   const box = await card.locator("input[name=name]").boundingBox();
   check("phone: inputs are thumb-sized", box && box.height >= 44, `${box?.height}px`);
+  await card.locator("input[name=name]").tap();
+  await page.keyboard.type("QA");
+  await page.waitForTimeout(200);
+  const scrollable = await page.locator("[data-office-card] > div > div").first().evaluate((el) => getComputedStyle(el).overflowY === "auto");
+  check("phone: the sheet scrolls inside itself, keyboard or not", scrollable && (await card.locator("[data-office-submit]").count()) === 1);
+  check("phone: the brief opens short on a phone too", (await card.locator("input, textarea, select").count()) <= 5);
+  await page.screenshot({ path: ".qa/world/leads-mobile-form.png" });
   await card.locator("[data-office-close]").tap();
   await page.waitForTimeout(500);
   check("phone: closing brings the joystick back", (await page.locator("[data-joystick]").count()) === 1);

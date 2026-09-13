@@ -32,10 +32,12 @@ uniform float scale;
 uniform vec3 velocity;
 uniform vec3 emitters[${MAX_EMITTERS}];
 uniform float strength[${MAX_EMITTERS}];
+/* 0 flame, 1 sparks, 2 smoke. */
 uniform int sparks;
 attribute float seed;
 attribute float emitter;
 attribute float span;
+attribute float grain;
 varying float vAge;
 varying float vHeat;
 varying float vSeed;
@@ -48,31 +50,37 @@ void main() {
   float s = strength[e] * heat;
   vHeat = s;
   vSeed = seed;
-  /* Each particle lives on its own clock. */
-  float life = (sparks == 1 ? 0.35 : 0.45) + hash(seed) * (sparks == 1 ? 0.4 : 0.5);
+  bool spark = sparks == 1;
+  bool smoke = sparks == 2;
+  /* Each particle lives on its own clock: short for sparks, long for smoke. */
+  float life = smoke ? 1.4 + hash(seed) * 1.2 : spark ? 0.35 + hash(seed) * 0.4 : 0.4 + hash(seed) * 0.55;
   float phase = fract(time / life + seed);
   vAge = phase;
   float a1 = hash(seed + 1.0) * 6.2831;
   float a2 = hash(seed + 2.0) * 6.2831;
-  float r = (sparks == 1 ? 0.04 : 0.05) * span * (0.4 + 0.6 * hash(seed + 6.0));
-  vec3 start = origin + vec3(cos(a1) * r, (hash(seed + 3.0) - 0.5) * 0.04, sin(a1) * r);
-  /* Rise, buoyant; swirl as it goes; a little of the body's motion left behind. */
-  float rise = (sparks == 1 ? 1.6 + hash(seed + 4.0) * 1.4 : 0.32 + hash(seed + 4.0) * 0.4) * span;
+  float r = (spark ? 0.04 : 0.05) * span * (0.4 + 0.6 * hash(seed + 6.0));
+  vec3 start = origin + vec3(cos(a1) * r, (hash(seed + 3.0) - 0.5) * 0.04 + (smoke ? 0.3 * span : 0.0), sin(a1) * r);
+  /* Rise, buoyant — hotter flame rises faster; turbulence in two frequencies
+     and a slow curl; smoke rises slower and spreads; a little of the body's
+     motion is left behind, more the faster it goes. */
+  float rise = (spark ? 1.6 + hash(seed + 4.0) * 1.4 : smoke ? 0.5 + hash(seed + 4.0) * 0.3 : 0.32 + hash(seed + 4.0) * 0.4) * span;
   vec3 p = start;
   p.y += phase * rise * (0.6 + 0.4 * s);
-  float swirl = (sparks == 1 ? 0.03 : 0.045) * span;
-  p.x += sin(phase * 7.0 + a2 + time * 1.3) * swirl * phase + cos(a2) * phase * 0.03;
-  p.z += cos(phase * 6.0 + a1 - time * 1.1) * swirl * phase + sin(a2) * phase * 0.03;
-  if (sparks == 1) {
+  float swirl = (spark ? 0.03 : smoke ? 0.09 : 0.045) * span;
+  float curl = phase * phase;
+  p.x += sin(phase * 7.0 + a2 + time * 1.3) * swirl * phase + sin(phase * 13.0 + seed * 9.0 + time * 2.3) * 0.018 * span * curl + cos(a2) * phase * 0.03;
+  p.z += cos(phase * 6.0 + a1 - time * 1.1) * swirl * phase + cos(phase * 11.0 + seed * 7.0 - time * 1.9) * 0.018 * span * curl + sin(a2) * phase * 0.03;
+  if (spark) {
     p.y -= phase * phase * 0.9;
     p += vec3(cos(a2), 0.0, sin(a2)) * phase * 0.35 * hash(seed + 5.0);
   }
-  p -= velocity * phase * (sparks == 1 ? 0.5 : 0.32);
+  p -= velocity * phase * (spark ? 0.5 : smoke ? 0.6 : 0.32);
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
   gl_Position = projectionMatrix * mv;
-  /* Flames swell then thin; sparks stay small. */
-  float grow = sparks == 1 ? 0.35 : (0.85 + phase * 0.7) * (1.0 - phase * 0.6);
-  float size = scale * span * grow * (0.55 + 0.45 * s) * (sparks == 1 ? 0.35 : 1.0);
+  /* Flames swell then thin; sparks stay small; smoke keeps growing. Every
+     particle has its own grain of size. */
+  float grow = spark ? 0.35 : smoke ? 1.2 + phase * 1.6 : (0.85 + phase * 0.7) * (1.0 - phase * 0.6);
+  float size = scale * span * grow * grain * (0.55 + 0.45 * s) * (spark ? 0.35 : 1.0);
   gl_PointSize = size * pixelRatio * (300.0 / -mv.z);
 }
 `;
@@ -92,6 +100,12 @@ void main() {
   float body = smoothstep(edge, 0.0, d);
   body = body * body;
   if (body <= 0.001) discard;
+  if (sparks == 2) {
+    /* Smoke: dark, thin, fading as it spreads. */
+    float a = body * (1.0 - vAge) * vAge * 0.55 * clamp(vHeat, 0.0, 1.2);
+    gl_FragColor = vec4(vec3(0.05, 0.045, 0.045), a);
+    return;
+  }
   /* White-yellow, orange, red, ember: by age. */
   vec3 hot = vec3(1.0, 0.86, 0.5);
   vec3 orange = vec3(1.0, 0.42, 0.08);
@@ -117,7 +131,7 @@ export type FlameUniforms = {
   sparks: { value: number };
 };
 
-function makeMaterial(sparks: boolean): THREE.ShaderMaterial {
+function makeMaterial(sparks: boolean | 2): THREE.ShaderMaterial {
   const uniforms: FlameUniforms = {
     time: { value: 0 },
     heat: { value: 1 },
@@ -126,7 +140,7 @@ function makeMaterial(sparks: boolean): THREE.ShaderMaterial {
     velocity: { value: new THREE.Vector3() },
     emitters: { value: Array.from({ length: MAX_EMITTERS }, () => new THREE.Vector3(0, -100, 0)) },
     strength: { value: Array.from({ length: MAX_EMITTERS }, () => 0) },
-    sparks: { value: sparks ? 1 : 0 },
+    sparks: { value: sparks === 2 ? 2 : sparks ? 1 : 0 },
   };
   return new THREE.ShaderMaterial({
     uniforms,
@@ -135,7 +149,7 @@ function makeMaterial(sparks: boolean): THREE.ShaderMaterial {
     transparent: true,
     depthWrite: false,
     depthTest: true,
-    blending: THREE.AdditiveBlending,
+    blending: sparks === 2 ? THREE.NormalBlending : THREE.AdditiveBlending,
     toneMapped: false,
   });
 }
@@ -146,16 +160,20 @@ function makeGeometry(count: number, emitterCount: number, spans: number[]): THR
   const seed = new Float32Array(count);
   const emitter = new Float32Array(count);
   const span = new Float32Array(count);
+  const grain = new Float32Array(count);
   for (let i = 0; i < count; i += 1) {
     seed[i] = Math.random();
     const e = i % Math.max(1, emitterCount);
     emitter[i] = e;
     span[i] = spans[e] ?? 1;
+    /* Sizes in a spread: many small, a few large. */
+    grain[i] = 0.6 + Math.pow(Math.random(), 1.6) * 1.1;
   }
   geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
   geometry.setAttribute("seed", new THREE.BufferAttribute(seed, 1));
   geometry.setAttribute("emitter", new THREE.BufferAttribute(emitter, 1));
   geometry.setAttribute("span", new THREE.BufferAttribute(span, 1));
+  geometry.setAttribute("grain", new THREE.BufferAttribute(grain, 1));
   /* The points move in the shader; the bounds are set wide so they are never culled away. */
   geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 1, 0), 6);
   return geometry;
@@ -175,17 +193,21 @@ export function Flames({
   read,
   scale = 1,
   sparkRatio = 0.25,
+  smokeRatio = 0,
 }: {
   count: number;
   read: (emitters: Emitter[], state: { heat: number; velocity: THREE.Vector3 }) => void;
   scale?: number;
   sparkRatio?: number;
+  /** A share of the count as smoke over the flames; none on a phone. */
+  smokeRatio?: number;
 }) {
   const flames = useRef<THREE.Points>(null);
   const sparks = useRef<THREE.Points>(null);
+  const smoke = useRef<THREE.Points>(null);
   const emitters = useMemo<Emitter[]>(() => [], []);
   const state = useMemo(() => ({ heat: 1, velocity: new THREE.Vector3() }), []);
-  const materials = useMemo(() => [makeMaterial(false), makeMaterial(true)], []);
+  const materials = useMemo(() => [makeMaterial(false), makeMaterial(true), makeMaterial(2)], []);
   const geometries = useRef<THREE.BufferGeometry[] | null>(null);
   const built = useRef(0);
 
@@ -206,9 +228,14 @@ export function Flames({
     if (built.current !== n) {
       geometries.current?.forEach((g) => g.dispose());
       const spans = emitters.map((e) => e.span);
-      geometries.current = [makeGeometry(count, n, spans), makeGeometry(Math.round(count * sparkRatio), n, spans)];
+      geometries.current = [
+        makeGeometry(count, n, spans),
+        makeGeometry(Math.round(count * sparkRatio), n, spans),
+        makeGeometry(Math.max(1, Math.round(count * smokeRatio)), n, spans),
+      ];
       if (flames.current) flames.current.geometry = geometries.current[0]!;
       if (sparks.current) sparks.current.geometry = geometries.current[1]!;
+      if (smoke.current) smoke.current.geometry = geometries.current[2]!;
       built.current = n;
     }
     const t = clock.elapsedTime;
@@ -233,8 +260,9 @@ export function Flames({
 
   return (
     <group name="fire">
+      {smokeRatio > 0 ? <points ref={smoke} material={materials[2]} frustumCulled={false} renderOrder={2} /> : null}
       <points ref={flames} material={materials[0]} frustumCulled={false} renderOrder={3} />
-      <points ref={sparks} material={materials[1]} frustumCulled={false} renderOrder={3} />
+      {sparkRatio > 0 ? <points ref={sparks} material={materials[1]} frustumCulled={false} renderOrder={3} /> : null}
     </group>
   );
 }

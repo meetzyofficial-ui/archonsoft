@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { DEPARTMENTS } from "@/data/departments";
 import { hasLeadErrors, validateLead, type LeadPayload, type LeadResult } from "@/lib/leads";
-import { storeLead } from "@/lib/leadStore";
-import { sendWhatsApp } from "@/lib/whatsapp";
+import { leadStoreStatus, storeLead, updateLead, type LeadStatus } from "@/lib/leadStore";
+import { sendWhatsApp, whatsappStatus } from "@/lib/whatsapp";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,12 +10,19 @@ export const dynamic = "force-dynamic";
 /**
  * A client request from the world.
  *
- * The brief a visitor gives at one of the offices arrives here, is checked
- * against the same contract the form used, throttled per address, kept
- * (Firestore when configured, a local file in development), and announced:
- * an email to the studio and a WhatsApp message, both from the server, with
- * every credential read from the environment. The response says what
- * happened to each — nothing is reported as sent that was not.
+ * The brief a visitor gives at one of the offices arrives here and goes
+ * through, in order: the honeypot, validation against the contract the
+ * form used, a throttle per address, the store — Firestore when a service
+ * account is configured, a local file in development — and only then the
+ * notifications: an email to the studio and a WhatsApp message, both from
+ * the server, every credential in the environment. The record is written
+ * before anything is sent, so a failed email or a visitor who closes the
+ * tab loses nothing; the record's status says how the notifications went.
+ *
+ * What counts as success: the lead is kept, or — with no store configured
+ * — the email went out. WhatsApp is best effort and never fails a request.
+ * The response says what happened to each; nothing is reported as sent that
+ * was not. Logs carry outcomes and ids, never a name, an email or a number.
  */
 
 const WINDOW_MS = 15 * 60 * 1000;
@@ -35,47 +42,67 @@ const escapeHtml = (value: string) =>
   value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char] ?? char);
 
 /** One line, no control characters: what goes into a header or a subject. */
-const oneLine = (value: string) => value.replace(/[\r\n\t]+/g, " ").trim();
+const oneLine = (value: string) => value.replace(/[\r\n\t]|[\x00-\x1f\x7f]/g, " ").replace(/\s+/g, " ").trim();
 
-type Row = [string, string];
+type Names = { department: string; service: string; budget: string; timeline: string };
 
-function rows(lead: LeadPayload, when: string, names: { department: string; service: string }): Row[] {
-  return [
-    ["Name", lead.name],
-    ["Company", lead.company || "—"],
-    ["Email", lead.email],
-    ["Phone", lead.phone || "—"],
-    ["WhatsApp", lead.whatsapp || "—"],
-    ["Department", names.department],
-    ["Service", names.service],
-    ["Project", lead.description],
-    ["Budget", lead.budget || "—"],
-    ["Timeline", lead.timeline || "—"],
-    ["Notes", lead.notes || "—"],
-    ["Date", when],
-    ["Device", lead.device],
-    ["Locale", lead.locale],
-    ["Journey", (lead.journey ?? []).join(" → ") || "—"],
-    ["Source", "archon_world"],
-  ];
+const BUDGET_LABELS: Record<string, string> = {
+  unsure: "Not sure yet",
+  lt10: "Under $10k",
+  "10-25": "$10k – $25k",
+  "25-50": "$25k – $50k",
+  "50-100": "$50k – $100k",
+  "100plus": "$100k+",
+};
+const TIMELINE_LABELS: Record<string, string> = { asap: "As soon as possible", "1-3m": "1–3 months", "3-6m": "3–6 months", flexible: "Flexible" };
+
+function emailHtml(lead: LeadPayload, when: string, names: Names, id: string, storedWhere: string): string {
+  const row = (label: string, value: string, strong = false) =>
+    `<tr><td style="padding:6px 18px 6px 0;color:#7a8394;font:12px/1.4 system-ui;letter-spacing:.08em;text-transform:uppercase;vertical-align:top;white-space:nowrap">${escapeHtml(label)}</td><td style="padding:6px 0;font:${strong ? "600 " : ""}15px/1.5 system-ui;color:#111827;white-space:pre-wrap">${escapeHtml(value)}</td></tr>`;
+  const section = (title: string, rows: string) =>
+    `<h3 style="margin:26px 0 6px;font:600 12px/1.4 system-ui;letter-spacing:.14em;color:#f2a889;text-transform:uppercase">${title}</h3><table style="border-collapse:collapse;width:100%">${rows}</table>`;
+  const contact = [lead.email, lead.phone ? `Tel ${lead.phone}` : "", lead.whatsapp ? `WhatsApp ${lead.whatsapp}` : ""].filter(Boolean).join(" · ");
+  return `<!doctype html><html><body style="margin:0;background:#f4f5f8;padding:32px 16px"><div style="max-width:640px;margin:0 auto;background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:32px 36px">
+<p style="margin:0;font:600 11px/1.4 system-ui;letter-spacing:.18em;color:#7a8394;text-transform:uppercase">Archon Soft World</p>
+<h1 style="margin:8px 0 0;font:600 22px/1.3 system-ui;color:#111827">New client request</h1>
+<p style="margin:6px 0 0;font:13px/1.5 system-ui;color:#7a8394">${escapeHtml(when)} · ${escapeHtml(lead.device)} · ${escapeHtml(lead.locale.toUpperCase())} · ref ${escapeHtml(id)}</p>
+${section("Client", row("Client", lead.name, true) + row("Company", lead.company || "—") + row("Contact", contact))}
+${section("Request", row("Department", names.department, true) + row("Service", names.service, true) + row("Project", lead.description) + row("Budget", names.budget) + row("Timeline", names.timeline) + (lead.notes ? row("Notes", lead.notes) : ""))}
+${section("Context", row("Journey", (lead.journey ?? []).join(" → ") || "—") + row("Stored", storedWhere) + row("Source", "archon_world"))}
+<p style="margin:28px 0 0;font:13px/1.5 system-ui;color:#7a8394">Reply to this email to answer the client directly.</p>
+</div></body></html>`;
 }
 
-async function email(lead: LeadPayload, table: Row[]): Promise<"sent" | "skipped" | "failed"> {
+function emailText(lead: LeadPayload, when: string, names: Names, id: string): string {
+  return [
+    "ARCHON SOFT WORLD — NEW CLIENT REQUEST",
+    "",
+    `CLIENT      ${lead.name}`,
+    `COMPANY     ${lead.company || "—"}`,
+    `CONTACT     ${[lead.email, lead.phone, lead.whatsapp ? `WhatsApp ${lead.whatsapp}` : ""].filter(Boolean).join(" · ")}`,
+    `DEPARTMENT  ${names.department}`,
+    `SERVICE     ${names.service}`,
+    `PROJECT     ${lead.description}`,
+    `BUDGET      ${names.budget}`,
+    `TIMELINE    ${names.timeline}`,
+    lead.notes ? `NOTES       ${lead.notes}` : "",
+    "",
+    `Date ${when} · ${lead.device} · ${lead.locale} · ref ${id}`,
+    `Journey: ${(lead.journey ?? []).join(" → ") || "—"}`,
+  ]
+    .filter((line) => line !== "")
+    .join("\n");
+}
+
+function emailStatus(): "configured" | "missing" {
+  return process.env.RESEND_API_KEY && process.env.CONTACT_FROM_EMAIL ? "configured" : "missing";
+}
+
+async function email(lead: LeadPayload, when: string, names: Names, id: string, storedWhere: string): Promise<"sent" | "skipped" | "failed"> {
   const apiKey = process.env.RESEND_API_KEY;
   const to = process.env.LEAD_TO_EMAIL ?? process.env.CONTACT_TO_EMAIL ?? "info@archonsoft.tr";
   const from = process.env.CONTACT_FROM_EMAIL;
   if (!apiKey || !from) return "skipped";
-
-  const html = [
-    `<h2 style="font:600 18px system-ui">ARCHON SOFT WORLD — NEW CLIENT REQUEST</h2>`,
-    `<table style="font:14px system-ui;border-collapse:collapse">`,
-    ...table.map(
-      ([label, value]) =>
-        `<tr><td style="padding:4px 16px 4px 0;color:#666;vertical-align:top">${escapeHtml(label)}</td><td style="padding:4px 0;white-space:pre-wrap">${escapeHtml(value)}</td></tr>`,
-    ),
-    `</table>`,
-  ].join("");
-
   try {
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -85,19 +112,29 @@ async function email(lead: LeadPayload, table: Row[]): Promise<"sent" | "skipped
         to: [to],
         reply_to: oneLine(lead.email),
         subject: "ARCHON SOFT WORLD — NEW CLIENT REQUEST",
-        html,
-        text: table.map(([label, value]) => `${label}: ${value}`).join("\n"),
+        html: emailHtml(lead, when, names, id, storedWhere),
+        text: emailText(lead, when, names, id),
       }),
     });
     if (!response.ok) {
-      console.error("[lead] email failed:", response.status);
+      console.error(`[lead ${id}] email failed: ${response.status}`);
       return "failed";
     }
     return "sent";
   } catch (error) {
-    console.error("[lead] email failed:", error instanceof Error ? error.message : error);
+    console.error(`[lead ${id}] email failed:`, error instanceof Error ? error.message : "unknown");
     return "failed";
   }
+}
+
+/** What is wired up, without a single secret: for the QA harness and the report. */
+export async function GET() {
+  return NextResponse.json({
+    ok: true,
+    store: leadStoreStatus(),
+    email: emailStatus(),
+    whatsapp: whatsappStatus(),
+  });
 }
 
 export async function POST(request: Request) {
@@ -112,7 +149,10 @@ export async function POST(request: Request) {
   if (body.website) return NextResponse.json<LeadResult>({ ok: true });
 
   const errors = validateLead(body);
-  if (hasLeadErrors(errors)) return NextResponse.json<LeadResult>({ ok: false, errors }, { status: 422 });
+  if (hasLeadErrors(errors)) {
+    console.info("[lead] refused:", Object.keys(errors).join(","));
+    return NextResponse.json<LeadResult>({ ok: false, errors }, { status: 422 });
+  }
 
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? request.headers.get("x-real-ip") ?? "unknown";
   if (throttled(ip)) return NextResponse.json<LeadResult>({ ok: false, code: "RATE_LIMITED" }, { status: 429 });
@@ -138,10 +178,15 @@ export async function POST(request: Request) {
 
   const department = DEPARTMENTS.find((one) => one.id === lead.department)!;
   const service = department.services.find((one) => one.id === lead.service)!;
-  const names = { department: department.name[lead.locale], service: service.name[lead.locale] };
+  const names: Names = {
+    department: department.name[lead.locale],
+    service: service.name[lead.locale],
+    budget: lead.budget ? BUDGET_LABELS[lead.budget] ?? lead.budget : "—",
+    timeline: lead.timeline ? TIMELINE_LABELS[lead.timeline] ?? lead.timeline : "—",
+  };
   const when = new Date().toISOString();
-  const table = rows(lead, when, names);
 
+  /* 1. Keep it. */
   const stored = await storeLead({
     ...lead,
     departmentName: names.department,
@@ -149,8 +194,10 @@ export async function POST(request: Request) {
     source: "archon_world",
     userAgent: oneLine(request.headers.get("user-agent") ?? "").slice(0, 200),
     createdAt: when,
+    status: "notification_pending",
   });
 
+  /* 2. Tell the studio. */
   const whatsappText = [
     "ARCHON SOFT WORLD — Yeni Talep",
     "",
@@ -161,16 +208,37 @@ export async function POST(request: Request) {
     `Hizmet: ${names.service}`,
     `Departman: ${names.department}`,
     `Proje: ${lead.description.slice(0, 600)}`,
-    `Bütçe: ${lead.budget || "—"}`,
-    `Teslim: ${lead.timeline || "—"}`,
+    `Bütçe: ${names.budget}`,
+    `Teslim: ${names.timeline}`,
+    `Ref: ${stored.id}`,
   ].join("\n");
+  const [mail, whatsapp] = await Promise.all([email(lead, when, names, stored.id, stored.where), sendWhatsApp(whatsappText)]);
 
-  const [mail, whatsapp] = await Promise.all([email(lead, table), sendWhatsApp(whatsappText)]);
+  /* 3. Say how it went, on the record and in the log. */
+  const attempted = mail !== "skipped" || whatsapp === "sent" || whatsapp === "failed";
+  const status: LeadStatus = !attempted
+    ? "new"
+    : mail === "sent" && whatsapp !== "failed"
+      ? "notified"
+      : mail === "sent" || whatsapp === "sent"
+        ? "notification_partial"
+        : stored.where === "none"
+          ? "failed"
+          : "notification_pending";
+  await updateLead(stored, { status, emailStatus: mail, whatsappStatus: whatsapp, notifiedAt: new Date().toISOString() });
+  console.info(`[lead ${stored.id}] stored=${stored.where} email=${mail} whatsapp=${whatsapp} status=${status} dept=${lead.department}/${lead.service} device=${lead.device}`);
 
+  /* Kept, or at least delivered: the visitor may be told it arrived. Neither:
+     tell them to try again — the record would otherwise vanish. */
+  const accepted = stored.where !== "none" || mail === "sent";
+  if (!accepted) {
+    return NextResponse.json<LeadResult>({ ok: false, code: "NOT_STORED", stored: "none", notified: { email: mail, whatsapp } }, { status: 502 });
+  }
   return NextResponse.json<LeadResult>({
     ok: true,
     id: stored.id,
     stored: stored.where,
+    status,
     notified: { email: mail, whatsapp },
   });
 }

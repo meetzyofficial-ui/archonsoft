@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { moodStore } from "@/components/world/environment/mood";
 import { MATERIAL, useWaterTexture } from "@/components/world/pieces/Kit";
+import { worldEvents } from "@/components/world/systems/events";
 import { zoneStore } from "@/components/world/systems/focus";
 
 /**
@@ -867,6 +868,16 @@ function useCometTexture() {
       along.addColorStop(1, "rgba(255,255,255,1)");
       ctx.fillStyle = along;
       ctx.fillRect(0, 0, 512, 64);
+      /* A cyan edge either side of the green, then soft to nothing. */
+      const edge = ctx.createLinearGradient(0, 0, 0, 64);
+      edge.addColorStop(0, "rgba(94,230,255,0)");
+      edge.addColorStop(0.2, "rgba(94,230,255,0.5)");
+      edge.addColorStop(0.5, "rgba(94,230,255,0)");
+      edge.addColorStop(0.8, "rgba(94,230,255,0.5)");
+      edge.addColorStop(1, "rgba(94,230,255,0)");
+      ctx.globalCompositeOperation = "lighter";
+      ctx.fillStyle = edge;
+      ctx.fillRect(0, 0, 512, 64);
       const across = ctx.createLinearGradient(0, 0, 0, 64);
       across.addColorStop(0, "rgba(0,0,0,1)");
       across.addColorStop(0.5, "rgba(0,0,0,0)");
@@ -896,7 +907,7 @@ function Comet() {
   const tail = useRef<THREE.Mesh>(null);
   const texture = useCometTexture();
   const state = useRef({ next: 28 + Math.random() * 20, t: -1, from: new THREE.Vector3(), to: new THREE.Vector3(), clock: 0 });
-  const DURATION = 5.6;
+  const DURATION = 6.2;
   const dir = useMemo(() => new THREE.Vector3(), []);
 
   /* QA: call the next comet now. */
@@ -920,9 +931,12 @@ function Comet() {
       if (st.clock >= st.next) {
         /* A new pass: high, far, on a line that falls a little. */
         const side = Math.random() < 0.5 ? -1 : 1;
-        const z = -200 - Math.random() * 60;
-        st.from.set(side * 360, 215 + Math.random() * 25, z);
-        st.to.set(-side * 360, 170 + Math.random() * 20, z + (Math.random() - 0.5) * 60);
+        /* Low over the campus and in front of the skyline: it enters at one
+           side of the sky, crosses above the plaza on a falling diagonal, and
+           leaves at the other — the whole pass in view from the ground. */
+        st.from.set(side * 270, 46 + Math.random() * 8, -36 - Math.random() * 10);
+        st.to.set(-side * 270, 24 + Math.random() * 6, 10 + Math.random() * 12);
+        worldEvents.emit("comet");
         st.t = 0;
       }
       return;
@@ -944,23 +958,27 @@ function Comet() {
     moodStore.tint(0.012 * fade, "#5ef0a8");
     if (k >= 1) {
       st.t = -1;
-      st.next = st.clock + 100 + Math.random() * 140;
+      st.next = st.clock + 90 + Math.random() * 90;
     }
   });
 
   return (
     <group ref={group} visible={false} name="cosmos:comet">
-      <mesh ref={tail} position={[-70, 0, 0]}>
-        <planeGeometry args={[140, 14]} />
+      <mesh ref={tail} position={[-46, 0, 0]}>
+        <planeGeometry args={[92, 5]} />
         <meshBasicMaterial map={texture} transparent opacity={0} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} side={THREE.DoubleSide} fog={false} />
       </mesh>
       <mesh ref={head}>
-        <sphereGeometry args={[3.6, 12, 10]} />
-        <meshBasicMaterial color="#d8ffe9" transparent opacity={0} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} fog={false} />
+        <sphereGeometry args={[1.6, 12, 10]} />
+        <meshBasicMaterial color="#1fd37a" transparent opacity={0} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} fog={false} />
       </mesh>
       <mesh>
-        <sphereGeometry args={[9, 12, 10]} />
-        <meshBasicMaterial color="#5ef0a8" transparent opacity={0.22} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} fog={false} />
+        <sphereGeometry args={[3.4, 12, 10]} />
+        <meshBasicMaterial color="#3fe39a" transparent opacity={0.4} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} fog={false} />
+      </mesh>
+      <mesh>
+        <sphereGeometry args={[5.2, 12, 10]} />
+        <meshBasicMaterial color="#5ee6ff" transparent opacity={0.1} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} fog={false} />
       </mesh>
     </group>
   );

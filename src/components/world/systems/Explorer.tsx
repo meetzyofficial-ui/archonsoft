@@ -10,6 +10,7 @@ import { focusStore, interactables, poseStore, zoneStore } from "@/components/wo
 import { guideStore } from "@/components/world/npc/Guides";
 import { teleportStore } from "@/components/world/systems/teleport";
 import { touchInput } from "@/components/world/systems/touch";
+import { worldEvents } from "@/components/world/systems/events";
 import { destinationByKey, WORLD_DESTINATIONS } from "@/data/world-destinations";
 import { COLLIDERS, SPAWN, floorAt, zoneAt } from "@/data/world-map";
 import { WORLD_OBSTACLES } from "@/data/world-obstacles";
@@ -304,8 +305,8 @@ export function Explorer({ active }: { active: boolean }) {
        jumps — the same loop the keyboard drives. */
     if (touchInput.active) {
       const [dx, dy] = touchInput.takeLook();
-      here.turnX += dx * TOUCH_LOOK;
-      here.turnY += dy * TOUCH_LOOK;
+      here.turnX += dx * TOUCH_LOOK * touchInput.lookScale;
+      here.turnY += dy * TOUCH_LOOK * touchInput.lookScale;
       /* Eased: most of the pending turn this frame, the rest over the next
          few, independent of the frame rate. */
       const k = 1 - Math.exp(-TOUCH_LOOK_EASE * delta);
@@ -393,6 +394,7 @@ export function Explorer({ active }: { active: boolean }) {
         here.airborne = true;
         const running = (keys.has("shift") || here.rim >= STICK_RUN_HOLD) && Math.hypot(here.vx, here.vz) > WALK * 0.8;
         here.vy = running ? JUMP_RUNNING : JUMP_STANDING;
+        worldEvents.emit("jump");
       }
     }
     if (here.airborne) {
@@ -402,6 +404,7 @@ export function Explorer({ active }: { active: boolean }) {
         here.lift = 0;
         here.airborne = false;
         here.landing = 1;
+        worldEvents.emit("land");
         here.vy = 0;
       }
     } else if (here.landing > 0) {
@@ -413,7 +416,10 @@ export function Explorer({ active }: { active: boolean }) {
        camera is put straight behind it. In: it settles. */
     const asked = teleportStore.take();
     if (asked && !here.airborne) {
-      if (!here.teleport) here.teleport = { to: asked, t: 0, moved: false };
+      if (!here.teleport) {
+        here.teleport = { to: asked, t: 0, moved: false };
+        worldEvents.emit("teleport:out", { to: asked.id });
+      }
       else if (!here.teleport.moved) here.teleport.to = asked;
       /* Already arrived somewhere and asked again: leave again from here. */
       else here.teleport = { to: asked, t: TELEPORT_OUT * (1 - body.glow), moved: false };
@@ -438,6 +444,7 @@ export function Explorer({ active }: { active: boolean }) {
         here.camReady = false;
         here.settle = 3;
         teleportStore.set({ current: tp.to.id, phase: 0, direction: "in" });
+        worldEvents.emit("teleport:in", { to: tp.to.id });
       }
       if (!tp.moved) {
         const k = tp.t / TELEPORT_OUT;

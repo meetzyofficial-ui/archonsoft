@@ -18,6 +18,8 @@ export const touchInput = {
   jump: false,
   /** Whether a touch overlay is driving the world at all. */
   active: false,
+  /** How far a drag turns the view: the visitor's own setting. */
+  lookScale: 1,
   takeLook(): [number, number] {
     const out: [number, number] = [this.lookDx, this.lookDy];
     this.lookDx = 0;

@@ -73,8 +73,8 @@ export const POPULATION: Citizen[] = [
   { at: [-6.3, 0, 5.7], facing: Math.PI / 2 - 0.4, variant: 1, behaviour: "talk" },
   { at: [16, 0, 8], facing: Math.PI / 2 + 0.3, variant: 2, behaviour: "talk" },
   { at: [17.2, 0, 8.9], facing: -Math.PI / 2 + 0.2, variant: 3, behaviour: "talk" },
-  { at: [-11, 0, -6], facing: 0.45, variant: 4, behaviour: "look" },
-  { at: [12.5, 0, -8], facing: -0.5, variant: 5, behaviour: "look" },
+  { at: [-11, 0, 3], facing: 0.45, variant: 4, behaviour: "look" },
+  { at: [12.5, 0, 4], facing: -0.5, variant: 5, behaviour: "look" },
   { at: [-29.4, 0, 6], facing: -Math.PI / 2, variant: 6, behaviour: "rest", seat: 0.44 },
   { at: [29.4, 0, -2], facing: Math.PI / 2, variant: 7, behaviour: "rest", seat: 0.44 },
   { at: [20.5, 0, 17], facing: -Math.PI / 2 - 0.2, variant: 8, behaviour: "tablet" },
@@ -225,7 +225,11 @@ export function Crowd({ compact }: { compact: boolean }) {
       const distance = Math.hypot(dx, dz);
 
       /* Distance decides how much of them exists this frame. */
-      const wantTier = distance > FAR ? -1 : distance < NEAR ? 2 : distance < MID ? 1 : 0;
+      /* A phone hands people to the instanced silhouettes sooner. */
+      const far = compact ? 17 : FAR;
+      const nearAt = compact ? 5 : NEAR;
+      const midAt = compact ? 12 : MID;
+      const wantTier = distance > far ? -1 : distance < nearAt ? 2 : distance < midAt ? 1 : 0;
       if (wantTier !== st.tier) {
         st.tier = wantTier;
         fig.visible = wantTier >= 0;

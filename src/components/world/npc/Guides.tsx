@@ -7,6 +7,7 @@ import { animateFace, newFaceState } from "@/components/world/npc/face";
 import { Glow, MATERIAL } from "@/components/world/pieces/Kit";
 import { useMerged } from "@/components/world/pieces/merge";
 import { body } from "@/components/world/systems/body";
+import { qualityStore } from "@/components/world/systems/quality";
 import { discovery } from "@/components/world/systems/discovery";
 import { interactables } from "@/components/world/systems/focus";
 import type { PreparedGuide } from "@/lib/worldPayload";
@@ -784,16 +785,22 @@ function GuideGroup({ guide, onTalk }: { guide: PreparedGuide; onTalk: (guide: P
 
     /* How much of each person to draw, by distance. Toggled only when the
        tier changes, never per frame. */
-    const wantTier = distance < NEAR_AT ? 2 : distance < MID_AT ? 1 : 0;
+    /* On a phone the guides beyond forty metres are not drawn: their
+       station's screens and dais mark the place until the visitor is near. */
+    const phone = qualityStore.tier !== "desktop";
+    const wantTier = distance < (phone ? 6 : NEAR_AT) ? 2 : distance < (phone ? 22 : MID_AT) ? 1 : phone ? -1 : 0;
     if (wantTier !== tier.current) {
       tier.current = wantTier;
       for (const fig of figures.current) {
-        fig?.traverse((part) => {
+        if (!fig) continue;
+        fig.visible = wantTier >= 0;
+        fig.traverse((part) => {
           const lod = part.userData.lod as number | undefined;
           if (lod) part.visible = lod <= wantTier;
         });
       }
     }
+    if (wantTier < 0) return;
 
     /* Inside three metres the group is ready to talk: everyone squares up
        to the visitor, heads hold the gaze, and the whole figure leans in

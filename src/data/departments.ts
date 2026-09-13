@@ -31,7 +31,22 @@ export type DepartmentId =
   | "other";
 
 /** What the screens on a department's desks show. */
-export type ScreenKind = "lobby" | "code" | "design" | "ai" | "viewport" | "timeline" | "analytics" | "commerce" | "enterprise";
+export type ScreenKind =
+  | "lobby"
+  | "code"
+  | "design"
+  | "ai"
+  | "viewport"
+  | "timeline"
+  | "analytics"
+  | "commerce"
+  | "enterprise"
+  | "marketing"
+  | "consulting"
+  | "innovation";
+
+/** How a room is laid out: rows of desks, a meeting table, or a lab bench with a prototype. */
+export type OfficeLayout = "desks" | "table" | "lab";
 
 export type Service = { id: string; name: Localized };
 
@@ -44,6 +59,7 @@ export type Office = {
   roles: string[];
   screen: ScreenKind;
   accent: string;
+  layout?: OfficeLayout;
 };
 
 export type Department = {
@@ -191,7 +207,7 @@ export const DEPARTMENTS: Department[] = [
     name: L("Digital Marketing", "Dijital Pazarlama"),
     tagline: L("Growth, search, ads, content", "Büyüme, arama, reklam, içerik"),
     intro: [
-      L("Digital marketing is run from the lobby team: search, ads, content and growth.", "Dijital pazarlamayı lobi ekibi yürütüyor: arama, reklam, içerik ve büyüme."),
+      L("The growth studio: search, ads, content and campaigns, measured on the screens behind us.", "Büyüme stüdyosu: arama, reklam, içerik ve kampanyalar — arkamızdaki ekranlarda ölçülüyor."),
       L("We can bring the right people to what you have built, and measure what happens next.", "Kurduğunuz şeye doğru insanları getirip sonrasında ne olduğunu ölçebiliriz."),
     ],
     ask: L("Which channel matters most?", "Hangi kanal öncelikli?"),
@@ -206,7 +222,13 @@ export const DEPARTMENTS: Department[] = [
       OTHER,
     ],
     zone: "hub",
-    office: null,
+    office: {
+      at: [17, 0, -8],
+      arrival: [8.5, 0, -8],
+      roles: ["growth", "performance"],
+      screen: "marketing",
+      accent: "#ffd58a",
+    },
   },
   {
     id: "video",
@@ -301,7 +323,7 @@ export const DEPARTMENTS: Department[] = [
     name: L("Consulting", "Danışmanlık"),
     tagline: L("Discovery, architecture, product, roadmap", "Keşif, mimari, ürün, yol haritası"),
     intro: [
-      L("Consulting starts here, with the lobby team: what to build, in what order, on what.", "Danışmanlık burada, lobi ekibiyle başlıyor: ne yapılacak, hangi sırayla, neyin üstüne."),
+      L("The strategy room: what to build, in what order, on what — decided at this table before a line is written.", "Strateji odası: ne yapılacak, hangi sırayla, neyin üstüne — tek satır yazılmadan önce bu masada kararlaştırılır."),
       L("A discovery workshop, an architecture review or a product roadmap — before a line is written.", "Bir keşif atölyesi, mimari inceleme ya da ürün yol haritası — tek satır yazılmadan önce."),
     ],
     ask: L("What do you need advice on?", "Hangi konuda danışmanlık istiyorsunuz?"),
@@ -316,18 +338,35 @@ export const DEPARTMENTS: Department[] = [
       OTHER,
     ],
     zone: "hub",
-    office: null,
+    office: {
+      at: [-17, 0, -8],
+      arrival: [-8.5, 0, -8],
+      roles: ["strategist", "architect", "productLead"],
+      screen: "consulting",
+      accent: "#c9d2de",
+      layout: "table",
+    },
   },
   {
     id: "other",
     key: "J",
     name: L("Custom Project / Other", "Özel Proje / Diğer"),
     tagline: L("Tell us what you have in mind", "Aklınızdakini anlatın"),
-    intro: [L("Not on the list? Tell us what you have in mind and we will find the right people for it.", "Listede yok mu? Aklınızdakini anlatın, doğru ekibi biz bulalım.")],
+    intro: [
+      L("The innovation lab: prototypes and custom projects that fit no department yet.", "İnovasyon laboratuvarı: henüz hiçbir bölüme sığmayan prototipler ve özel projeler."),
+      L("Not on the list? Tell us what you have in mind and we will find the right people for it.", "Listede yok mu? Aklınızdakini anlatın, doğru ekibi biz bulalım."),
+    ],
     ask: L("How would you describe it?", "Nasıl tarif edersiniz?"),
     services: [{ id: "describe", name: L("Let me describe it", "Ben anlatayım") }],
-    zone: "hub",
-    office: null,
+    zone: "shipped",
+    office: {
+      at: [-15, 0, -34],
+      arrival: [-6.5, 0, -34],
+      roles: ["prototyper", "maker"],
+      screen: "innovation",
+      accent: "#9a86ff",
+      layout: "lab",
+    },
   },
 ];
 
@@ -397,11 +436,22 @@ export function officeObstacles(office: Office): { at: [number, number, number];
   const yaw = officeFacing(office);
   const turned = Math.abs(Math.sin(yaw)) > 0.5;
   const boxes: { at: [number, number, number]; size: [number, number, number] }[] = [];
-  for (const slot of deskSlots(office.roles.length)) {
-    const [x, z] = officeToWorld(office, slot.x, slot.z - 0.35);
-    const w = DESK.width + 0.3;
-    const d = DESK.depth + 1.3;
-    boxes.push({ at: [x, 0.6, z], size: turned ? [d, 1.2, w] : [w, 1.2, d] });
+  if (office.layout === "table") {
+    /* The table and the chairs round it, as one block. */
+    const [x, z] = officeToWorld(office, 0, -0.6);
+    boxes.push({ at: [x, 0.6, z], size: [4.2, 1.2, 4.2] });
+  } else {
+    for (const slot of deskSlots(office.roles.length)) {
+      const [x, z] = officeToWorld(office, slot.x, slot.z - 0.35);
+      const w = DESK.width + 0.3;
+      const d = DESK.depth + 1.3;
+      boxes.push({ at: [x, 0.6, z], size: turned ? [d, 1.2, w] : [w, 1.2, d] });
+    }
+    if (office.layout === "lab") {
+      /* The prototype's plinth, in front of the bench. */
+      const [x, z] = officeToWorld(office, 0, 1.9);
+      boxes.push({ at: [x, 0.6, z], size: [1.4, 1.2, 1.4] });
+    }
   }
   const rows = Math.ceil(office.roles.length / 3);
   const [bx, bz] = officeToWorld(office, 0, -rows * 1.2 - 1.9);

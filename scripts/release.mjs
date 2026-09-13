@@ -13,6 +13,7 @@ const BASE = process.env.ARCHON_BASE ?? "http://localhost:3210";
 
 const PATHS = [
   "",
+  "/privacy",
   "/work",
   "/work/meetzy",
   "/work/dppano",

@@ -15,7 +15,13 @@
 
 export type WhatsAppResult = "sent" | "skipped" | "failed" | "mocked";
 
-export const WHATSAPP_DEFAULT_TO = "905521592002";
+export const WHATSAPP_DEFAULT_TO = "905521920002";
+
+/** Whether the Cloud API is wired up, without a secret: for the status endpoint. */
+export function whatsappStatus(): "configured" | "mocked" | "missing" {
+  if (process.env.WHATSAPP_TOKEN && process.env.WHATSAPP_PHONE_ID) return "configured";
+  return process.env.NODE_ENV !== "production" ? "mocked" : "missing";
+}
 
 export async function sendWhatsApp(body: string): Promise<WhatsAppResult> {
   const token = process.env.WHATSAPP_TOKEN;

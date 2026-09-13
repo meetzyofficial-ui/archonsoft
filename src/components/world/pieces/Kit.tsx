@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { Foam } from "@/components/world/pieces/Foam";
 import { rimParts, useMerged } from "@/components/world/pieces/merge";
+import { qualityStore } from "@/components/world/systems/quality";
 
 /**
  * The kit Archon World is built from.
@@ -272,6 +273,9 @@ export function Backlight({
   const glow = useGlowTexture();
   const rim = 0.035;
   const soft = 0.2;
+  /* A phone keeps the halo and the crisp rim and drops the soft rim and
+     the pool: two draws fewer for every panel in the world. */
+  const lite = qualityStore.tier !== "desktop";
   const rimGeometry = useMerged(() => frameParts(w + inset * 2, h + inset * 2, rim, 0.002), [w, h, inset]);
   const softGeometry = useMerged(
     () => frameParts(w + inset * 2 + rim * 2, h + inset * 2 + rim * 2, soft, -0.03),
@@ -288,11 +292,13 @@ export function Backlight({
       <mesh geometry={rimGeometry}>
         <meshBasicMaterial color="#ffffff" transparent opacity={Math.min(1, 0.96 * strength)} toneMapped={false} depthWrite={false} />
       </mesh>
-      <mesh geometry={softGeometry}>
-        <meshBasicMaterial color="#ffffff" transparent opacity={0.2 * strength} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
-      </mesh>
+      {!lite ? (
+        <mesh geometry={softGeometry}>
+          <meshBasicMaterial color="#ffffff" transparent opacity={0.2 * strength} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
+        </mesh>
+      ) : null}
       {/* The pool on the deck. */}
-      {foot !== undefined ? (
+      {foot !== undefined && !lite ? (
         <mesh position={[0, -foot + 0.025, forward + 0.5]} rotation={[-Math.PI / 2, 0, 0]}>
           <planeGeometry args={[w + 2.4, 2.8]} />
           <meshBasicMaterial map={glow} color="#ffffff" transparent opacity={0.42 * strength} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
@@ -1481,14 +1487,18 @@ export function Trees({
         <icosahedronGeometry args={[1, 1]} />
         <meshStandardMaterial color="#e39bb6" emissive={MATERIAL.blush} emissiveIntensity={0.1} roughness={0.95} flatShading />
       </instancedMesh>
-      <instancedMesh ref={clusters} args={[undefined, undefined, count * CROWNS]} frustumCulled={false}>
-        <icosahedronGeometry args={[1, 1]} />
-        <meshStandardMaterial color="#f5c3d4" roughness={0.95} flatShading />
-      </instancedMesh>
-      <instancedMesh ref={halos} args={[undefined, undefined, count]} frustumCulled={false}>
-        <icosahedronGeometry args={[1, 1]} />
-        <meshBasicMaterial color={MATERIAL.blush} toneMapped={false} transparent opacity={0.08} depthWrite={false} blending={THREE.AdditiveBlending} />
-      </instancedMesh>
+      {qualityStore.tier === "desktop" ? (
+        <instancedMesh ref={clusters} args={[undefined, undefined, count * CROWNS]} frustumCulled={false}>
+          <icosahedronGeometry args={[1, 1]} />
+          <meshStandardMaterial color="#f5c3d4" roughness={0.95} flatShading />
+        </instancedMesh>
+      ) : null}
+      {qualityStore.tier !== "low" ? (
+        <instancedMesh ref={halos} args={[undefined, undefined, count]} frustumCulled={false}>
+          <icosahedronGeometry args={[1, 1]} />
+          <meshBasicMaterial color={MATERIAL.blush} toneMapped={false} transparent opacity={0.08} depthWrite={false} blending={THREE.AdditiveBlending} />
+        </instancedMesh>
+      ) : null}
       <instancedMesh ref={shrubs} args={[undefined, undefined, count * SHRUBS]} frustumCulled={false}>
         <icosahedronGeometry args={[1, 1]} />
         <meshStandardMaterial color={MATERIAL.greenDeep} roughness={1} flatShading />

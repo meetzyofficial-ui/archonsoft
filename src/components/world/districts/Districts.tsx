@@ -8,6 +8,7 @@ import { fireStore } from "@/components/world/pieces/Fire";
 import { Torches } from "@/components/world/pieces/Torches";
 import { TORCHES } from "@/data/world-torches";
 import { body } from "@/components/world/systems/body";
+import { qualityStore } from "@/components/world/systems/quality";
 import {
   Arch,
   Backlight,
@@ -581,8 +582,17 @@ function Station({
   const holo = useRef<THREE.Group>(null);
   const outer = useRef<THREE.Mesh>(null);
   const sheen = useRef<THREE.Mesh>(null);
+  const stationRoot = useRef<THREE.Group>(null);
   useFrame(({ clock }) => {
     const t = clock.elapsedTime;
+    /* On a phone a station beyond fifty-five metres is not drawn — fifty-odd
+       draws each, and from that far they are a glow on the horizon the
+       beacon alone can carry. */
+    if (stationRoot.current && qualityStore.tier !== "desktop") {
+      const shown = Math.hypot(body.x - at[0], body.z - at[2]) < 55;
+      if (stationRoot.current.visible !== shown) stationRoot.current.visible = shown;
+      if (!shown) return;
+    }
     if (beacon.current) {
       const m = beacon.current.material as THREE.MeshBasicMaterial;
       m.opacity = 0.22 + Math.sin(t * 1.1 + index) * 0.08;
@@ -619,7 +629,7 @@ function Station({
   );
 
   return (
-    <group position={at} name={`station:${installation.id}`}>
+    <group ref={stationRoot} position={at} name={`station:${installation.id}`}>
       {/* The dais: polished stone in the station's own colour. */}
       <mesh position={[0, 0.18, 0]}>
         <cylinderGeometry args={[5.4, 5.8, 0.36, 40]} />
@@ -1132,6 +1142,7 @@ const WHITE = new THREE.Color("#e4ecf8");
 export function Lighting() {
   const lamp = useRef<THREE.PointLight>(null);
   const fire = useRef<THREE.PointLight>(null);
+  const rim = useRef<THREE.PointLight>(null);
   const hemi = useRef<THREE.HemisphereLight>(null);
   const key = useRef<THREE.DirectionalLight>(null);
   const { camera } = useThree();
@@ -1160,6 +1171,12 @@ export function Lighting() {
       fire.current.position.set(body.x, body.floor + body.lift + 1.55, body.z);
       fire.current.intensity = (9 + fireStore.heat * 9) * (1 + fireStore.flicker * 0.12);
     }
+    /* A fainter ember behind the shoulders, so the black silhouette has an
+       orange edge against a dark deck and never sinks into it. */
+    if (rim.current) {
+      rim.current.position.set(body.x + Math.sin(body.facing) * 1.1, body.floor + body.lift + 1.9, body.z + Math.cos(body.facing) * 1.1);
+      rim.current.intensity = (3 + fireStore.heat * 3) * (1 + fireStore.flicker * 0.1);
+    }
   });
 
   return (
@@ -1172,6 +1189,7 @@ export function Lighting() {
       <directionalLight position={[-20, 24, -60]} intensity={0.7} color="#8c7bff" />
       <pointLight ref={lamp} intensity={26} distance={34} decay={2} color="#9ad6ff" />
       <pointLight ref={fire} intensity={16} distance={9} decay={2} color="#ff7a2a" />
+      <pointLight ref={rim} intensity={5} distance={5} decay={2} color="#ff9a4a" />
     </>
   );
 }

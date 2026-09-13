@@ -41,6 +41,10 @@ const NO_VOICE = { supported: false, enabled: false, speaking: false, paused: fa
 const pad = (n: number) => String(n).padStart(2, "0");
 const signed = (n: number) => `${n < 0 ? "−" : "+"}${String(Math.abs(n)).padStart(3, "0")}`;
 
+/* How far a thumb's drag turns the view, by the visitor's own setting. */
+const LOOK_SCALES = { slow: 0.7, normal: 1, fast: 1.45 } as const;
+const LOOK_KEY = "archon-world-look";
+
 export function WorldUI({
   payload,
   world,
@@ -74,6 +78,18 @@ export function WorldUI({
   quiet?: boolean;
 }) {
   const focus = useSyncExternalStore(focusStore.subscribe, focusStore.get, () => null);
+  const [look, setLook] = useState<keyof typeof LOOK_SCALES>("normal");
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(LOOK_KEY) as keyof typeof LOOK_SCALES | null;
+      if (saved && saved in LOOK_SCALES) {
+        setLook(saved);
+        touchInput.lookScale = LOOK_SCALES[saved];
+      }
+    } catch {
+      /* No storage, the default. */
+    }
+  }, []);
   const zone = useSyncExternalStore(zoneStore.subscribe, zoneStore.get, () => "hub");
   const sound = useSyncExternalStore(soundStore.subscribe, soundStore.get, () => false);
   const voice = useSyncExternalStore(voiceStore.subscribe, voiceStore.get, () => NO_VOICE);
@@ -147,6 +163,26 @@ export function WorldUI({
               {pose.bearing} {signed(pose.x)} {signed(pose.z)}
               {pose.level > 0 ? ` · +${pose.level}` : ""}
             </p>
+          ) : null}
+          {touch && mode === "explore" ? (
+            <button
+              type="button"
+              data-look-speed
+              onClick={() => {
+                const order: (keyof typeof world.lookLevels)[] = ["slow", "normal", "fast"];
+                const next = order[(order.indexOf(look) + 1) % order.length]!;
+                setLook(next);
+                touchInput.lookScale = LOOK_SCALES[next];
+                try {
+                  window.localStorage.setItem(LOOK_KEY, next);
+                } catch {
+                  /* Preferences are a courtesy. */
+                }
+              }}
+              className="mono-label link-rule -my-2 py-2 text-[var(--fg-mute)] transition-colors hover:text-[var(--fg)]"
+            >
+              {world.look} {world.lookLevels[look]}
+            </button>
           ) : null}
           {voice.supported ? (
             <button

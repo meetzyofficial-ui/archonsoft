@@ -26,6 +26,8 @@ const E = new THREE.Euler();
 const S = new THREE.Vector3();
 
 export function mergeParts(parts: Part[]): THREE.BufferGeometry {
+  /* Nothing to merge is an empty geometry, not an error: a room without desks has no lamps. */
+  if (parts.length === 0) return new THREE.BufferGeometry();
   const placed = parts.map((part) => {
     const g = part.geometry;
     P.set(...(part.at ?? [0, 0, 0]));

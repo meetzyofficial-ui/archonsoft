@@ -42,6 +42,10 @@ const en = {
       description:
         "Archon Soft is one person in Ankara who has been building and shipping complete software products for about two years.",
     },
+    privacy: {
+      title: "Privacy",
+      description: "What Archon Soft collects through its forms and its world, why, where it goes, how long it is kept, and your rights.",
+    },
     contact: {
       title: "Contact",
       description: "Tell Archon Soft what you are building and what is making it hard.",
@@ -49,6 +53,7 @@ const en = {
   },
 
   nav: {
+    privacy: "Privacy",
     work: "Work",
     capabilities: "Capabilities",
     labs: "Labs",
@@ -512,6 +517,8 @@ const en = {
     /* Navigation. */
     teleport: "Teleport",
     jump: "SPACE — JUMP",
+    look: "Camera",
+    lookLevels: { slow: "Slow", normal: "Normal", fast: "Fast" },
     /* The host who welcomes the visitor. */
     /* The offices: the lobby team and the departments, and the brief. */
     office: {
@@ -520,6 +527,8 @@ const en = {
       greeting: ["Hello, we're part of the Archon Soft team.", "What can we do for you?"],
       question: "Which area can we help you with?",
       letters: "Press a letter, or tap",
+      more: "Add more detail",
+      less: "Fewer details",
       back: "Back",
       close: "Close",
       explore: "Keep exploring",
@@ -543,7 +552,7 @@ const en = {
       timelines: { asap: "As soon as possible", "1-3m": "1–3 months", "3-6m": "3–6 months", flexible: "Flexible" },
       budgets: { unsure: "Not sure yet", lt10: "Under $10k", "10-25": "$10k – $25k", "25-50": "$25k – $50k", "50-100": "$50k – $100k", "100plus": "$100k+" },
       consent: "I agree that Archon Soft may process my contact details to get in touch with me about this project request.",
-      consentLink: "How we handle contact details",
+      consentLink: "Privacy notice",
       submit: "Send the brief",
       sending: "Sending…",
       done: ["Great. We have your details.", "The Archon Soft team will get in touch with you shortly."],
@@ -673,6 +682,10 @@ const tr: Dictionary = {
       description:
         "Archon Soft, Ankara'da yaklaşık iki yıldır uçtan uca yazılım ürünleri geliştirip yayınlayan tek kişi.",
     },
+    privacy: {
+      title: "Gizlilik",
+      description: "Archon Soft'un formları ve dünyası üzerinden neyi topladığı, neden, nereye gittiği, ne kadar saklandığı ve haklarınız.",
+    },
     contact: {
       title: "İletişim",
       description: "Ne kurmaya çalıştığını ve neyin zorlaştırdığını anlat.",
@@ -680,6 +693,7 @@ const tr: Dictionary = {
   },
 
   nav: {
+    privacy: "Gizlilik",
     work: "İşler",
     capabilities: "Yetkinlikler",
     labs: "Labs",
@@ -1130,12 +1144,16 @@ const tr: Dictionary = {
     revealing: ["Gezegen", "Kapı", "Adalar", "Okyanus", "Projeler", "Kâşif"],
     teleport: "Işınlan",
     jump: "SPACE — ZIPLA",
+    look: "Kamera",
+    lookLevels: { slow: "Yavaş", normal: "Normal", fast: "Hızlı" },
     office: {
       label: "Archon Soft ekibi",
       talk: "Konuş",
       greeting: ["Merhaba, biz Archon Soft çalışanlarıyız.", "Sizler için ne yapabiliriz?"],
       question: "Size hangi konuda yardımcı olabiliriz?",
       letters: "Bir harfe basın ya da dokunun",
+      more: "Daha fazla detay ekle",
+      less: "Daha az detay",
       back: "Geri",
       close: "Kapat",
       explore: "Dünyayı gezmeye devam et",
@@ -1159,7 +1177,7 @@ const tr: Dictionary = {
       timelines: { asap: "En kısa sürede", "1-3m": "1–3 ay", "3-6m": "3–6 ay", flexible: "Esnek" },
       budgets: { unsure: "Henüz belli değil", lt10: "10.000 $ altı", "10-25": "10.000 – 25.000 $", "25-50": "25.000 – 50.000 $", "50-100": "50.000 – 100.000 $", "100plus": "100.000 $+" },
       consent: "İletişim bilgilerimin proje talebim kapsamında Archon Soft tarafından benimle iletişime geçilmesi amacıyla işlenmesini kabul ediyorum.",
-      consentLink: "İletişim bilgilerini nasıl kullanıyoruz",
+      consentLink: "Aydınlatma metni",
       submit: "Talebi gönder",
       sending: "Gönderiliyor…",
       done: ["Harika. Bilgilerinizi aldık.", "Archon Soft ekibimiz sizinle en kısa sürede iletişime geçecek."],

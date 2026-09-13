@@ -63,6 +63,8 @@ const SILVER = { color: "#2c333d", roughness: 0.38, metalness: 0.92, envMapInten
 const ARMOUR = { color: "#0e1115", roughness: 0.6, metalness: 0.06, envMapIntensity: 0.7, clearcoat: 0.3, clearcoatRoughness: 0.45 } as const;
 const DARK_TI = { color: "#181d25", roughness: 0.52, metalness: 0.86, envMapIntensity: 0.8 } as const;
 const GRAPHITE = { color: "#0a0d11", roughness: 0.82, metalness: 0.4 } as const;
+/* Polished silver, in small measure: the collar, the wrist rings, the fasteners. */
+const SILVER_TRIM = { color: "#9aa4b1", roughness: 0.26, metalness: 0.96, envMapIntensity: 1.5 } as const;
 const CAVITY = { color: "#04060a", roughness: 0.9, metalness: 0.3 } as const;
 const VISOR = { color: "#030710", roughness: 0.05, metalness: 0.94, envMapIntensity: 1.8, clearcoat: 1, clearcoatRoughness: 0.06 } as const;
 const CYAN = "#5ee6ff";
@@ -247,13 +249,13 @@ function Chest() {
       <Piece parts={scapulae} material={SILVER} />
       <Piece parts={plate} material={ARMOUR} />
       <Piece parts={armour} material={ARMOUR} />
-      <Piece parts={silver} material={SILVER} />
+      <Piece parts={silver} material={SILVER_TRIM} />
       <Piece parts={dark} material={GRAPHITE} />
       <Piece parts={seams} material={CAVITY} />
-      {/* A violet pinstripe along the belt: the one cool-warm detail. */}
+      {/* A cyan hairline along the belt: the machine's own energy, cool against the fire. */}
       <mesh position={[0, -0.14, 0.168]}>
         <planeGeometry args={[0.3, 0.006]} />
-        <Glow colour={VIOLET} opacity={0.55} />
+        <Glow colour={CYAN} opacity={0.6} />
       </mesh>
       {/* Fire off the back: two vents under the scapulae, one at the spine. */}
       <Vent at={[-0.15, 0.12, -0.2]} strength={0.9} span={1.1} />
@@ -379,12 +381,12 @@ function Forearm({ side }: { side: number }) {
       <Piece parts={metal} material={GUNMETAL} />
       <Piece parts={armour} material={ARMOUR} />
       <Piece parts={rail} material={SILVER} />
-      <Piece parts={silver} material={SILVER} />
+      <Piece parts={silver} material={SILVER_TRIM} />
       <Vent at={[0, -0.2, -0.08]} strength={0.45} span={0.7} />
-      {/* Wrist accent. */}
+      {/* Wrist accent: cyan. */}
       <mesh position={[0, -0.3, 0.062]}>
         <planeGeometry args={[0.05, 0.016]} />
-        <Glow colour={EMBER} />
+        <Glow colour={CYAN} />
       </mesh>
     </>
   );
@@ -753,8 +755,11 @@ export function Robot() {
     }
     /* How hard it burns: a low idle flame, more on the move, a burst in the
        air, a blaze through a teleport; and it breathes. */
-    const wantHeat = 0.7 + pace * 0.55 + airborne * 0.5 + body.glow * 1.6 + Math.max(0, body.landing - 0.6) * 0.8 + Math.sin(t * 1.3) * 0.06;
-    heat.current += (wantHeat - heat.current) * Math.min(1, 6 * delta);
+    /* Idle small; walking more; running plain; a burst at take-off and a
+       flare on landing; a blaze through a teleport. */
+    const takeoff = airborne * Math.max(0, body.vy) * 0.1;
+    const wantHeat = 0.62 + pace * 0.6 + airborne * 0.35 + takeoff + body.glow * 1.8 + Math.max(0, body.landing - 0.55) * 1.1 + Math.sin(t * 1.3) * 0.05;
+    heat.current += (wantHeat - heat.current) * Math.min(1, (wantHeat > heat.current ? 14 : 5) * delta);
     fireStore.heat = heat.current;
     fireStore.flicker = Math.sin(t * 17) * 0.5 + Math.sin(t * 29 + 1) * 0.3 + Math.sin(t * 7) * 0.2;
     const beat = Math.sin(t * (1.7 + pace * 2.2));
@@ -888,7 +893,7 @@ export function Robot() {
               { geometry: new THREE.TorusGeometry(0.062, 0.01, 6, 20), at: V3(0, 0.93, 0), turn: V3(Math.PI / 2, 0, 0) },
               { geometry: new THREE.TorusGeometry(0.1, 0.022, 8, 24), at: V3(0, 0.86, 0), turn: V3(Math.PI / 2, 0, 0) },
             ]}
-            material={SILVER}
+            material={SILVER_TRIM}
           />
           <mesh position={[0, 0.845, 0.02]} rotation={[Math.PI / 2 + 0.15, 0, 0]}>
             <torusGeometry args={[0.125, 0.018, 8, 24, Math.PI * 1.5]} />
@@ -906,7 +911,16 @@ export function Robot() {
         <meshBasicMaterial color={EMBER} transparent opacity={0.12} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
       </mesh>
       {/* The fire itself. */}
-      <Flames count={qualityStore.tier === "desktop" ? 1500 : qualityStore.tier === "high" ? 1000 : 600} read={readFire} scale={0.62} />
+      <Flames
+        count={qualityStore.tier === "desktop" ? 1500 : qualityStore.tier === "high" ? 1000 : 600}
+        read={readFire}
+        scale={0.62}
+        smokeRatio={qualityStore.tier === "desktop" ? 0.12 : 0}
+      />
+      {/* No heat distortion: bending the air behind the flames needs the scene
+          rendered a second time (transmission), which halved the frame rate
+          on a desktop and would be off on every phone. The smoke, the sparks
+          and the light on the black armour carry the heat instead. */}
     </group>
   );
 }

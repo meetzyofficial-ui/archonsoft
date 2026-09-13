@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import { Flames, type Emitter } from "@/components/world/pieces/Fire";
 import { useGlowTexture } from "@/components/world/pieces/Kit";
 import { useMerged } from "@/components/world/pieces/merge";
+import { worldEvents } from "@/components/world/systems/events";
 import { qualityStore } from "@/components/world/systems/quality";
 import type { Torch } from "@/data/world-torches";
 
@@ -73,15 +74,20 @@ export function Torches({ list }: { list: Torch[] }) {
     state.heat = 0.95;
   };
   const count = qualityStore.tier === "desktop" ? 130 * list.length : qualityStore.tier === "low" ? 55 * list.length : 90 * list.length;
+  useEffect(() => {
+    worldEvents.emit("fire:lit", { count: list.length });
+  }, [list.length]);
 
   return (
     <group name="torches">
       <mesh geometry={stone}>
         <meshStandardMaterial color="#d9d3c6" roughness={0.78} metalness={0.02} />
       </mesh>
-      <mesh geometry={flutes}>
-        <meshStandardMaterial color="#b9b2a4" roughness={0.85} />
-      </mesh>
+      {qualityStore.tier === "desktop" ? (
+        <mesh geometry={flutes}>
+          <meshStandardMaterial color="#b9b2a4" roughness={0.85} />
+        </mesh>
+      ) : null}
       <mesh geometry={bronze}>
         <meshStandardMaterial color="#4a3a2a" roughness={0.45} metalness={0.8} side={THREE.DoubleSide} />
       </mesh>
@@ -91,7 +97,7 @@ export function Torches({ list }: { list: Torch[] }) {
       <mesh geometry={pools}>
         <meshBasicMaterial map={glow} color="#ff8a3a" transparent opacity={0.3} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
       </mesh>
-      <Flames count={count} read={read} scale={0.7} sparkRatio={0.2} />
+      <Flames count={count} read={read} scale={0.7} sparkRatio={qualityStore.tier === "desktop" ? 0.2 : 0} smokeRatio={qualityStore.tier === "desktop" ? 0.1 : 0} />
     </group>
   );
 }

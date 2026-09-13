@@ -102,6 +102,8 @@ export type LeadResult = {
   ok: boolean;
   id?: string;
   stored?: "firestore" | "file" | "none";
+  /** Where the record stands after the notifications went out. */
+  status?: "new" | "notification_pending" | "notified" | "notification_partial" | "failed";
   notified?: { email: "sent" | "skipped" | "failed"; whatsapp: "sent" | "skipped" | "failed" | "mocked" };
   code?: string;
   errors?: LeadErrors;

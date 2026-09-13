@@ -158,7 +158,12 @@ export function StudioClosing({ locale, copy }: { locale: Locale; copy: Copy }) 
             <ArchonIcon className="h-3 text-[var(--fg-dim)]" />
             {SITE.name} © {year}
           </span>
-          <span className="mono-micro text-[var(--fg-mute)]">{copy.footer.rights}</span>
+          <span className="mono-micro flex items-center gap-4 text-[var(--fg-mute)]">
+            <Link href={localePath(locale, "/privacy")} className="transition-colors hover:text-[var(--fg)]">
+              {copy.nav.privacy}
+            </Link>
+            {copy.footer.rights}
+          </span>
         </div>
       </div>
     </footer>

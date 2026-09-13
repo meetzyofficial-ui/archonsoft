@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { guideStore } from "@/components/world/npc/Guides";
+import { worldEvents } from "@/components/world/systems/events";
 import { journeyStore } from "@/components/world/systems/journey";
 import { teleportStore } from "@/components/world/systems/teleport";
 import { voiceStore } from "@/components/world/systems/voice";
@@ -57,6 +58,8 @@ export function OfficeCard({
   const [errors, setErrors] = useState<LeadErrors>({});
   const [failure, setFailure] = useState<string | null>(null);
   const [result, setResult] = useState<LeadResult | null>(null);
+  /* The brief opens with the three things it needs; the rest unfolds on request. */
+  const [more, setMore] = useState(false);
   const [form, setForm] = useState({
     name: "",
     company: "",
@@ -202,6 +205,7 @@ export function OfficeCard({
       if (response.ok && data.ok) {
         setResult(data);
         journeyStore.step("sent");
+        worldEvents.emit("lead:sent", { department: department.id, service });
         setStage("done");
         return;
       }
@@ -348,76 +352,87 @@ export function OfficeCard({
                 <input ref={firstField} name="name" autoComplete="name" value={form.name} onChange={field("name")} className={inputClass} />
                 {errorText("name") ? <span className="text-[0.8125rem] text-[#ffb4a2]">{errorText("name")}</span> : null}
               </label>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <label className="flex flex-col gap-1">
-                  <span className="mono-micro text-[var(--fg-dim)]">
-                    {copy.fields.company} <em className="not-italic opacity-60">· {copy.optional}</em>
-                  </span>
-                  <input name="company" autoComplete="organization" value={form.company} onChange={field("company")} className={inputClass} />
-                </label>
-                <label className="flex flex-col gap-1">
-                  <span className="mono-micro text-[var(--fg-dim)]">{copy.fields.email}</span>
-                  <input name="email" type="email" inputMode="email" autoComplete="email" value={form.email} onChange={field("email")} className={inputClass} />
-                  {errorText("email") ? <span className="text-[0.8125rem] text-[#ffb4a2]">{errorText("email")}</span> : null}
-                </label>
-                <label className="flex flex-col gap-1">
-                  <span className="mono-micro text-[var(--fg-dim)]">
-                    {copy.fields.phone} <em className="not-italic opacity-60">· {copy.optional}</em>
-                  </span>
-                  <input name="phone" type="tel" inputMode="tel" autoComplete="tel" value={form.phone} onChange={field("phone")} className={inputClass} />
-                  {errorText("phone") ? <span className="text-[0.8125rem] text-[#ffb4a2]">{errorText("phone")}</span> : null}
-                </label>
-                <label className="flex flex-col gap-1">
-                  <span className="mono-micro text-[var(--fg-dim)]">
-                    {copy.fields.whatsapp} <em className="not-italic opacity-60">· {copy.optional}</em>
-                  </span>
-                  <input name="whatsapp" type="tel" inputMode="tel" value={form.whatsapp} onChange={field("whatsapp")} className={inputClass} />
-                </label>
-              </div>
+              <label className="flex flex-col gap-1">
+                <span className="mono-micro text-[var(--fg-dim)]">{copy.fields.email}</span>
+                <input name="email" type="email" inputMode="email" autoComplete="email" value={form.email} onChange={field("email")} className={inputClass} />
+                {errorText("email") ? <span className="text-[0.8125rem] text-[#ffb4a2]">{errorText("email")}</span> : null}
+              </label>
               <label className="flex flex-col gap-1">
                 <span className="mono-micro text-[var(--fg-dim)]">{copy.fields.description}</span>
                 <textarea name="description" rows={touch ? 3 : 4} value={form.description} onChange={field("description")} className={cn(inputClass, "resize-y")} />
                 {errorText("description") ? <span className="text-[0.8125rem] text-[#ffb4a2]">{errorText("description")}</span> : null}
               </label>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <label className="flex flex-col gap-1">
-                  <span className="mono-micro text-[var(--fg-dim)]">
-                    {copy.fields.budget} <em className="not-italic opacity-60">· {copy.optional}</em>
-                  </span>
-                  <select name="budget" value={form.budget} onChange={field("budget")} className={inputClass}>
-                    <option value="">—</option>
-                    {BUDGET_RANGES.map((range) => (
-                      <option key={range} value={range}>
-                        {copy.budgets[range]}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="flex flex-col gap-1">
-                  <span className="mono-micro text-[var(--fg-dim)]">
-                    {copy.fields.timeline} <em className="not-italic opacity-60">· {copy.optional}</em>
-                  </span>
-                  <select name="timeline" value={form.timeline} onChange={field("timeline")} className={inputClass}>
-                    <option value="">—</option>
-                    {TIMELINES.map((one) => (
-                      <option key={one} value={one}>
-                        {copy.timelines[one]}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-              <label className="flex flex-col gap-1">
-                <span className="mono-micro text-[var(--fg-dim)]">
-                  {copy.fields.notes} <em className="not-italic opacity-60">· {copy.optional}</em>
-                </span>
-                <textarea name="notes" rows={2} value={form.notes} onChange={field("notes")} className={cn(inputClass, "resize-y")} />
-              </label>
+              <button
+                type="button"
+                data-office-more
+                aria-expanded={more}
+                onClick={() => setMore((current) => !current)}
+                className="mono-micro self-start text-[var(--accent)] transition-colors hover:text-[var(--fg)]"
+              >
+                {more ? "−" : "+"} {more ? copy.less : copy.more}
+              </button>
+              {more ? (
+                <>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <label className="flex flex-col gap-1">
+                      <span className="mono-micro text-[var(--fg-dim)]">
+                        {copy.fields.company} <em className="not-italic opacity-60">· {copy.optional}</em>
+                      </span>
+                      <input name="company" autoComplete="organization" value={form.company} onChange={field("company")} className={inputClass} />
+                    </label>
+                    <label className="flex flex-col gap-1">
+                      <span className="mono-micro text-[var(--fg-dim)]">
+                        {copy.fields.phone} <em className="not-italic opacity-60">· {copy.optional}</em>
+                      </span>
+                      <input name="phone" type="tel" inputMode="tel" autoComplete="tel" value={form.phone} onChange={field("phone")} className={inputClass} />
+                      {errorText("phone") ? <span className="text-[0.8125rem] text-[#ffb4a2]">{errorText("phone")}</span> : null}
+                    </label>
+                    <label className="flex flex-col gap-1">
+                      <span className="mono-micro text-[var(--fg-dim)]">
+                        {copy.fields.whatsapp} <em className="not-italic opacity-60">· {copy.optional}</em>
+                      </span>
+                      <input name="whatsapp" type="tel" inputMode="tel" value={form.whatsapp} onChange={field("whatsapp")} className={inputClass} />
+                    </label>
+                    <label className="flex flex-col gap-1">
+                      <span className="mono-micro text-[var(--fg-dim)]">
+                        {copy.fields.budget} <em className="not-italic opacity-60">· {copy.optional}</em>
+                      </span>
+                      <select name="budget" value={form.budget} onChange={field("budget")} className={inputClass}>
+                        <option value="">—</option>
+                        {BUDGET_RANGES.map((range) => (
+                          <option key={range} value={range}>
+                            {copy.budgets[range]}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="flex flex-col gap-1">
+                      <span className="mono-micro text-[var(--fg-dim)]">
+                        {copy.fields.timeline} <em className="not-italic opacity-60">· {copy.optional}</em>
+                      </span>
+                      <select name="timeline" value={form.timeline} onChange={field("timeline")} className={inputClass}>
+                        <option value="">—</option>
+                        {TIMELINES.map((one) => (
+                          <option key={one} value={one}>
+                            {copy.timelines[one]}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+                  <label className="flex flex-col gap-1">
+                    <span className="mono-micro text-[var(--fg-dim)]">
+                      {copy.fields.notes} <em className="not-italic opacity-60">· {copy.optional}</em>
+                    </span>
+                    <textarea name="notes" rows={2} value={form.notes} onChange={field("notes")} className={cn(inputClass, "resize-y")} />
+                  </label>
+                </>
+              ) : null}
               <label className="flex items-start gap-3 text-[0.8125rem] leading-snug text-[var(--fg-dim)]">
                 <input type="checkbox" name="consent" checked={form.consent} onChange={field("consent")} className="mt-0.5 size-4 shrink-0 accent-[var(--accent)]" />
                 <span>
                   {copy.consent}{" "}
-                  <Link href={`/${locale}/contact`} className="underline decoration-[rgba(255,244,232,0.3)] underline-offset-2 hover:text-[var(--fg)]" target="_blank">
+                  <Link href={`/${locale}/privacy`} className="underline decoration-[rgba(255,244,232,0.3)] underline-offset-2 hover:text-[var(--fg)]" target="_blank">
                     {copy.consentLink}
                   </Link>
                 </span>
