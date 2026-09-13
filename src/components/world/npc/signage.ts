@@ -1,7 +1,9 @@
 "use client";
 
+import { useThree } from "@react-three/fiber";
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
+import { fitSize, releaseOnUpload, useEarlyUpload } from "@/components/world/pieces/release";
 import { QUALITY, qualityStore } from "@/components/world/systems/quality";
 
 /**
@@ -199,18 +201,22 @@ export function paintBoard(content: BoardContent): Paint {
  * A painted, sharp-sampled texture for a sign or a board: laid out at
  * `layoutWidth` and painted at the tier's density for its physical width.
  */
-export function useSignTexture(paint: Paint, size: [number, number], key: string, anisotropy: number) {
+export function useSignTexture(paint: Paint, size: [number, number], key: string, anisotropy: number, kind: "sign" | "board" = "sign") {
+  const gl = useThree((state) => state.gl);
   const texture = useMemo(() => {
     const [w, h] = size;
     const profile = QUALITY[qualityStore.tier];
     const layoutW = 1000;
     const layoutH = Math.round((layoutW * h) / w);
-    const width = Math.min(profile.panelMax, Math.max(1024, Math.round((Math.sqrt(w) * profile.panelDensity) / 32) * 32));
-    const height = Math.round((width * h) / w);
+    const across = Math.min(profile.panelMax, Math.max(1024, Math.round((Math.sqrt(w) * profile.panelDensity) / 32) * 32));
+    /* A sign is read from the arrival and keeps more texels than a board. */
+    const [width, height] = fitSize(across, Math.round((across * h) / w), kind === "sign" ? profile.signMax : profile.textureMax);
     const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
     const draw = () => {
+      /* Sized on every paint: a canvas let go after its upload is a pixel
+         until it is painted again. */
+      canvas.width = width;
+      canvas.height = height;
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
       ctx.setTransform(width / layoutW, 0, 0, height / layoutH, 0, 0);
@@ -223,10 +229,12 @@ export function useSignTexture(paint: Paint, size: [number, number], key: string
     result.minFilter = THREE.LinearMipmapLinearFilter;
     result.magFilter = THREE.LinearFilter;
     result.userData.repaint = draw;
+    releaseOnUpload(result);
     return result;
     // The key stands for the content; the paint closes over it.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, size[0], size[1], anisotropy]);
+  }, [key, size[0], size[1], anisotropy, kind]);
+  useEarlyUpload(gl, texture);
 
   useEffect(() => {
     let cancelled = false;

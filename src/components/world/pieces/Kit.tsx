@@ -1,11 +1,12 @@
 "use client";
 
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { Foam } from "@/components/world/pieces/Foam";
 import { mergeGeometries, mergeVertices } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { rimParts, useMerged } from "@/components/world/pieces/merge";
+import { releaseOnUpload, useEarlyUpload } from "@/components/world/pieces/release";
 import { qualityStore } from "@/components/world/systems/quality";
 import type { TreeSpot } from "@/data/world-campus";
 
@@ -992,6 +993,7 @@ export function Label({
   accent?: string;
   align?: "left" | "center";
 }) {
+  const gl = useThree((state) => state.gl);
   const texture = useMemo(() => {
     /* Painted at twice the layout, so a tag read from a step away is still type. */
     const density = 2;
@@ -1022,12 +1024,16 @@ export function Label({
     const tex = new THREE.CanvasTexture(canvas);
     tex.colorSpace = THREE.SRGBColorSpace;
     tex.anisotropy = 8;
+    tex.userData.aspect = width / canvasHeight;
+    releaseOnUpload(tex);
     return tex;
   }, [accent, align, colour, lines]);
 
   useEffect(() => () => texture.dispose(), [texture]);
+  useEarlyUpload(gl, texture);
 
-  const aspect = texture.image.width / texture.image.height;
+  /* From what was painted: the canvas itself is let go once it is uploaded. */
+  const aspect = texture.userData.aspect as number;
   const w = height * aspect;
 
   return (

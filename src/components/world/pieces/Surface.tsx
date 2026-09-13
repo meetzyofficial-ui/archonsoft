@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type MutableRefObject } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import { fitImage, fitSize, releaseOnUpload, useEarlyUpload } from "@/components/world/pieces/release";
 import { QUALITY, qualityStore } from "@/components/world/systems/quality";
 import type { PanelContent } from "@/data/world-map";
 
@@ -290,8 +291,10 @@ export function DataSurface({
     const profile = QUALITY[qualityStore.tier];
     const layoutW = Math.round(resolution * profile.textureScale);
     const layoutH = Math.round((layoutW * h) / w);
-    const width = Math.max(layoutW, Math.round(density * profile.textureScale));
-    const height = Math.round((width * h) / w);
+    /* And no longer on either side than the tier holds: a tall panel was
+       capped by its width alone. */
+    const painted = Math.max(layoutW, Math.round(density * profile.textureScale));
+    const [width, height] = fitSize(painted, Math.round((painted * h) / w), profile.textureMax);
     const canvas = document.createElement("canvas");
     canvas.width = width;
     canvas.height = height;
@@ -306,12 +309,14 @@ export function DataSurface({
     result.minFilter = THREE.LinearMipmapLinearFilter;
     result.magFilter = THREE.LinearFilter;
     result.generateMipmaps = true;
+    releaseOnUpload(result);
     return result;
     // The paint function closes over content that never changes for a display.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resolution, density, size[0], size[1], gl]);
 
   useEffect(() => () => texture.dispose(), [texture]);
+  useEarlyUpload(gl, texture);
 
   return (
     <mesh>
@@ -356,6 +361,17 @@ export function PhotoSurface({
       }
       result.colorSpace = THREE.SRGBColorSpace;
       result.anisotropy = Math.min(QUALITY[qualityStore.tier].anisotropy, gl.capabilities.getMaxAnisotropy());
+      /* A phone holds the photograph at its tier's size, uploads it at once
+         and lets the decoded image go. */
+      if (qualityStore.tier !== "desktop") {
+        result.image = fitImage(result.image as HTMLImageElement);
+        releaseOnUpload(result);
+        try {
+          gl.initTexture(result);
+        } catch {
+          /* Uploaded on sight instead. */
+        }
+      }
       loaded = result;
       setTexture(result);
       if (material.current) {

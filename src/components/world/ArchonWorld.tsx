@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Component, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ArchonIcon } from "@/components/chrome/Wordmark";
 import { Conversation, Detail, HostCard, WorldUI } from "@/components/world/WorldUI";
 import { OfficeCard } from "@/components/world/OfficeCard";
@@ -10,6 +10,7 @@ import { teleportStore } from "@/components/world/systems/teleport";
 import type { WorldCopy } from "@/components/world/WorldGate";
 import { discovery } from "@/components/world/systems/discovery";
 import { stopSound } from "@/components/world/systems/audio";
+import { bootGuard } from "@/components/world/systems/quality";
 import type { ZoneId } from "@/data/world-map";
 import { usePrefersReducedMotion } from "@/lib/hooks";
 import { isLocale, type Locale } from "@/lib/i18n";
@@ -42,6 +43,25 @@ const WorldScene = dynamic(
 );
 
 type Stage = "opening" | "reveal" | "world";
+
+/**
+ * Whatever the scene throws while it is built — a browser that refuses a
+ * graphics context throws from inside the Canvas — is caught here and
+ * reported up, so the visitor is told and offered another try instead of
+ * being left in front of an empty screen.
+ */
+class SceneBoundary extends Component<{ onError: () => void; children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  componentDidCatch() {
+    this.props.onError();
+  }
+  render() {
+    return this.state.failed ? null : this.props.children;
+  }
+}
 
 export const WORLD_LANG_KEY = "archon-world-lang";
 
@@ -186,10 +206,56 @@ export function ArchonWorld({
      painted frame needs it. The scene mounts a beat after the opening has
      painted, so the world is building while the mark is being read. */
   const [mounted, setMounted] = useState(false);
+  /* How the graphics start. A page that finds the last start unfinished was
+     killed by the device while starting — no error survives that — and
+     starts in the safe tier; after two, it asks before trying again. A lost
+     context is built again from scratch, in the safe tier, once; a second
+     loss, or a context that does not come back, asks. */
+  const [safe, setSafe] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const losses = useRef(0);
+  const lostTimer = useRef(0);
   useEffect(() => {
+    const failures = bootGuard.failures();
+    if (failures >= 2) {
+      setSafe(true);
+      setFailed(true);
+      return;
+    }
+    if (failures >= 1) setSafe(true);
     const timer = window.setTimeout(() => setMounted(true), 350);
     return () => window.clearTimeout(timer);
   }, []);
+  const contextLost = useCallback(() => {
+    losses.current += 1;
+    bootGuard.fail();
+    window.clearTimeout(lostTimer.current);
+    if (losses.current > 1) {
+      setFailed(true);
+      return;
+    }
+    lostTimer.current = window.setTimeout(() => setFailed(true), 4000);
+  }, []);
+  const contextRestored = useCallback(() => {
+    window.clearTimeout(lostTimer.current);
+    if (losses.current > 1) return;
+    setSafe(true);
+    setAttempt((n) => n + 1);
+  }, []);
+  const sceneFailed = useCallback(() => {
+    bootGuard.fail();
+    setFailed(true);
+  }, []);
+  const retry = useCallback(() => {
+    window.clearTimeout(lostTimer.current);
+    losses.current = 0;
+    setSafe(true);
+    setFailed(false);
+    setAttempt((n) => n + 1);
+    setMounted(true);
+  }, []);
+  useEffect(() => () => window.clearTimeout(lostTimer.current), []);
   useEffect(() => {
     if (!mounted) return;
     let cancelled = false;
@@ -373,8 +439,12 @@ export function ArchonWorld({
           stage === "opening" ? "opacity-0" : "opacity-100",
         )}
       >
-        {mounted ? (
+        {mounted && !failed ? (
+          <SceneBoundary key={attempt} onError={sceneFailed}>
           <WorldScene
+            safe={safe}
+            onContextLost={contextLost}
+            onContextRestored={contextRestored}
             payload={payload}
             mode={sceneMode}
             compact={compact}
@@ -388,6 +458,7 @@ export function ArchonWorld({
             office={officeCopy}
             onReady={becomeReady}
           />
+          </SceneBoundary>
         ) : null}
       </div>
 
@@ -503,6 +574,36 @@ export function ArchonWorld({
           </ul>
         </div>
       </div>
+
+      {failed ? (
+        <div data-world-failure className="absolute inset-0 z-[140] flex items-center justify-center bg-[#03050b] px-6">
+          <div role="alertdialog" aria-labelledby="world-failure-title" className="flex max-w-md flex-col items-center text-center">
+            <ArchonIcon className="h-12 text-[var(--fg)]" />
+            <p id="world-failure-title" className="text-sub mt-8 text-[var(--fg)]">
+              {copy.failure.title}
+            </p>
+            <p className="mono-micro mt-4 text-[var(--fg-mute)]">{copy.failure.body}</p>
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-6">
+              <button
+                type="button"
+                data-world-retry
+                autoFocus
+                onClick={retry}
+                className="mono-label min-h-[44px] cursor-pointer border border-[var(--fg)] px-6 py-3 text-[var(--fg)] transition-colors hover:bg-[var(--fg)] hover:text-[var(--color-ink)]"
+              >
+                {copy.failure.retry}
+              </button>
+              <button
+                type="button"
+                onClick={exit}
+                className="mono-label link-rule min-h-[44px] text-[var(--fg-mute)] transition-colors [--link-pad:15px] hover:text-[var(--fg)]"
+              >
+                {copy.mainSite} →
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {/* The world's own interface. */}
       {entered ? (

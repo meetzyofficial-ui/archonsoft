@@ -362,7 +362,7 @@ export function Office({
     [department, label, locale, office.accent],
   );
   const anisotropy = Math.min(16, gl.capabilities.getMaxAnisotropy());
-  const boardTexture = useSignTexture(paintBoard(board), [boardW, boardH], `${id}:${locale}:${board.title}`, anisotropy);
+  const boardTexture = useSignTexture(paintBoard(board), [boardW, boardH], `${id}:${locale}:${board.title}`, anisotropy, "board");
   /* The sign spans the front of the room and a little more; a phone's is
      larger still, so the name reads from the arrival in landscape too,
      where the screen is only a few hundred pixels tall. */

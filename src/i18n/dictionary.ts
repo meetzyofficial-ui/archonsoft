@@ -485,6 +485,12 @@ const en = {
     enterShort: "Archon World",
     skip: "Skip to the main site",
     mainSite: "Main site",
+    /* When the device's graphics could not start the world. */
+    failure: {
+      title: "Archon Soft World could not start the graphics engine on your device.",
+      body: "Try again with lower graphics quality.",
+      retry: "Try again",
+    },
     destinations: "Sections",
     hint: "Move the pointer to look around. Escape returns to the site.",
     /* The invitation on the ordinary site. */
@@ -1115,6 +1121,11 @@ const tr: Dictionary = {
     enterShort: "Archon Dünyası",
     skip: "Ana siteye geç",
     mainSite: "Ana site",
+    failure: {
+      title: "Archon Soft World cihazınızda grafik motoru başlatılamadı.",
+      body: "Daha düşük grafik kalitesiyle tekrar deneyin.",
+      retry: "TEKRAR DENE",
+    },
     destinations: "Bölümler",
     hint: "Bakmak için imleci gezdir. Escape siteye döner.",
     nav: "Dünya",

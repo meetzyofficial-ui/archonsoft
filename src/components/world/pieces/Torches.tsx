@@ -79,7 +79,7 @@ export function Torches({ list }: { list: Torch[] }) {
     for (const { at } of list) c.add(new THREE.Vector3(at[0], at[1] + 2.4, at[2]));
     return c.divideScalar(Math.max(1, list.length));
   }, [list]);
-  const count = qualityStore.tier === "desktop" ? 130 * list.length : qualityStore.tier === "low" ? 55 * list.length : 90 * list.length;
+  const count = qualityStore.tier === "desktop" ? 130 * list.length : qualityStore.tier === "low" || qualityStore.tier === "safe" ? 55 * list.length : 90 * list.length;
   useEffect(() => {
     worldEvents.emit("fire:lit", { count: list.length });
   }, [list.length]);

@@ -28,7 +28,7 @@ import { Office } from "@/components/world/npc/Office";
 import { NpcShadows } from "@/components/world/npc/shadows";
 import { Trees, useContactTexture } from "@/components/world/pieces/Kit";
 import { Explorer } from "@/components/world/systems/Explorer";
-import { detectTier, GOVERNOR, QUALITY, qualityStore, type Tier } from "@/components/world/systems/quality";
+import { bootGuard, detectTier, GOVERNOR, QUALITY, qualityStore, type Tier } from "@/components/world/systems/quality";
 import { EYE, VIEWPOINTS, ZONES, type ZoneId } from "@/data/world-map";
 import { CAMPUS, TREES } from "@/data/world-campus";
 import { OFFICES, DEPARTMENTS } from "@/data/departments";
@@ -60,6 +60,9 @@ export const WorldScene = memo(function WorldScene({
   onOffice,
   office,
   onReady,
+  safe = false,
+  onContextLost,
+  onContextRestored,
 }: {
   payload: WorldPayload;
   mode: WorldMode;
@@ -75,16 +78,32 @@ export const WorldScene = memo(function WorldScene({
   onOffice: (id: string) => void;
   office: { label: string; action: string };
   onReady?: () => void;
+  /** Start in the safe tier: the world failed to start here before. */
+  safe?: boolean;
+  /** The graphics context was lost, and (perhaps) given back. */
+  onContextLost?: () => void;
+  onContextRestored?: () => void;
 }) {
   /* The quality tier decides the pixel ratio the world opens at; the
      governor inside the scene steps it from there, and only on evidence. */
   const tier = useMemo(() => {
-    const found = detectTier(compact);
+    const found = detectTier(compact, safe);
     /* Published before the scene renders, so the panels paint at the tier's
        scale the first time rather than repainting later. */
     qualityStore.tier = found;
+    qualityStore.safe = safe;
     return found;
-  }, [compact]);
+  }, [compact, safe]);
+  /* The renderer forces its own context loss when the scene unmounts — on
+     leaving the world, or when a lost scene is replaced — and that is not
+     a failure; only a loss while this scene is mounted is reported. */
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
   const start = Math.min(QUALITY[tier].dpr.start, typeof window === "undefined" ? 1 : window.devicePixelRatio || 1);
   return (
     <Canvas
@@ -98,6 +117,23 @@ export const WorldScene = memo(function WorldScene({
       camera={{ fov: 58, near: 0.1, far: 900, position: [0, EYE, 24] }}
       onCreated={({ gl, scene, camera }) => {
         gl.toneMapping = THREE.ACESFilmicToneMapping;
+        /* A lost context — the GPU process restarted, or the system took the
+           memory back — is reported up rather than rendered into: the
+           renderer stops drawing by itself, and the world above decides
+           whether to build the scene again or say it cannot. */
+        gl.domElement.addEventListener("webglcontextlost", () => {
+          if (mounted.current) onContextLost?.();
+        });
+        gl.domElement.addEventListener("webglcontextrestored", () => {
+          if (mounted.current) onContextRestored?.();
+        });
+        /* QA: lose the context on purpose, and ask for it back. The extension
+           is looked up now: a lost context answers no extensions. */
+        const extension = gl.getContext().getExtension("WEBGL_lose_context");
+        (window as unknown as { __archonContext?: (lose: boolean) => void }).__archonContext = (lose) => {
+          if (lose) extension?.loseContext();
+          else extension?.restoreContext();
+        };
         try {
           const context = gl.getContext();
           const info = context.getExtension("WEBGL_debug_renderer_info");
@@ -486,10 +522,18 @@ function Boot({
 
   useEffect(() => {
     let cancelled = false;
+    let settled = 0;
+    /* The start is noted until the world has been on screen a few seconds:
+       a phone that runs out of memory kills the page without a word, and
+       the note is how the next load knows (see bootGuard). */
+    bootGuard.begin();
+    const leave = () => bootGuard.leave();
+    window.addEventListener("pagehide", leave);
     const ready = () => {
       if (done.current || cancelled) return;
       done.current = true;
       onReady?.();
+      settled = window.setTimeout(() => bootGuard.succeed(), 6000);
     };
     const rig = createReflections(gl, scene, QUALITY[tier].reflections);
     const group = world.current;
@@ -587,6 +631,9 @@ function Boot({
     return () => {
       cancelled = true;
       window.clearTimeout(failsafe);
+      window.clearTimeout(settled);
+      window.removeEventListener("pagehide", leave);
+      bootGuard.leave();
       if (later) window.clearTimeout(later);
       if (group) group.visible = true;
       rig.dispose();
