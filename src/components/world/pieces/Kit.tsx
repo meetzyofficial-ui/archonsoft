@@ -4,8 +4,10 @@ import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { Foam } from "@/components/world/pieces/Foam";
+import { mergeGeometries, mergeVertices } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { rimParts, useMerged } from "@/components/world/pieces/merge";
 import { qualityStore } from "@/components/world/systems/quality";
+import type { TreeSpot } from "@/data/world-campus";
 
 /**
  * The kit Archon World is built from.
@@ -299,9 +301,12 @@ export function Backlight({
   inset = 0.05,
   foot,
   forward = 0,
+  halo = true,
 }: {
   size: [number, number];
   strength?: number;
+  /** The soft halo on the air behind; a sign whose frame glow is enough goes without. */
+  halo?: boolean;
   /** The gap between the panel's edge and the inner edge of the rim. */
   inset?: number;
   /** How far below the panel's centre the floor is, for the pool of light; none for a panel in the air. */
@@ -320,10 +325,12 @@ export function Backlight({
   return (
     <group>
       {/* The halo on the air behind. */}
-      <mesh position={[0, 0, -0.22]}>
-        <planeGeometry args={[w * 1.45 + 1.2, h * 1.6 + 1.2]} />
-        <meshBasicMaterial map={glow} color="#ffffff" transparent opacity={0.62 * strength} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
-      </mesh>
+      {halo ? (
+        <mesh position={[0, 0, -0.22]}>
+          <planeGeometry args={[w * 1.45 + 1.2, h * 1.6 + 1.2]} />
+          <meshBasicMaterial map={glow} color="#ffffff" transparent opacity={0.62 * strength} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
+        </mesh>
+      ) : null}
       {/* The core line and the glow off it. */}
       <mesh geometry={frame}>
         <meshBasicMaterial vertexColors transparent opacity={Math.min(1, 0.95 * strength)} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
@@ -1300,518 +1307,469 @@ function LightFalls({ width, depth, colour }: { width: number; depth: number; co
 /* ------------------------------------------------------------------ trees */
 
 /**
- * The world's vegetation.
+ * The world's trees, all of them, as one set.
  *
- * Dark green trees with faceted sculptural canopies, and among them the
- * blossom trees the reference world plants around its hub — pink, with a
- * breath of their own light. A tree is a trunk and two or three canopy
- * masses of different sizes, so no two silhouettes are alike; every tree in
- * a group is drawn with the others, five draws in all. The crowns sway.
+ * A tree is a trunk — oval rather than round, buttressed and flared at the
+ * root, bending a little, its bark uneven — from which a limb runs out and
+ * up to each of its foliage clumps, with a thinner secondary limb off two of
+ * them, so the branches that show through the leaves lead somewhere. Each
+ * clump is a few lumpy masses whose surface is pushed in and out by noise,
+ * darker underneath and in its dents, so a crown reads as leaves in light
+ * and shadow. Trees differ in height, girth, lean, the width and density of
+ * the canopy (three clumps or four), the spread of the limbs, the green,
+ * and — through a per-instance jitter in the shader — how rough the leaves
+ * are. About one in five is a blossom tree, pale pink and unlit; about a
+ * third of the green ones carry fruit — apples, oranges or lemons — small,
+ * set into the outside of the canopy, and drawn only close enough to see.
+ *
+ * Seven instanced draws for every tree in the world. Near the camera the
+ * crowns are the subdivided clump; further out, the coarse one; beyond the
+ * far edge, nothing. A phone's distances are nearer. The crowns sway on
+ * their own rhythms, the limbs with them.
  */
-/* Leaf greens, and what the fruit trees carry. */
-const LEAF_COLOURS = ["#496b50", "#3f7a4a", "#557a3c", "#6d8a36", "#496b50", "#8a6a2a", "#3a6b4a", "#a0602c"];
-const FRUIT_COLOURS = ["#d8352f", "#ff8a2a", "#f2d33a"];
+const LEAF_GREENS = ["#3d5a33", "#46673a", "#52743e", "#3a573c", "#5b783a", "#486a42", "#647d37", "#415d38", "#355034"];
+/* Apple, orange, lemon — in that order, so a tree's kind is its index. */
+const FRUIT_COLOURS = ["#b8322c", "#e8842a", "#e3c83a"];
+const BARK = ["#3a2d24", "#46362b", "#302620", "#4d3b2e"];
 
-export function Trees({
-  at,
-  blossom = 0.4,
-  rock = false,
-}: {
-  at: [number, number, number][];
-  /** What share of them blossom, by position in the list. */
-  blossom?: number;
-  /**
-   * Each tree stands on its own outcrop of rock hanging off the island's
-   * rim — the way the reference world grows its trees, on stone over the
-   * water — so the visitor walks beside them and never through them.
-   */
-  rock?: boolean;
-}) {
+function hash3(x: number, y: number, z: number) {
+  const h = Math.sin(x * 127.1 + y * 311.7 + z * 74.7) * 43758.5453;
+  return h - Math.floor(h);
+}
+
+/** Per-instance roughness, so no two trees' leaves catch the light the same. */
+/*
+ * And a leaf-scale noise over each clump, in the clump's own coordinates (so
+ * it does not swim as the camera moves), that tips the normal and darkens
+ * the gaps: a canopy's surface is thousands of small facets of light and
+ * shadow, and this is where they come from, without an extra triangle.
+ */
+const LEAF_NOISE = [
+  "float leafHash(vec3 p) { return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453); }",
+  "float leafNoise(vec3 p) {",
+  "  vec3 i = floor(p); vec3 f = fract(p); f = f * f * (3.0 - 2.0 * f);",
+  "  return mix(mix(mix(leafHash(i), leafHash(i + vec3(1.0, 0.0, 0.0)), f.x), mix(leafHash(i + vec3(0.0, 1.0, 0.0)), leafHash(i + vec3(1.0, 1.0, 0.0)), f.x), f.y),",
+  "             mix(mix(leafHash(i + vec3(0.0, 0.0, 1.0)), leafHash(i + vec3(1.0, 0.0, 1.0)), f.x), mix(leafHash(i + vec3(0.0, 1.0, 1.0)), leafHash(i + vec3(1.0, 1.0, 1.0)), f.x), f.y), f.z);",
+  "}",
+].join("\n");
+const roughJitter = (shader: { vertexShader: string; fragmentShader: string }) => {
+  shader.vertexShader = shader.vertexShader
+    .replace("#include <common>", "#include <common>\nvarying float vJitter;\nvarying vec3 vLeaf;")
+    .replace("#include <begin_vertex>", "#include <begin_vertex>\nvJitter = fract(sin(float(gl_InstanceID) * 12.9898 + 4.1) * 43758.5453);\nvLeaf = position * 9.0 + vJitter * 17.0;");
+  shader.fragmentShader = shader.fragmentShader
+    .replace("#include <common>", `#include <common>\nvarying float vJitter;\nvarying vec3 vLeaf;\n${LEAF_NOISE}`)
+    .replace("#include <roughnessmap_fragment>", "#include <roughnessmap_fragment>\nroughnessFactor = clamp(roughnessFactor * (0.84 + 0.3 * vJitter), 0.0, 1.0);")
+    .replace(
+      "#include <normal_fragment_maps>",
+      [
+        "#include <normal_fragment_maps>",
+        "float leafA = leafNoise(vLeaf);",
+        "float leafB = leafNoise(vLeaf * 2.3 + 5.0);",
+        "normal = normalize(normal + (vec3(leafA, leafB, leafA * 0.5 + leafB * 0.5) - 0.5) * 0.9);",
+        "diffuseColor.rgb *= 0.72 + 0.4 * smoothstep(0.2, 0.8, leafA * 0.6 + leafB * 0.4);",
+      ].join("\n"),
+    );
+};
+const roughJitterKey = () => "archon-tree-leaves";
+const plainLeaves = () => {};
+const plainLeavesKey = () => "archon-tree-leaves-plain";
+
+let treeGeometries: { trunk: THREE.BufferGeometry; branch: THREE.BufferGeometry; clump: THREE.BufferGeometry; coarse: THREE.BufferGeometry; shrub: THREE.BufferGeometry; fruit: THREE.BufferGeometry } | null = null;
+
+function useTreeGeometries() {
+  return useMemo(() => {
+    if (treeGeometries) return treeGeometries;
+    /* The trunk: unit height, oval, four buttresses flaring into the root,
+       a slight bend and a slighter twist, bark that is not a perfect
+       cylinder, darker at the foot. */
+    const trunk = new THREE.CylinderGeometry(0.3, 0.5, 1, 9, 5, true);
+    {
+      const pos = trunk.attributes.position as THREE.BufferAttribute;
+      const colours = new Float32Array(pos.count * 3);
+      for (let i = 0; i < pos.count; i += 1) {
+        const x = pos.getX(i);
+        const y = pos.getY(i);
+        const z = pos.getZ(i);
+        const t = y + 0.5;
+        const angle = Math.atan2(z, x) + t * 0.35;
+        const buttress = 1 + 0.32 * Math.max(0, Math.cos(angle * 4)) * Math.pow(1 - t, 6);
+        const flare = (1 + 0.6 * Math.pow(1 - t, 5)) * buttress;
+        const bark = 1 + (hash3(Math.round(x * 24), Math.round(y * 16), Math.round(z * 24)) - 0.5) * 0.14;
+        const r = Math.hypot(x, z) * flare * bark;
+        pos.setXYZ(i, Math.cos(angle) * r + 0.3 * t * t, y, Math.sin(angle) * r * 0.86);
+        const shade = (0.5 + 0.5 * Math.min(1, t * 1.5)) * (0.9 + bark * 0.1);
+        colours.set([shade, shade, shade], i * 3);
+      }
+      trunk.setAttribute("color", new THREE.BufferAttribute(colours, 3));
+      trunk.computeVertexNormals();
+    }
+    /* A limb: base at the origin, reaching up +y to 1, tapering, bending a
+       little as it goes — placed by rotating +y onto the way it grows. */
+    const branch = new THREE.CylinderGeometry(0.28, 1, 1, 5, 2, true);
+    {
+      branch.translate(0, 0.5, 0);
+      const pos = branch.attributes.position as THREE.BufferAttribute;
+      for (let i = 0; i < pos.count; i += 1) {
+        const t = pos.getY(i);
+        pos.setX(i, pos.getX(i) + 0.08 * Math.sin(t * Math.PI));
+      }
+      branch.computeVertexNormals();
+      branch.setAttribute("color", new THREE.BufferAttribute(new Float32Array(pos.count * 3).fill(0.82), 3));
+    }
+    /* A foliage clump: five lobes of different sizes, their surfaces
+       displaced by a noise that depends only on position (so shared edges
+       stay closed), merged and smoothed; lighter on top, darker underneath,
+       darker again in its dents. The near clump is subdivided once; the far
+       one is the same shape, coarse. */
+    const clumpOf = (detail: number) => {
+      /* Many smaller masses rather than a few big ones, scattered through an
+         ellipsoid: the outline of a canopy is leaf clusters, not a ball. The
+         coarse clump keeps the larger half. */
+      const all: [number, number, number, number][] = [
+        [0, 0.05, 0, 0.78],
+        [0.55, 0.12, 0.22, 0.52],
+        [-0.52, 0.04, -0.26, 0.56],
+        [0.12, -0.28, -0.5, 0.48],
+        [-0.22, 0.4, 0.4, 0.44],
+        [0.38, 0.42, -0.28, 0.42],
+        [-0.46, -0.22, 0.34, 0.46],
+        [0.6, -0.24, -0.12, 0.38],
+        [-0.08, 0.02, 0.66, 0.4],
+        [-0.12, -0.12, -0.72, 0.36],
+      ];
+      const lobes = detail > 0 ? all.slice(0, 7) : detail === 0 ? all.slice(0, 5) : all.slice(0, 3);
+      const parts = lobes.map(([ox, oy, oz, r]) => {
+        const g = new THREE.IcosahedronGeometry(1, Math.max(0, detail));
+        g.deleteAttribute("normal");
+        g.deleteAttribute("uv");
+        const pos = g.attributes.position as THREE.BufferAttribute;
+        for (let i = 0; i < pos.count; i += 1) {
+          const x = pos.getX(i);
+          const y = pos.getY(i);
+          const z = pos.getZ(i);
+          const bump = 1 + (hash3(Math.round(x * 50), Math.round(y * 50), Math.round(z * 50)) - 0.5) * 0.34;
+          pos.setXYZ(i, ox + x * r * bump, oy + y * r * bump * 0.84, oz + z * r * bump);
+        }
+        return g;
+      });
+      const merged = mergeVertices(mergeGeometries(parts, false)!, 1e-4);
+      parts.forEach((g) => g.dispose());
+      merged.computeVertexNormals();
+      const pos = merged.attributes.position as THREE.BufferAttribute;
+      const nor = merged.attributes.normal as THREE.BufferAttribute;
+      const colours = new Float32Array(pos.count * 3);
+      for (let i = 0; i < pos.count; i += 1) {
+        const x = pos.getX(i);
+        const y = pos.getY(i);
+        const z = pos.getZ(i);
+        /* How far out this point sits against where its normal points: a dent reads darker. */
+        const outward = (x * nor.getX(i) + y * nor.getY(i) + z * nor.getZ(i)) / Math.max(0.2, Math.hypot(x, y, z));
+        const cavity = THREE.MathUtils.clamp(0.72 + outward * 0.34, 0.6, 1.04);
+        const light = THREE.MathUtils.clamp(0.6 + y * 0.4, 0.4, 1.06) * cavity * (0.93 + hash3(x * 9, y * 9, z * 9) * 0.14);
+        colours.set([light, light, light], i * 3);
+      }
+      merged.setAttribute("color", new THREE.BufferAttribute(colours, 3));
+      return merged;
+    };
+    const merged = clumpOf(1);
+    const coarse = clumpOf(0);
+    /* Shrubs are small and low: three coarse masses are plenty. */
+    const shrub = clumpOf(-1);
+    const fruit = new THREE.SphereGeometry(1, 10, 8);
+    fruit.setAttribute("color", new THREE.BufferAttribute(new Float32Array(fruit.attributes.position!.count * 3).fill(1), 3));
+    treeGeometries = { trunk, branch, clump: merged, coarse, shrub, fruit };
+    return treeGeometries;
+  }, []);
+}
+
+const UP = new THREE.Vector3(0, 1, 0);
+const LIMB = new THREE.Vector3();
+
+export function Trees({ spots }: { spots: TreeSpot[] }) {
   const trunks = useRef<THREE.InstancedMesh>(null);
   const branches = useRef<THREE.InstancedMesh>(null);
-  const greens = useRef<THREE.InstancedMesh>(null);
-  const pinks = useRef<THREE.InstancedMesh>(null);
-  const clusters = useRef<THREE.InstancedMesh>(null);
-  const halos = useRef<THREE.InstancedMesh>(null);
+  const crownsNear = useRef<THREE.InstancedMesh>(null);
+  const crownsFar = useRef<THREE.InstancedMesh>(null);
+  const fruits = useRef<THREE.InstancedMesh>(null);
   const shrubs = useRef<THREE.InstancedMesh>(null);
   const rocks = useRef<THREE.InstancedMesh>(null);
-  const fruits = useRef<THREE.InstancedMesh>(null);
-  const count = at.length;
-  const CROWNS = 5;
-  const BRANCHES = 2;
-  const SHRUBS = 2;
-  const FRUITS = 9;
-  /* Six silhouettes: how the masses sit on the trunk. */
+  const geometries = useTreeGeometries();
+  const phone = qualityStore.tier !== "desktop";
+  const FAR = phone ? 70 : 110;
+  const FRUIT_NEAR = phone ? 24 : 40;
+  /* Inside this, crowns are the subdivided clump; beyond, the coarse one. */
+  const DETAIL_NEAR = qualityStore.software ? 0 : phone ? 20 : 32;
+  /* Limbs only where they can be told from the canopy they run into. */
+  const LIMBS_NEAR = phone ? 22 : 36;
+  /* The leaf shading is per pixel; a CPU rasteriser goes without it. */
+  const leafShader = !qualityStore.software;
+  const count = spots.length;
+  const CROWNS = 4;
+  /* A limb to each outer clump, and a secondary limb off two of them. */
+  const BRANCHES = 5;
+  const FRUITS = 6;
+
   const seeds = useMemo(
     () =>
-      at.map((_, i) => {
-        const pink = (i * 0.618) % 1 < blossom;
-        const kind = i % 6;
-        const h = 2.2 + ((i * 7) % 5) * 0.5 + (kind === 4 ? 1.2 : 0);
-        /* The green ones are not one green: most are, some run to a
-           yellow-green or an amber, one in six is a copper. And one in
-           three of the green trees carries fruit — apples, oranges or
-           lemons, by the tree. */
-        const leaf = LEAF_COLOURS[(i * 7 + kind) % LEAF_COLOURS.length]!;
-        const fruit = !pink && i % 3 === 1 ? FRUIT_COLOURS[(i * 5) % FRUIT_COLOURS.length]! : null;
+      spots.map((spot, i) => {
+        const r = (k: number) => hash3(i * 1.37 + k, i * 0.71 - k, k * 2.3);
+        const h = 2.3 + r(1) * 2.3;
+        const girth = 0.22 + r(2) * 0.16;
+        const spread = 0.7 + r(3) * 0.5;
+        const size = (0.95 + r(4) * 0.5) * (h / 3.4);
+        /* Some canopies are full (four clumps), some open (three). */
+        const clumps = r(40) < 0.35 ? 3 : 4;
+        /* One green tree in three, and each of those an apple, an orange or a lemon tree in turn. */
+        const fruit = !spot.blossom && i % 3 === 1 ? FRUIT_COLOURS[Math.floor(i / 3) % FRUIT_COLOURS.length]! : null;
+        const crowns = Array.from({ length: CROWNS }, (_, k) => {
+          const a = k * 2.2 + r(8 + k) * 1.4;
+          const rad = size * (k === 0 ? 1.15 : 0.72 + r(12 + k) * 0.36);
+          return {
+            ox: k === 0 ? 0 : Math.cos(a) * spread * size,
+            /* The canopy hangs down round the top of the trunk rather than sitting on it. */
+            oy: k === 0 ? -0.05 * size : (r(16 + k) - 0.72) * 0.8 * size,
+            oz: k === 0 ? 0 : Math.sin(a) * spread * size,
+            r: rad,
+            yaw: a,
+            shown: k < clumps,
+            green: LEAF_GREENS[(i * 3 + k * 2) % LEAF_GREENS.length]!,
+          };
+        });
         return {
-          pink,
-          kind,
+          ...spot,
           h,
-          leaf,
+          girth,
           fruit,
-          lean: (((i * 3) % 5) - 2) * 0.035,
-          yaw: i * 1.7,
-          crowns: Array.from({ length: CROWNS }, (_, k) => {
-            const a = k * 2.4 + i;
-            const spread = kind === 2 ? 0.7 : kind === 5 ? 0.3 : 0.5;
-            const r = (kind === 1 ? 0.75 : 1.0) * (0.95 + ((i + k) % 3) * 0.18) * (k === 0 ? 1.25 : 1) * (kind === 3 ? 0.8 : 1);
-            return {
-              ox: Math.cos(a) * spread * (k === 0 ? 0 : 1) * r,
-              oy: (k === 0 ? 0.3 : (((k * 5 + i) % 4) - 1.5) * 0.35) + (kind === 4 ? 0.4 : 0),
-              oz: Math.sin(a) * spread * (k === 0 ? 0 : 1) * r,
-              r,
-              squash: 0.72 + ((i + k) % 3) * 0.12,
-            };
-          }),
-          branches: Array.from({ length: BRANCHES }, (_, k) => ({
-            yaw: i * 1.3 + k * 2.1,
-            tilt: 0.7 + (k % 2) * 0.35,
-            len: 0.9 + ((i + k) % 3) * 0.3,
-            at: 0.55 + k * 0.18,
-          })),
+          lean: (r(5) - 0.5) * 0.14,
+          yaw: r(6) * Math.PI * 2,
+          sway: 0.7 + r(7) * 0.6,
+          bark: BARK[i % BARK.length]!,
+          crowns,
+          /* Where each limb leaves the trunk, as a share of its height. */
+          forks: [0.55 + r(30) * 0.12, 0.62 + r(31) * 0.12, 0.7 + r(32) * 0.1],
         };
       }),
-    [at, blossom],
+    [spots],
   );
-  const time = useRef(0);
+
   const matrix = useMemo(() => new THREE.Matrix4(), []);
   const q = useMemo(() => new THREE.Quaternion(), []);
   const e = useMemo(() => new THREE.Euler(), []);
   const p = useMemo(() => new THREE.Vector3(), []);
   const sc = useMemo(() => new THREE.Vector3(), []);
-  const ZERO = useMemo(() => new THREE.Matrix4().makeScale(0, 0, 0), []);
+  const time = useRef(0);
 
-  /* Colours once: the leaves by tree, the fruit by tree. */
   useEffect(() => {
     const colour = new THREE.Color();
+    const leaf = new THREE.Color();
     seeds.forEach((seed, i) => {
-      colour.set(seed.leaf);
-      for (let k = 0; k < CROWNS; k += 1) greens.current?.setColorAt(i * CROWNS + k, colour);
+      colour.set(seed.bark);
+      trunks.current?.setColorAt(i, colour);
+      for (let k = 0; k < BRANCHES; k += 1) branches.current?.setColorAt(i * BRANCHES + k, colour);
+      seed.crowns.forEach((crown, k) => {
+        leaf.set(seed.blossom ? (k % 2 ? "#e9bccb" : "#dca6b8") : crown.green);
+        crownsNear.current?.setColorAt(i * CROWNS + k, leaf);
+        crownsFar.current?.setColorAt(i * CROWNS + k, leaf);
+      });
+      leaf.set(LEAF_GREENS[(i + 5) % LEAF_GREENS.length]!).multiplyScalar(0.8);
+      shrubs.current?.setColorAt(i, leaf);
       if (seed.fruit) {
         colour.set(seed.fruit);
         for (let k = 0; k < FRUITS; k += 1) fruits.current?.setColorAt(i * FRUITS + k, colour);
       }
     });
-    if (greens.current?.instanceColor) greens.current.instanceColor.needsUpdate = true;
-    if (fruits.current?.instanceColor) fruits.current.instanceColor.needsUpdate = true;
+    for (const ref of [trunks, branches, crownsNear, crownsFar, shrubs, fruits]) {
+      if (ref.current?.instanceColor) ref.current.instanceColor.needsUpdate = true;
+    }
   }, [seeds]);
 
-  useFrame((_, delta) => {
+  /* Each tree's colours as Colors, once: written into whichever instance
+     slot the tree's parts land in this frame. */
+  const palette = useMemo(
+    () =>
+      seeds.map((seed, i) => ({
+        bark: new THREE.Color(seed.bark),
+        crowns: seed.crowns.map((crown, k) => new THREE.Color(seed.blossom ? (k % 2 ? "#e9bccb" : "#dca6b8") : crown.green)),
+        shrub: new THREE.Color(LEAF_GREENS[(i + 5) % LEAF_GREENS.length]!).multiplyScalar(0.8),
+        fruit: seed.fruit ? new THREE.Color(seed.fruit) : null,
+      })),
+    [seeds],
+  );
+
+  /** A limb from (fx, fy, fz) to (tx, ty, tz), `width` thick at its base, into slot `index`. */
+  const limb = (index: number, fx: number, fy: number, fz: number, tx: number, ty: number, tz: number, width: number, colour: THREE.Color) => {
+    LIMB.set(tx - fx, ty - fy, tz - fz);
+    const length = LIMB.length();
+    q.setFromUnitVectors(UP, LIMB.divideScalar(Math.max(length, 1e-4)));
+    p.set(fx, fy, fz);
+    sc.set(width, length, width);
+    branches.current?.setMatrixAt(index, matrix.compose(p, q, sc));
+    branches.current?.setColorAt(index, colour);
+  };
+
+  /*
+   * Every frame the parts that are drawn are packed to the front of their
+   * instanced mesh and the mesh's count set to how many there are. An
+   * instance hidden by a zero-sized matrix is still sent through the vertex
+   * shader; one past the count is not sent at all — so a subdivided crown
+   * costs nothing when its tree is far, and fruit costs nothing unless a
+   * fruit tree is near.
+   */
+  useFrame(({ camera }, delta) => {
     time.current += Math.min(delta, 0.05);
     const t = time.current;
-    at.forEach(([x, y, z], i) => {
-      const seed = seeds[i]!;
-      const sway = Math.sin(t * 0.6 + i) * 0.016;
-      e.set(seed.lean + sway, seed.yaw, sway * 0.6);
+    const cx = camera.position.x;
+    const cz = camera.position.z;
+    let nTrunk = 0;
+    let nLimb = 0;
+    let nNear = 0;
+    let nFar = 0;
+    let nFruit = 0;
+    let nShrub = 0;
+    let nRock = 0;
+    seeds.forEach((seed, i) => {
+      const [x, y, z] = seed.at;
+      const distance = Math.hypot(x - cx, z - cz);
+      if (distance >= FAR) return;
+      const colours = palette[i]!;
+      /* Wind: a slow lean and a faster flutter, on the tree's own rhythm. */
+      const sway = Math.sin(t * 0.55 * seed.sway + i) * 0.018 + Math.sin(t * 1.7 * seed.sway + i * 2.1) * 0.005;
+      e.set(seed.lean + sway, seed.yaw, sway * 0.5);
       q.setFromEuler(e);
       p.set(x, y + seed.h / 2, z);
-      sc.set(0.2, seed.h, 0.2);
-      trunks.current?.setMatrixAt(i, matrix.compose(p, q, sc));
-      /* Branches: two, leaving the trunk part-way up and reaching into the
-         crown. */
-      seed.branches.forEach((br, k) => {
-        const idx = i * BRANCHES + k;
-        e.set(br.tilt, br.yaw, 0, "YXZ");
-        q.setFromEuler(e);
-        p.set(x + Math.sin(br.yaw) * br.len * 0.3, y + seed.h * br.at + br.len * 0.35, z + Math.cos(br.yaw) * br.len * 0.3);
-        sc.set(0.09, br.len, 0.09);
-        branches.current?.setMatrixAt(idx, matrix.compose(p, q, sc));
-      });
+      sc.set(seed.girth, seed.h, seed.girth);
+      trunks.current?.setMatrixAt(nTrunk, matrix.compose(p, q, sc));
+      trunks.current?.setColorAt(nTrunk, colours.bark);
+      nTrunk += 1;
+      const topX = x + (seed.lean + sway) * seed.h * 0.5;
+      const near = distance < DETAIL_NEAR;
       seed.crowns.forEach((crown, k) => {
-        const idx = i * CROWNS + k;
-        p.set(x + crown.ox, y + seed.h + crown.oy + crown.r * 0.5, z + crown.oz);
-        sc.set(crown.r, crown.r * crown.squash, crown.r);
-        e.set(sway * 2, seed.yaw + k * 0.7, sway);
+        if (!crown.shown) return;
+        const flutter = sway * (1.6 + k * 0.4);
+        p.set(topX + crown.ox + flutter * 2, y + seed.h + crown.oy + crown.r * 0.35, z + crown.oz);
+        sc.set(crown.r, crown.r * 0.88, crown.r);
+        e.set(flutter, crown.yaw, flutter * 0.6);
         q.setFromEuler(e);
         matrix.compose(p, q, sc);
-        (seed.pink ? pinks : greens).current?.setMatrixAt(idx, matrix);
-        (seed.pink ? greens : pinks).current?.setMatrixAt(idx, ZERO);
-        /* Blossom clusters: a lighter knot on two of the masses. */
-        if (seed.pink && k % 2 === 1) {
-          p.set(x + crown.ox * 1.15, y + seed.h + crown.oy + crown.r * 0.75, z + crown.oz * 1.15);
-          sc.set(crown.r * 0.45, crown.r * 0.4, crown.r * 0.45);
-          clusters.current?.setMatrixAt(idx, matrix.compose(p, q, sc));
+        if (near) {
+          crownsNear.current?.setMatrixAt(nNear, matrix);
+          crownsNear.current?.setColorAt(nNear, colours.crowns[k]!);
+          nNear += 1;
         } else {
-          clusters.current?.setMatrixAt(idx, ZERO);
-        }
-        if (seed.pink && k === 0) {
-          sc.set(crown.r * 2.2, crown.r * 1.6, crown.r * 2.2);
-          halos.current?.setMatrixAt(i, matrix.compose(p, q, sc));
-        } else if (!seed.pink && k === 0) {
-          halos.current?.setMatrixAt(i, ZERO);
+          crownsFar.current?.setMatrixAt(nFar, matrix);
+          crownsFar.current?.setColorAt(nFar, colours.crowns[k]!);
+          nFar += 1;
         }
       });
-      /* The fruit: small spheres on the outside of the crowns. */
-      for (let k = 0; k < FRUITS; k += 1) {
-        const idx = i * FRUITS + k;
-        if (!seed.fruit) {
-          fruits.current?.setMatrixAt(idx, ZERO);
-          continue;
+      /* The limbs: from the trunk into the middle of each outer clump, and a
+         thinner one off the first two, out toward the clump's rim. */
+      if (distance <= LIMBS_NEAR) {
+        for (let k = 0; k < BRANCHES; k += 1) {
+          const target = seed.crowns[k < 3 ? k + 1 : k - 2]!;
+          if (!target.shown) continue;
+          const fy = y + seed.h * seed.forks[k % 3]!;
+          const fx = x + (seed.lean + sway) * (fy - y) * 0.5;
+          const tx = topX + target.ox * 0.85 + sway * 3;
+          const ty = y + seed.h + target.oy + target.r * 0.2;
+          const tz = z + target.oz * 0.85;
+          if (k < 3) {
+            limb(nLimb, fx, fy, z, tx, ty, tz, seed.girth * 0.34, colours.bark);
+          } else {
+            /* Halfway along the main limb, out past the clump's middle. */
+            limb(nLimb, (fx + tx) / 2, (fy + ty) / 2, (z + tz) / 2, tx + target.ox * 0.4, ty + target.r * 0.25, tz + target.oz * 0.4, seed.girth * 0.18, colours.bark);
+          }
+          nLimb += 1;
         }
-        const crown = seed.crowns[k % CROWNS]!;
-        const a = k * 2.3 + i * 0.7;
-        const b = (k % 3) * 0.9 - 0.6;
-        p.set(
-          x + crown.ox + Math.cos(a) * Math.cos(b) * crown.r * 0.98,
-          y + seed.h + crown.oy + crown.r * 0.5 + Math.sin(b) * crown.r * crown.squash * 0.9 + sway * 3,
-          z + crown.oz + Math.sin(a) * Math.cos(b) * crown.r * 0.98,
-        );
-        const fr = 0.085 + (k % 2) * 0.02;
-        sc.set(fr, fr * 1.05, fr);
-        e.set(0, a, 0);
-        q.setFromEuler(e);
-        fruits.current?.setMatrixAt(idx, matrix.compose(p, q, sc));
       }
-      /* Low shrubs at the foot. */
-      for (let k = 0; k < SHRUBS; k += 1) {
-        const a = seed.yaw + k * 2.6;
-        p.set(x + Math.cos(a) * 0.65, y + 0.24, z + Math.sin(a) * 0.65);
-        const r = 0.5 + ((i + k) % 3) * 0.12;
-        sc.set(r, r * 0.6, r);
-        e.set(0, a, 0);
-        q.setFromEuler(e);
-        shrubs.current?.setMatrixAt(i * SHRUBS + k, matrix.compose(p, q, sc));
+      if (seed.fruit && colours.fruit && distance <= FRUIT_NEAR) {
+        const kind = FRUIT_COLOURS.indexOf(seed.fruit);
+        for (let k = 0; k < FRUITS; k += 1) {
+          const crown = seed.crowns[k % CROWNS]!;
+          if (!crown.shown) continue;
+          /* On the lower and outer part of a clump, just inside its surface. */
+          const a = k * 2.3 + i * 0.7;
+          const b = -0.15 - (k % 3) * 0.3;
+          p.set(
+            topX + crown.ox + Math.cos(a) * Math.cos(b) * crown.r * 0.86 + sway * 3,
+            y + seed.h + crown.oy + crown.r * 0.35 + Math.sin(b) * crown.r * 0.78,
+            z + crown.oz + Math.sin(a) * Math.cos(b) * crown.r * 0.86,
+          );
+          /* Apples and oranges a hand's width, lemons a little smaller and longer. */
+          const fr = (kind === 2 ? 0.05 : 0.058) + (k % 3) * 0.006;
+          sc.set(fr, fr * (kind === 2 ? 1.3 : 1.04), fr);
+          e.set(0.3 * (k % 2), a, 0);
+          q.setFromEuler(e);
+          fruits.current?.setMatrixAt(nFruit, matrix.compose(p, q, sc));
+          fruits.current?.setColorAt(nFruit, colours.fruit);
+          nFruit += 1;
+        }
       }
-      /* The outcrop it stands on. */
-      if (rock) {
-        const r = 1.9 + (i % 3) * 0.5;
+      p.set(x + Math.cos(seed.yaw) * 0.7, y + 0.28, z + Math.sin(seed.yaw) * 0.7);
+      const r = 0.45 + (i % 3) * 0.1;
+      sc.set(r, r * 0.7, r);
+      e.set(0, seed.yaw, 0);
+      q.setFromEuler(e);
+      shrubs.current?.setMatrixAt(nShrub, matrix.compose(p, q, sc));
+      shrubs.current?.setColorAt(nShrub, colours.shrub);
+      nShrub += 1;
+      if (seed.rock) {
+        const rr = 1.9 + (i % 3) * 0.5;
         p.set(x, y - 2.4, z);
-        sc.set(r, 5.2, r * 0.9);
+        sc.set(rr, 5.2, rr * 0.9);
         e.set(0, seed.yaw * 1.3, 0);
         q.setFromEuler(e);
-        rocks.current?.setMatrixAt(i, matrix.compose(p, q, sc));
+        rocks.current?.setMatrixAt(nRock, matrix.compose(p, q, sc));
+        nRock += 1;
       }
     });
-    for (const ref of [trunks, branches, greens, pinks, clusters, halos, shrubs, rocks, fruits]) {
-      if (ref.current) ref.current.instanceMatrix.needsUpdate = true;
+    const counts: [React.RefObject<THREE.InstancedMesh | null>, number][] = [
+      [trunks, nTrunk],
+      [branches, nLimb],
+      [crownsNear, nNear],
+      [crownsFar, nFar],
+      [shrubs, nShrub],
+      [rocks, nRock],
+      [fruits, nFruit],
+    ];
+    for (const [ref, n] of counts) {
+      const mesh = ref.current;
+      if (!mesh) continue;
+      mesh.count = n;
+      mesh.instanceMatrix.needsUpdate = true;
+      if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
     }
   });
 
   return (
     <group name="trees">
-      <instancedMesh ref={trunks} args={[undefined, undefined, count]} frustumCulled={false}>
-        <cylinderGeometry args={[0.45, 0.95, 1, 7]} />
-        <meshStandardMaterial color="#2a221f" roughness={0.95} />
+      <instancedMesh ref={trunks} args={[geometries.trunk, undefined, count]} frustumCulled={false} name="trees:trunks">
+        <meshStandardMaterial vertexColors roughness={0.95} />
       </instancedMesh>
-      <instancedMesh ref={branches} args={[undefined, undefined, count * BRANCHES]} frustumCulled={false}>
-        <cylinderGeometry args={[0.35, 0.7, 1, 5]} />
-        <meshStandardMaterial color="#2a221f" roughness={0.95} />
+      <instancedMesh ref={branches} args={[geometries.branch, undefined, count * BRANCHES]} frustumCulled={false} name="trees:limbs">
+        <meshStandardMaterial vertexColors roughness={0.95} />
       </instancedMesh>
-      <instancedMesh ref={greens} args={[undefined, undefined, count * CROWNS]} frustumCulled={false}>
-        <icosahedronGeometry args={[1, 1]} />
-        <meshStandardMaterial color="#ffffff" roughness={0.95} flatShading />
+      <instancedMesh ref={crownsNear} args={[geometries.clump, undefined, count * CROWNS]} frustumCulled={false} name="trees:leaves" userData={{
+          blossoms: seeds.filter((one) => one.blossom).length,
+          fruit: seeds.map((one) => one.fruit),
+          open: seeds.filter((one) => one.crowns.some((crown) => !crown.shown)).length,
+          heights: seeds.map((one) => one.h),
+          girths: seeds.map((one) => one.girth),
+        }}>
+        <meshStandardMaterial vertexColors roughness={0.84} metalness={0} envMapIntensity={0.45} onBeforeCompile={leafShader ? roughJitter : plainLeaves} customProgramCacheKey={leafShader ? roughJitterKey : plainLeavesKey} />
       </instancedMesh>
-      <instancedMesh ref={fruits} args={[undefined, undefined, count * FRUITS]} frustumCulled={false}>
-        <sphereGeometry args={[1, 8, 6]} />
-        <meshStandardMaterial color="#ffffff" roughness={0.45} metalness={0.05} />
+      <instancedMesh ref={crownsFar} args={[geometries.coarse, undefined, count * CROWNS]} frustumCulled={false} name="trees:leaves-far">
+        <meshStandardMaterial vertexColors roughness={0.84} metalness={0} envMapIntensity={0.45} onBeforeCompile={leafShader ? roughJitter : plainLeaves} customProgramCacheKey={leafShader ? roughJitterKey : plainLeavesKey} />
       </instancedMesh>
-      <instancedMesh ref={pinks} args={[undefined, undefined, count * CROWNS]} frustumCulled={false}>
-        <icosahedronGeometry args={[1, 1]} />
-        <meshStandardMaterial color="#e39bb6" emissive={MATERIAL.blush} emissiveIntensity={0.1} roughness={0.95} flatShading />
+      <instancedMesh ref={fruits} args={[geometries.fruit, undefined, count * FRUITS]} frustumCulled={false} name="trees:fruit">
+        <meshStandardMaterial vertexColors roughness={0.5} metalness={0} />
       </instancedMesh>
-      {qualityStore.tier === "desktop" ? (
-        <instancedMesh ref={clusters} args={[undefined, undefined, count * CROWNS]} frustumCulled={false}>
-          <icosahedronGeometry args={[1, 1]} />
-          <meshStandardMaterial color="#f5c3d4" roughness={0.95} flatShading />
-        </instancedMesh>
-      ) : null}
-      {qualityStore.tier !== "low" ? (
-        <instancedMesh ref={halos} args={[undefined, undefined, count]} frustumCulled={false}>
-          <icosahedronGeometry args={[1, 1]} />
-          <meshBasicMaterial color={MATERIAL.blush} toneMapped={false} transparent opacity={0.08} depthWrite={false} blending={THREE.AdditiveBlending} />
-        </instancedMesh>
-      ) : null}
-      <instancedMesh ref={shrubs} args={[undefined, undefined, count * SHRUBS]} frustumCulled={false}>
-        <icosahedronGeometry args={[1, 1]} />
-        <meshStandardMaterial color={MATERIAL.greenDeep} roughness={1} flatShading />
+      <instancedMesh ref={shrubs} args={[geometries.shrub, undefined, count]} frustumCulled={false}>
+        <meshStandardMaterial vertexColors roughness={0.95} envMapIntensity={0.4} />
       </instancedMesh>
-      {rock ? (
-        <instancedMesh ref={rocks} args={[undefined, undefined, count]} frustumCulled={false}>
-          <cylinderGeometry args={[0.5, 0.08, 1, 6, 1]} />
-          <meshStandardMaterial color="#1c2233" roughness={0.95} flatShading />
-        </instancedMesh>
-      ) : null}
-    </group>
-  );
-}
-
-/** Kept for callers that still say `LightTrees`: the same trees, mostly blossom. */
-export function LightTrees({ at }: { at: [number, number, number][]; colour?: string }) {
-  return <Trees at={at} blossom={0.7} />;
-}
-
-/* ----------------------------------------------------------- light towers */
-
-/**
- * Sculptural pylons: tapered shafts of pale stone with one warm-white edge
- * of light and a beam rising from the head — the vertical architecture of
- * the hub. Each has its own height; all are drawn together.
- */
-export function LightTowers({
-  at,
-  height = 18,
-  colour = MATERIAL.warmWhite,
-}: {
-  at: [number, number, number][];
-  /** The tallest; the others step down from it. */
-  height?: number;
-  colour?: string;
-}) {
-  const shafts = useRef<THREE.InstancedMesh>(null);
-  const lines = useRef<THREE.InstancedMesh>(null);
-  const caps = useRef<THREE.InstancedMesh>(null);
-  const beams = useRef<THREE.InstancedMesh>(null);
-  const rings = useRef<THREE.InstancedMesh>(null);
-  const count = at.length;
-  const RINGS = 2;
-
-  const beamGeometry = useMerged(
-    () => [
-      { geometry: new THREE.PlaneGeometry(1.4, 1) },
-      { geometry: new THREE.PlaneGeometry(1.4, 1), turn: [0, Math.PI / 2, 0] },
-    ],
-    [],
-  );
-
-  useEffect(() => {
-    const m = new THREE.Matrix4();
-    const q = new THREE.Quaternion();
-    const e = new THREE.Euler();
-    const p = new THREE.Vector3();
-    const sc = new THREE.Vector3();
-    at.forEach(([x, y, z], i) => {
-      const h = height * (1 - (i % 3) * 0.14);
-      const w = 1.2 + (i % 2) * 0.4;
-      e.set(0, i * 0.7, 0);
-      q.setFromEuler(e);
-      p.set(x, y + h / 2, z);
-      sc.set(w, h, w);
-      shafts.current?.setMatrixAt(i, m.compose(p, q, sc));
-      p.set(x, y + h * 0.5, z);
-      sc.set(0.1, h * 0.92, w * 0.62);
-      lines.current?.setMatrixAt(i, m.compose(p, q, sc));
-      p.set(x, y + h + 0.15, z);
-      sc.set(w * 0.7, 0.3, w * 0.7);
-      caps.current?.setMatrixAt(i, m.compose(p, q, sc));
-      p.set(x, y + h + 12, z);
-      sc.set(1, 24, 1);
-      beams.current?.setMatrixAt(i, m.compose(p, q, sc));
-      /* Two silver ribs, a third and two thirds of the way up. */
-      for (let k = 0; k < RINGS; k += 1) {
-        p.set(x, y + h * (0.34 + k * 0.32), z);
-        const r = w * (1.0 - (0.34 + k * 0.32) * 0.36);
-        sc.set(r, 0.24, r);
-        rings.current?.setMatrixAt(i * RINGS + k, m.compose(p, q, sc));
-      }
-    });
-    for (const ref of [shafts, lines, caps, beams, rings]) {
-      if (ref.current) ref.current.instanceMatrix.needsUpdate = true;
-    }
-  }, [at, height]);
-
-  useFrame(({ clock }) => {
-    if (!beams.current) return;
-    (beams.current.material as THREE.MeshBasicMaterial).opacity = 0.14 + Math.sin(clock.elapsedTime * 0.5) * 0.04;
-  });
-
-  return (
-    <group name="towers">
-      <instancedMesh ref={shafts} args={[undefined, undefined, count]} frustumCulled={false}>
-        <cylinderGeometry args={[0.3, 0.5, 1, 6]} />
-        <meshStandardMaterial color="#2c3c5e" roughness={0.5} metalness={0.3} flatShading />
+      <instancedMesh ref={rocks} args={[undefined, undefined, count]} frustumCulled={false}>
+        <cylinderGeometry args={[0.5, 0.08, 1, 6, 1]} />
+        <meshStandardMaterial color="#1c2233" roughness={0.95} flatShading />
       </instancedMesh>
-      <instancedMesh ref={lines} args={[undefined, undefined, count]} frustumCulled={false}>
-        <boxGeometry args={[1, 1, 1]} />
-        <Glow colour={colour} opacity={0.85} />
-      </instancedMesh>
-      <instancedMesh ref={caps} args={[undefined, undefined, count]} frustumCulled={false}>
-        <cylinderGeometry args={[0.5, 0.5, 1, 4]} />
-        <Glow colour={MATERIAL.white} />
-      </instancedMesh>
-      <instancedMesh ref={beams} args={[beamGeometry, undefined, count]} frustumCulled={false}>
-        <meshBasicMaterial color={colour} transparent opacity={0.08} side={THREE.DoubleSide} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
-      </instancedMesh>
-      <instancedMesh ref={rings} args={[undefined, undefined, count * RINGS]} frustumCulled={false}>
-        <cylinderGeometry args={[0.56, 0.56, 1, 6]} />
-        <meshStandardMaterial color="#c9d2de" roughness={0.45} metalness={0.5} flatShading />
-      </instancedMesh>
-    </group>
-  );
-}
-
-/* ----------------------------------------------------------------- spires */
-
-/**
- * Monumental spires: the landmark's own skyline. Tall tapered shafts of
- * pale stone rising out of the sea around the hub, each with a warm-white
- * edge and a lit head, in three families of height so the cluster reads as
- * a city and not a fence. Instanced: five draws for all of them.
- */
-export function Spires({
-  at,
-}: {
-  /** Foot position, height, girth. */
-  at: [number, number, number, number, number][];
-}) {
-  const shafts = useRef<THREE.InstancedMesh>(null);
-  const uppers = useRef<THREE.InstancedMesh>(null);
-  const edges = useRef<THREE.InstancedMesh>(null);
-  const ribs = useRef<THREE.InstancedMesh>(null);
-  const cuts = useRef<THREE.InstancedMesh>(null);
-  const crownsA = useRef<THREE.InstancedMesh>(null);
-  const crownsB = useRef<THREE.InstancedMesh>(null);
-  const bands = useRef<THREE.InstancedMesh>(null);
-  const count = at.length;
-  const RIBS = 3;
-
-  useEffect(() => {
-    const m = new THREE.Matrix4();
-    const q = new THREE.Quaternion();
-    const e = new THREE.Euler();
-    const p = new THREE.Vector3();
-    const sc = new THREE.Vector3();
-    const zero = new THREE.Matrix4().makeScale(0, 0, 0);
-    at.forEach(([x, y, z, h, w], i) => {
-      const yaw = i * 0.9;
-      e.set(0, yaw, 0);
-      q.setFromEuler(e);
-      /* The lower section: two thirds of the height, wider. */
-      const lowH = h * 0.62;
-      p.set(x, y + lowH / 2, z);
-      sc.set(w, lowH, w);
-      shafts.current?.setMatrixAt(i, m.compose(p, q, sc));
-      /* The upper section: set in, turned a little, the rest of the way. */
-      const upH = h - lowH;
-      e.set(0, yaw + 0.35, 0);
-      q.setFromEuler(e);
-      p.set(x, y + lowH + upH / 2, z);
-      sc.set(w * 0.62, upH, w * 0.62);
-      uppers.current?.setMatrixAt(i, m.compose(p, q, sc));
-      /* The lit edge, up the lower section. */
-      e.set(0, yaw, 0);
-      q.setFromEuler(e);
-      p.set(x, y + lowH * 0.52, z);
-      sc.set(w * 0.08, lowH * 0.9, w * 0.86);
-      edges.current?.setMatrixAt(i, m.compose(p, q, sc));
-      /* Ribs: rings of stone at three heights, stepping with the taper. */
-      for (let k = 0; k < RIBS; k += 1) {
-        const f = 0.22 + k * 0.2;
-        p.set(x, y + h * f, z);
-        const r = k < 2 ? w * (1.04 - f * 0.45) : w * 0.7;
-        sc.set(r, 0.6 + w * 0.06, r);
-        ribs.current?.setMatrixAt(i * RIBS + k, m.compose(p, q, sc));
-      }
-      /* An inset cut just under the upper section. */
-      p.set(x, y + lowH + 0.4, z);
-      sc.set(w * 0.5, 0.8, w * 0.5);
-      cuts.current?.setMatrixAt(i, m.compose(p, q, sc));
-      /* Two crowns: a faceted point on the odd towers, a stepped cap on the even. */
-      e.set(0, yaw + 0.35, 0);
-      q.setFromEuler(e);
-      if (i % 2) {
-        p.set(x, y + h + w * 0.16, z);
-        sc.set(w * 0.34, w * 0.5, w * 0.34);
-        crownsA.current?.setMatrixAt(i, m.compose(p, q, sc));
-        crownsB.current?.setMatrixAt(i, zero);
-      } else {
-        p.set(x, y + h + 0.5, z);
-        sc.set(w * 0.44, 1.0, w * 0.44);
-        crownsB.current?.setMatrixAt(i, m.compose(p, q, sc));
-        crownsA.current?.setMatrixAt(i, zero);
-      }
-      /* A ring of light where the sections meet. */
-      p.set(x, y + lowH - 0.2, z);
-      sc.set(w * 0.66, 0.16, w * 0.66);
-      bands.current?.setMatrixAt(i, m.compose(p, q, sc));
-    });
-    for (const ref of [shafts, uppers, edges, ribs, cuts, crownsA, crownsB, bands]) {
-      if (ref.current) ref.current.instanceMatrix.needsUpdate = true;
-    }
-  }, [at]);
-
-  return (
-    <group name="spires">
-      <instancedMesh ref={shafts} args={[undefined, undefined, count]} frustumCulled={false}>
-        <cylinderGeometry args={[0.36, 0.5, 1, 6]} />
-        <meshStandardMaterial color="#2a3a5c" roughness={0.55} metalness={0.3} flatShading />
-      </instancedMesh>
-      <instancedMesh ref={uppers} args={[undefined, undefined, count]} frustumCulled={false}>
-        <cylinderGeometry args={[0.3, 0.5, 1, 6]} />
-        <meshStandardMaterial color="#334668" roughness={0.5} metalness={0.35} flatShading />
-      </instancedMesh>
-      <instancedMesh ref={edges} args={[undefined, undefined, count]} frustumCulled={false}>
-        <boxGeometry args={[1, 1, 1]} />
-        <Glow colour={MATERIAL.warmWhite} opacity={0.7} />
-      </instancedMesh>
-      <instancedMesh ref={ribs} args={[undefined, undefined, count * RIBS]} frustumCulled={false}>
-        <cylinderGeometry args={[0.5, 0.5, 1, 6]} />
-        <meshStandardMaterial color="#c9d2de" roughness={0.5} metalness={0.4} flatShading />
-      </instancedMesh>
-      <instancedMesh ref={cuts} args={[undefined, undefined, count]} frustumCulled={false}>
-        <cylinderGeometry args={[0.5, 0.5, 1, 6]} />
-        <meshStandardMaterial color="#0a1020" roughness={0.8} metalness={0.2} />
-      </instancedMesh>
-      <instancedMesh ref={crownsA} args={[undefined, undefined, count]} frustumCulled={false}>
-        <octahedronGeometry args={[0.5, 0]} />
-        <Glow colour="#dff1ff" opacity={0.55} />
-      </instancedMesh>
-      <instancedMesh ref={crownsB} args={[undefined, undefined, count]} frustumCulled={false}>
-        <cylinderGeometry args={[0.38, 0.5, 1, 6]} />
-        <meshStandardMaterial color="#c9d2de" roughness={0.45} metalness={0.5} flatShading />
-      </instancedMesh>
-      <instancedMesh ref={bands} args={[undefined, undefined, count]} frustumCulled={false}>
-        <cylinderGeometry args={[0.5, 0.5, 1, 12, 1, true]} />
-        <meshBasicMaterial color={MATERIAL.cyan} toneMapped={false} transparent opacity={0.5} side={THREE.DoubleSide} depthWrite={false} />
-      </instancedMesh>
-    </group>
-  );
-}
-
-/* ------------------------------------------------------------------- arch */
-
-/**
- * A great arch: a segment of torus standing on the deck, in pale stone with
- * a warm-white inner edge. The reference world spans its plazas with these;
- * here they mark the way through the hub and frame the project stations.
- */
-export function Arch({
-  at,
-  radius,
-  tube = 0.9,
-  turn = 0,
-  colour = MATERIAL.warmWhite,
-  stone = "#d9dee8",
-  sweep = Math.PI,
-}: {
-  at: [number, number, number];
-  radius: number;
-  tube?: number;
-  turn?: number;
-  colour?: string;
-  stone?: string;
-  sweep?: number;
-}) {
-  return (
-    <group position={at} rotation={[0, turn, 0]}>
-      <mesh rotation={[0, 0, (Math.PI - sweep) / 2]}>
-        <torusGeometry args={[radius, tube, 8, 48, sweep]} />
-        <meshStandardMaterial color={stone} roughness={0.55} metalness={0.15} />
-      </mesh>
-      <mesh rotation={[0, 0, (Math.PI - sweep) / 2]} position={[0, 0, tube * 0.6]}>
-        <torusGeometry args={[radius - tube * 0.55, tube * 0.12, 6, 48, sweep]} />
-        <Glow colour={colour} opacity={0.9} />
-      </mesh>
     </group>
   );
 }

@@ -1,11 +1,12 @@
 "use client";
 
 import { useFrame, useThree } from "@react-three/fiber";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { animateFace, newFaceState, type FaceState } from "@/components/world/npc/face";
 import { FRAMES, guideStore, HAIRS, Person, SKINS, WARDROBE } from "@/components/world/npc/Guides";
 import { IMPORTANCE, npcStep, npcStride, npcTier } from "@/components/world/npc/lod";
+import { npcMotion } from "@/components/world/npc/motion";
 import { rigIn } from "@/components/world/npc/rig";
 import { screenTexture, SCREEN_ASPECT } from "@/components/world/npc/screens";
 import { Backlight, Glow, MATERIAL } from "@/components/world/pieces/Kit";
@@ -15,7 +16,9 @@ import { body } from "@/components/world/systems/body";
 import { worldEvents } from "@/components/world/systems/events";
 import { interactables } from "@/components/world/systems/focus";
 import { journeyStore } from "@/components/world/systems/journey";
-import { DESK, deskSlots, officeFacing, type Office as OfficeSpec } from "@/data/departments";
+import { DEPARTMENTS, departmentById, DESK, deskSlots, officeFacing, type Office as OfficeSpec } from "@/data/departments";
+import { paintBoard, paintSign, signLines, upper, useSignTexture } from "@/components/world/npc/signage";
+import { t as localize, type Locale } from "@/lib/i18n";
 
 /**
  * An office.
@@ -88,6 +91,7 @@ export function Office({
   label,
   action,
   onTalk,
+  locale,
   compact = false,
 }: {
   id: string;
@@ -95,6 +99,8 @@ export function Office({
   label: string;
   action: string;
   onTalk: (id: string) => void;
+  /** The language the signs are painted in. */
+  locale: Locale;
   /** A phone seats fewer people: four at the lobby, two in a department. */
   compact?: boolean;
 }) {
@@ -103,7 +109,9 @@ export function Office({
   const figures = useRef<(THREE.Group | null)[]>([]);
   const prototype = useRef<THREE.Group>(null);
   const time = useRef(Math.random() * 10);
-  const posed = useRef(false);
+  /* The people are built a frame after the room: a room's signs and its
+     people are the two heaviest things in it, and they need not share a frame. */
+  const [peopleReady, setPeopleReady] = useState(false);
   const thanked = useRef(0);
   const facing = officeFacing(office);
   const layout = office.layout ?? "desks";
@@ -138,7 +146,9 @@ export function Office({
           x,
           z,
           yaw,
-          frame: FRAMES[h % FRAMES.length]!,
+          /* The one who speaks for the room is a woman — the voice the
+             visitor hears is a woman's — so the figure and the voice agree. */
+          frame: i === 0 ? FRAMES[[2, 3, 5, 7][h % 4]!]! : FRAMES[h % FRAMES.length]!,
           skin: SKINS[(h >>> 3) % SKINS.length]!,
           hair: HAIRS[(h >>> 6) % HAIRS.length]!,
           wardrobe: WARDROBE[CLOTHES[(h >>> 9) % CLOTHES.length]!]!,
@@ -289,8 +299,6 @@ export function Office({
       { geometry: new THREE.BoxGeometry(span, 0.1, 0.1), at: V3(0, 3.2, backZ + depth - 0.6) },
       /* Two ceiling light housings across the room. */
       ...[0.3, 0.7].map((k) => ({ geometry: new THREE.BoxGeometry(span - 0.8, 0.05, 0.14), at: V3(0, 3.18, backZ + (depth - 0.5) * k) })),
-      /* The sign's bracket. */
-      { geometry: new THREE.BoxGeometry(0.06, 0.5, 0.06), at: V3(-span / 2 + 0.7, 2.75, backZ + depth - 0.6) },
     ],
     [span, backZ, depth],
   );
@@ -329,6 +337,40 @@ export function Office({
     [span, backZ, depth],
   );
   const glassExtras = useRef<THREE.Group>(null);
+  /* The signage, from the department's own data in the visitor's language:
+     the name over the front of the room, and the board behind the team with
+     the name, what the department does, and what it can be asked for. The
+     lobby's board lists the departments. */
+  const department = departmentById(id);
+  const signText = upper(label, locale);
+  const board = useMemo(
+    () =>
+      department
+        ? {
+            eyebrow: "ARCHON SOFT",
+            title: localize(department.name, locale),
+            tagline: localize(department.tagline, locale),
+            items: department.services.filter((one) => one.id !== "other").map((one) => localize(one.name, locale)),
+            accent: office.accent,
+          }
+        : {
+            eyebrow: "ARCHON SOFT",
+            title: label,
+            items: DEPARTMENTS.map((one) => localize(one.name, locale)),
+            accent: office.accent,
+          },
+    [department, label, locale, office.accent],
+  );
+  const anisotropy = Math.min(16, gl.capabilities.getMaxAnisotropy());
+  const boardTexture = useSignTexture(paintBoard(board), [boardW, boardH], `${id}:${locale}:${board.title}`, anisotropy);
+  /* The sign spans the front of the room and a little more; a phone's is
+     larger still, so the name reads from the arrival in landscape too,
+     where the screen is only a few hundred pixels tall. */
+  const signW = Math.min(Math.max(span, 4.4), 7.2) * (compact ? 1.26 : 1.04);
+  const signH = signW * (signLines(signText).length > 1 ? 0.3 : 0.2);
+  const signGroup = useRef<THREE.Group>(null);
+  const signPaint = useMemo(() => paintSign(signText, office.accent), [signText, office.accent]);
+  const signTexture = useSignTexture(signPaint, [signW, signH], `${id}:${locale}:${signText}`, anisotropy);
   const prototypeParts = useMerged((): Part[] => [{ geometry: new THREE.IcosahedronGeometry(0.36, 1), at: V3(0, 0, 0) }], []);
 
   useEffect(
@@ -361,9 +403,16 @@ export function Office({
 
   const local = useMemo(() => new THREE.Vector3(), []);
 
-  useFrame((_, raw) => {
+  useFrame(({ size }, raw) => {
     const node = root.current;
     if (!node) return;
+    if (!peopleReady) setPeopleReady(true);
+    /* A phone held upright has width to spare in height but not across:
+       its sign drops back to the size that fits the screen's width. */
+    if (compact && signGroup.current) {
+      const scale = size.width < size.height ? 0.86 : 1;
+      if (signGroup.current.scale.x !== scale) signGroup.current.scale.setScalar(scale);
+    }
     const delta = Math.min(raw, 0.05);
     time.current += delta;
     const t = time.current;
@@ -392,7 +441,10 @@ export function Office({
       const fig = figures.current[i];
       if (!fig) return;
       const k = worker.frame.height / 1.78;
-      if (!posed.current) seatedPose(fig, k);
+      if (!fig.userData.seated) {
+        seatedPose(fig, k);
+        fig.userData.seated = true;
+      }
 
       const dx = local.x - worker.x;
       const dz = local.z - worker.z;
@@ -413,6 +465,7 @@ export function Office({
       let diff = swivel - fig.rotation.y;
       diff = Math.atan2(Math.sin(diff), Math.cos(diff));
       fig.rotation.y += diff * Math.min(1, 3 * delta);
+      npcMotion.record(`office:${id}:${i}`, worker.x, worker.z, fig.rotation.y, delta);
 
       /* Every so often a glance at a colleague; every so often a sip. */
       const cycle = (t + worker.offset * 4) % worker.sip;
@@ -464,7 +517,6 @@ export function Office({
         });
       }
     });
-    posed.current = true;
   });
 
   return (
@@ -526,9 +578,9 @@ export function Office({
           <boxGeometry args={[boardW + 0.14, boardH + 0.14, 0.05]} />
           <meshStandardMaterial color="#0e1524" roughness={0.4} metalness={0.6} />
         </mesh>
-        <mesh>
+        <mesh name="office-board" userData={{ title: board.title, items: board.items }}>
           <planeGeometry args={[boardW, boardH]} />
-          <meshBasicMaterial map={screen} toneMapped={false} onBeforeCompile={sharpen} customProgramCacheKey={sharpenKey} />
+          <meshBasicMaterial map={boardTexture} toneMapped={false} onBeforeCompile={sharpen} customProgramCacheKey={sharpenKey} />
         </mesh>
         <mesh position={[0, -boardH / 2 - 0.12, 0]}>
           <planeGeometry args={[boardW, 0.03]} />
@@ -548,11 +600,19 @@ export function Office({
           </mesh>
         </group>
       ) : null}
-      {/* The sign: a small lit plate in the department's colour at the front corner. */}
-      <mesh position={[-span / 2 + 0.7, 2.5, backZ + depth - 0.56]}>
-        <boxGeometry args={[0.7, 0.16, 0.03]} />
-        <Glow colour={office.accent} opacity={0.85} />
-      </mesh>
+      {/* The sign: the department's name across the front of the room, on
+          dark glass over the front beam, lit from behind. */}
+      <group ref={signGroup} position={[0, 3.25 + signH / 2 + 0.12, backZ + depth - 0.6]}>
+        <Backlight size={[signW, signH]} strength={0.8} inset={0.05} halo={false} />
+        <mesh position={[0, 0, -0.05]}>
+          <boxGeometry args={[signW + 0.1, signH + 0.1, 0.08]} />
+          <meshStandardMaterial color="#0d1119" roughness={0.35} metalness={0.7} />
+        </mesh>
+        <mesh name="office-sign" userData={{ text: signText, office: id, cap: signPaint.metrics.cap }}>
+          <planeGeometry args={[signW, signH]} />
+          <meshBasicMaterial map={signTexture} toneMapped={false} onBeforeCompile={sharpen} customProgramCacheKey={sharpenKey} />
+        </mesh>
+      </group>
 
       {layout === "lab" ? (
         <group ref={prototype} position={[0, 1.5, 1.9]}>
@@ -570,7 +630,7 @@ export function Office({
         </group>
       ) : null}
 
-      {workers.map((worker, i) => (
+      {(peopleReady ? workers : []).map((worker, i) => (
         <group
           key={worker.role + i}
           ref={(node) => {

@@ -32,12 +32,27 @@ import { qualityStore } from "@/components/world/systems/quality";
 
 let windowMaps: { map: THREE.CanvasTexture; emissive: THREE.CanvasTexture } | null = null;
 
-/** A tile of four by four panes: glass in the colour map, lit rooms in the emissive map. */
+/** Panes to a tile, each way: eight across and eight storeys. */
+const TILE_PANES = 8;
+
+/**
+ * A tile of eight by eight panes: glass in the colour map, lit rooms in the
+ * emissive map.
+ *
+ * The glass is a deep blue-grey tint that lifts toward the top of each pane,
+ * where it catches the sky, with a slab edge between storeys and slim
+ * mullions whose edge catches a line of light. Behind it the building is
+ * lit by floor, the way offices are at night: some floors lit along most of
+ * their length, some dark, a few single rooms — warm rooms and cool ones,
+ * bright and dim, each with a ceiling strip, a back wall, a desk, a monitor
+ * and now and then a plant or a partition. The faces of the campus sample
+ * this tile at different offsets, so no two faces show the same rooms.
+ */
 function useWindowMaps(light: string) {
   return useMemo(() => {
     if (windowMaps) return windowMaps;
-    const size = 512;
-    const pane = size / 4;
+    const size = qualityStore.tier === "desktop" ? 1024 : 768;
+    const pane = size / TILE_PANES;
     const make = () => {
       const canvas = document.createElement("canvas");
       canvas.width = size;
@@ -55,43 +70,76 @@ function useWindowMaps(light: string) {
       seed = (seed * 9301 + 49297) % 233280;
       return seed / 233280;
     };
-    for (let row = 0; row < 4; row += 1) {
-      for (let col = 0; col < 4; col += 1) {
+    const slab = pane * 0.16;
+    const mullion = Math.max(2, pane * 0.035);
+    for (let row = 0; row < TILE_PANES; row += 1) {
+      /* A floor: mostly lit, mostly dark, or a few rooms. */
+      const floor = rand();
+      const floorLit = floor < 0.32 ? 0.82 : floor < 0.62 ? 0.08 : 0.3;
+      const floorWarm = rand() < 0.7;
+      const floorLevel = 0.55 + rand() * 0.45;
+      for (let col = 0; col < TILE_PANES; col += 1) {
         const x = col * pane;
         const y = row * pane;
-        /* The glass: a dark blue pane with a diagonal sheen. */
-        const grad = g.createLinearGradient(x, y, x + pane, y + pane);
-        grad.addColorStop(0, "#152540");
-        grad.addColorStop(0.5, "#0a1526");
-        grad.addColorStop(1, "#101d34");
+        const glassH = pane - slab;
+        /* The glass: tinted, a touch lighter where it reflects the sky. */
+        const grad = g.createLinearGradient(x, y, x, y + glassH);
+        grad.addColorStop(0, "#22324a");
+        grad.addColorStop(0.35, "#121e31");
+        grad.addColorStop(1, "#0b1422");
         g.fillStyle = grad;
-        g.fillRect(x, y, pane, pane);
-        /* Spandrel: the floor slab band along the bottom of each storey. */
-        g.fillStyle = "#1a2438";
-        g.fillRect(x, y + pane * 0.8, pane, pane * 0.2);
-        /* Mullions. */
-        g.fillStyle = "#3a4a66";
-        g.fillRect(x, y, pane, 4);
-        g.fillRect(x, y, 4, pane);
-        g.fillRect(x + pane / 2 - 1, y, 2, pane * 0.8);
-        /* A lit room behind about a third of the panes. */
-        if (rand() < 0.36) {
-          const warm = rand() < 0.75;
-          const eg = e.createLinearGradient(x, y, x, y + pane * 0.8);
-          eg.addColorStop(0, warm ? "#ffe2bd" : "#cfe4ff");
-          eg.addColorStop(0.25, warm ? "#d9b78f" : "#9fb9d9");
-          eg.addColorStop(1, warm ? "#5a4530" : "#2d3a52");
-          e.fillStyle = eg;
-          e.fillRect(x + 4, y + 4, pane - 8, pane * 0.8 - 4);
-          /* The desk line and a monitor's glow. */
-          e.fillStyle = "#1a1410";
-          e.fillRect(x + 4, y + pane * 0.55, pane - 8, pane * 0.06);
-          e.fillStyle = warm ? "#fff6e6" : "#e6f2ff";
-          e.fillRect(x + pane * (0.25 + rand() * 0.4), y + pane * 0.4, pane * 0.14, pane * 0.12);
-          /* The mullions in front of the light. */
-          e.fillStyle = "#000";
-          e.fillRect(x + pane / 2 - 1, y, 2, pane * 0.8);
+        g.fillRect(x, y, pane, glassH);
+        /* Faint variation pane to pane: glass is never one flat sheet. */
+        g.fillStyle = `rgba(160,190,230,${(rand() * 0.035).toFixed(3)})`;
+        g.fillRect(x, y, pane, glassH);
+        /* The slab between storeys, and its lit edge. */
+        g.fillStyle = "#171e2a";
+        g.fillRect(x, y + glassH, pane, slab);
+        g.fillStyle = "rgba(210,225,245,0.28)";
+        g.fillRect(x, y + glassH, pane, Math.max(1, slab * 0.08));
+        /* Mullions, with a hairline of light on one edge. */
+        g.fillStyle = "#2c3747";
+        g.fillRect(x, y, mullion, glassH);
+        g.fillStyle = "rgba(220,232,250,0.35)";
+        g.fillRect(x + mullion, y, 1, glassH);
+
+        if (rand() > floorLit) continue;
+        const warm = rand() < 0.15 ? !floorWarm : floorWarm;
+        const level = floorLevel * (0.75 + rand() * 0.25);
+        const inner = { x: x + mullion + 1, y: y + 1, w: pane - mullion - 2, h: glassH - 2 };
+        /* The room: a ceiling strip of light, a back wall falling off to the floor. */
+        const wall = e.createLinearGradient(inner.x, inner.y, inner.x, inner.y + inner.h);
+        const top = warm ? [255, 226, 190] : [206, 226, 255];
+        const mid = warm ? [196, 164, 124] : [140, 164, 196];
+        const low = warm ? [62, 48, 34] : [36, 46, 62];
+        const rgb = (c: number[], k: number) => `rgb(${Math.round(c[0]! * k)},${Math.round(c[1]! * k)},${Math.round(c[2]! * k)})`;
+        wall.addColorStop(0, rgb(top, level));
+        wall.addColorStop(0.18, rgb(mid, level));
+        wall.addColorStop(1, rgb(low, level));
+        e.fillStyle = wall;
+        e.fillRect(inner.x, inner.y, inner.w, inner.h);
+        e.fillStyle = rgb(warm ? [255, 244, 225] : [235, 244, 255], Math.min(1, level * 1.1));
+        e.fillRect(inner.x + inner.w * 0.1, inner.y + inner.h * 0.05, inner.w * 0.8, Math.max(1, inner.h * 0.03));
+        /* A desk, a monitor on it, sometimes a plant or a partition. */
+        e.fillStyle = "#16110d";
+        e.fillRect(inner.x, inner.y + inner.h * 0.62, inner.w, inner.h * 0.07);
+        const mx = inner.x + inner.w * (0.2 + rand() * 0.5);
+        e.fillStyle = "#0c0c10";
+        e.fillRect(mx - 1, inner.y + inner.h * 0.44, inner.w * 0.2 + 2, inner.h * 0.16 + 2);
+        e.fillStyle = rgb([200, 225, 255], 0.85 * level);
+        e.fillRect(mx, inner.y + inner.h * 0.45, inner.w * 0.2, inner.h * 0.14);
+        if (rand() < 0.25) {
+          e.fillStyle = "#0e140e";
+          e.beginPath();
+          e.ellipse(inner.x + inner.w * 0.88, inner.y + inner.h * 0.55, inner.w * 0.07, inner.h * 0.12, 0, 0, Math.PI * 2);
+          e.fill();
+        } else if (rand() < 0.3) {
+          e.fillStyle = "rgba(0,0,0,0.55)";
+          e.fillRect(inner.x + inner.w * 0.66, inner.y + inner.h * 0.1, Math.max(2, inner.w * 0.03), inner.h * 0.9);
         }
+        /* The mullion stays dark in front of the light. */
+        e.fillStyle = "#000";
+        e.fillRect(x, y, mullion + 1, pane);
       }
     }
     const map = new THREE.CanvasTexture(glass);
@@ -108,13 +156,16 @@ function useWindowMaps(light: string) {
   }, [light]);
 }
 
-/** One plane per face of every tier, UVs scaled to the storey pitch, merged. */
+/**
+ * One plane per face of every tier, UVs scaled so a pane is a storey, each
+ * face sampling the tile at its own whole-pane offset, merged.
+ */
 function curtainWalls(list: Facade[]): THREE.BufferGeometry | null {
   const parts: THREE.BufferGeometry[] = [];
   const q = new THREE.Quaternion();
   const e = new THREE.Euler();
   const STOREY = 3.4;
-  const PANES = 4;
+  let face = 0;
   for (const f of list) {
     const [x, y0, z] = f.at;
     e.set(0, f.turn ?? 0, 0);
@@ -131,9 +182,12 @@ function curtainWalls(list: Facade[]): THREE.BufferGeometry | null {
       for (const [ox, oz, yaw, len] of faces) {
         const plane = new THREE.PlaneGeometry(len, h);
         const uv = plane.attributes.uv as THREE.BufferAttribute;
-        const across = len / (STOREY * PANES);
-        const up = h / (STOREY * PANES);
-        for (let i = 0; i < uv.count; i += 1) uv.setXY(i, uv.getX(i) * across, uv.getY(i) * up);
+        const across = len / (STOREY * TILE_PANES);
+        const up = h / (STOREY * TILE_PANES);
+        face += 1;
+        const offU = Math.floor(((Math.sin(face * 12.9898) * 43758.5453) % 1 + 1) * TILE_PANES) / TILE_PANES;
+        const offV = Math.floor(((Math.sin(face * 78.233) * 12543.123) % 1 + 1) * TILE_PANES) / TILE_PANES;
+        for (let i = 0; i < uv.count; i += 1) uv.setXY(i, uv.getX(i) * across + offU, uv.getY(i) * up + offV);
         plane.rotateY(yaw);
         plane.translate(ox, h / 2, oz);
         plane.applyQuaternion(q);
@@ -268,10 +322,10 @@ export function Facades({ list }: { list: Facade[] }) {
             map={windows.map}
             emissiveMap={windows.emissive}
             emissive="#ffffff"
-            emissiveIntensity={1.15}
+            emissiveIntensity={0.9}
             roughness={0.16}
-            metalness={0.55}
-            envMapIntensity={1.3}
+            metalness={0.3}
+            envMapIntensity={0.8}
           />
         </mesh>
       ) : null}

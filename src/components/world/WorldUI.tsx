@@ -37,7 +37,7 @@ const AT_SPAWN = { x: 0, z: 24, level: 0, bearing: "N" };
 const NO_GUIDE = { id: null, phase: "idle" as const };
 const NO_HOST = { following: false, at: [9.5, 0, 20] as [number, number, number], line: null, said: 0 };
 const NO_TELEPORT = { current: "hub" as string | null, phase: 0, direction: null };
-const NO_VOICE = { supported: false, enabled: false, speaking: false, paused: false, current: null };
+const NO_VOICE = { supported: false, enabled: false, speaking: false, paused: false, current: null, voice: null, provider: "browser" };
 const pad = (n: number) => String(n).padStart(2, "0");
 const signed = (n: number) => `${n < 0 ? "−" : "+"}${String(Math.abs(n)).padStart(3, "0")}`;
 
@@ -179,7 +179,7 @@ export function WorldUI({
                   /* Preferences are a courtesy. */
                 }
               }}
-              className="mono-label link-rule -my-2 py-2 text-[var(--fg-mute)] transition-colors hover:text-[var(--fg)]"
+              className="mono-label link-rule [--link-pad:15px] text-[var(--fg-mute)] transition-colors hover:text-[var(--fg)]"
             >
               {world.look} {world.lookLevels[look]}
             </button>
@@ -189,7 +189,7 @@ export function WorldUI({
               type="button"
               onClick={() => voiceStore.enable(!voice.enabled)}
               aria-pressed={voice.enabled}
-              className="mono-label link-rule -my-2 py-2 text-[var(--fg-mute)] transition-colors hover:text-[var(--fg)]"
+              className="mono-label link-rule [--link-pad:15px] text-[var(--fg-mute)] transition-colors hover:text-[var(--fg)]"
             >
               {payload.copy.voice} {voice.enabled ? world.on : world.off}
             </button>
@@ -198,7 +198,7 @@ export function WorldUI({
             type="button"
             onClick={() => void toggleSound()}
             aria-pressed={sound}
-            className="mono-label link-rule -my-2 py-2 text-[var(--fg-mute)] transition-colors hover:text-[var(--fg)]"
+            className="mono-label link-rule [--link-pad:15px] text-[var(--fg-mute)] transition-colors hover:text-[var(--fg)]"
           >
             {payload.copy.sound} {sound ? world.on : world.off}
           </button>
@@ -214,7 +214,7 @@ export function WorldUI({
                   data-lang={one}
                   onClick={() => onLang(one)}
                   className={cn(
-                    "-my-2 py-2 uppercase transition-colors",
+                    "-my-[15px] min-w-[36px] py-[15px] text-center uppercase transition-colors",
                     locale === one ? "text-[var(--fg)]" : "text-[var(--fg-mute)] hover:text-[var(--fg)]",
                   )}
                 >
@@ -226,7 +226,7 @@ export function WorldUI({
           <button
             type="button"
             onClick={onExit}
-            className="mono-label link-rule -my-2 py-2 text-[var(--fg-mute)] transition-colors hover:text-[var(--fg)]"
+            className="mono-label link-rule [--link-pad:15px] text-[var(--fg-mute)] transition-colors hover:text-[var(--fg)]"
           >
             {payload.copy.exit} →
           </button>
@@ -607,7 +607,7 @@ export function Detail({
               type="button"
               autoFocus
               onClick={onClose}
-              className="mono-label link-rule -my-2 py-2 text-[var(--fg-mute)] transition-colors hover:text-[var(--fg)]"
+              className="mono-label link-rule [--link-pad:15px] text-[var(--fg-mute)] transition-colors hover:text-[var(--fg)]"
             >
               ← {copy.back}
             </button>
@@ -771,7 +771,7 @@ export function Conversation({
               type="button"
               autoFocus
               onClick={onClose}
-              className="mono-micro link-rule -my-2 py-2 text-[var(--fg-mute)] transition-colors hover:text-[var(--fg)]"
+              className="mono-micro link-rule [--link-pad:15px] text-[var(--fg-mute)] transition-colors hover:text-[var(--fg)]"
             >
               ← {copy.back}
             </button>
@@ -932,7 +932,7 @@ export function HostCard({
               type="button"
               autoFocus
               onClick={onClose}
-              className="mono-micro link-rule -my-2 py-2 text-[var(--fg-mute)] transition-colors hover:text-[var(--fg)]"
+              className="mono-micro link-rule [--link-pad:15px] text-[var(--fg-mute)] transition-colors hover:text-[var(--fg)]"
             >
               {world.host.thanks}
             </button>
@@ -976,21 +976,21 @@ function TouchControls({ jumpLabel }: { jumpLabel: string }) {
     const el = base.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
-    let dx = clientX - (rect.left + rect.width / 2);
-    let dy = clientY - (rect.top + rect.height / 2);
+    const dx = clientX - (rect.left + rect.width / 2);
+    const dy = clientY - (rect.top + rect.height / 2);
     const len = Math.hypot(dx, dy);
-    if (len > RADIUS) {
-      dx = (dx / len) * RADIUS;
-      dy = (dy / len) * RADIUS;
-    }
-    if (knob.current) knob.current.style.transform = `translate(${dx}px, ${dy}px)`;
-    const mag = Math.min(1, len / RADIUS);
-    /* A dead zone in the middle, so a resting thumb does not creep; from
-       there the magnitude is linear to the rim. The pace curve and the run
-       threshold live in the walking loop, which reads this once a frame. */
-    const live = mag < 0.1 ? 0 : (mag - 0.1) / 0.9;
+    /* The direction from the raw offset; the knob clamped to the rim. A
+       thumb past the rim is a full push — it used to be divided by its raw
+       length after the clamp, so pushing further read as pushing less. */
     const nx = len > 1e-6 ? dx / len : 0;
     const ny = len > 1e-6 ? dy / len : 0;
+    const reach = Math.min(len, RADIUS);
+    if (knob.current) knob.current.style.transform = `translate(${nx * reach}px, ${ny * reach}px)`;
+    const mag = reach / RADIUS;
+    /* A small dead zone in the middle, so a resting thumb does not creep;
+       from there the magnitude is linear to the rim. The pace and the run
+       live in the walking loop, which reads this once a frame. */
+    const live = mag < 0.08 ? 0 : (mag - 0.08) / 0.92;
     touchInput.x = nx * live;
     touchInput.y = -ny * live;
     if (base.current) base.current.dataset.live = live > 0.93 ? "run" : live > 0 ? "walk" : "";

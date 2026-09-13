@@ -4,6 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { body } from "@/components/world/systems/body";
+import { npcMotion } from "@/components/world/npc/motion";
 
 /**
  * Cats and dogs.
@@ -312,21 +313,25 @@ export function Animals({ compact }: { compact: boolean }) {
           /* A cat that has just stepped away turns to look back. */
           if (a.kind === "cat" && st.flee > 0) st.facing = Math.atan2(dx, dz);
         } else {
-          const speed = (a.kind === "dog" ? 1.1 : 0.75) * (st.flee > 0 ? 1.8 : 1);
+          /* Turn first, then go: an animal facing away from where it wants to
+             be turns on the spot, and only trots as fast as it faces the way. */
+          const heading = Math.atan2(tx, tz);
+          const off = Math.atan2(Math.sin(heading - st.facing), Math.cos(heading - st.facing));
+          const most = (st.flee > 0 ? 6 : 3.5) * delta;
+          st.facing += Math.max(-most, Math.min(most, off * (1 - Math.exp(-8 * delta))));
+          const align = Math.max(0, Math.cos(off) - 0.5) / 0.5;
+          const speed = (a.kind === "dog" ? 1.1 : 0.75) * (st.flee > 0 ? 1.8 : 1) * align * align;
           st.x += (tx / left) * speed * delta;
           st.z += (tz / left) * speed * delta;
-          const heading = Math.atan2(tx, tz);
-          let diff = heading - st.facing;
-          diff = Math.atan2(Math.sin(diff), Math.cos(diff));
-          st.facing += diff * Math.min(1, 8 * delta);
           st.leg += speed * delta * 9;
-          moving = 1;
+          moving = align > 0.05 ? 1 : 0;
         }
       } else if (st.wait > 0) {
         st.wait -= delta;
       }
       node.position.set(st.x, a.at[1], st.z);
       node.rotation.y = st.facing;
+      npcMotion.record(`animal:${i}`, st.x, st.z, st.facing, delta);
 
       /* Sitting: the hind end drops and the body tips up. */
       const sit = st.sit;

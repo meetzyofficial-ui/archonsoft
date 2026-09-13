@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { animateFace, newFaceState } from "@/components/world/npc/face";
 import { IMPORTANCE, npcStep, npcStride, npcTier } from "@/components/world/npc/lod";
+import { npcMotion } from "@/components/world/npc/motion";
 import { createPerson, rigIn } from "@/components/world/npc/rig";
 import { npcShadows } from "@/components/world/npc/shadows";
 import { MATERIAL } from "@/components/world/pieces/Kit";
@@ -149,6 +150,8 @@ const POSE_ORDER = ["relaxed", "crossed", "holding", "hip", "relaxed", "crossed"
  * on the badge. Every tier is one draw: the parts are baked in `rig.ts`.
  */
 const CLOSE_AT = 3;
+/** Radians a second: the fastest a standing person turns to face someone. */
+const TURN_RATE = 2.8;
 
 /** Each project lights its people a little differently. */
 const TINT: Record<string, { colour: string; amount: number }> = {
@@ -306,7 +309,9 @@ function GuideGroup({ guide, onTalk }: { guide: PreparedGuide; onTalk: (guide: P
       const wantYaw = next === "idle" ? idleYaw : bearing + spread;
       let diff = wantYaw - fig.rotation.y;
       diff = Math.atan2(Math.sin(diff), Math.cos(diff));
-      fig.rotation.y += diff * Math.min(1, (next === "idle" ? 1.2 : 4) * delta);
+      /* Eased, and never faster than a person turns. */
+      const most = TURN_RATE * delta;
+      fig.rotation.y += Math.max(-most, Math.min(most, diff * (1 - Math.exp(-(next === "idle" ? 1.2 : 4) * delta))));
 
       /* Weight shift and breathing; a slight lean in, close. */
       fig.position.y = Math.sin(t * 1.4 * spot.rhythm + spot.offset) * 0.012;
@@ -317,8 +322,12 @@ function GuideGroup({ guide, onTalk }: { guide: PreparedGuide; onTalk: (guide: P
       const speaker = talking && i === 0;
       const wantX = spot.x + (speaker ? stepX * 0.28 : 0);
       const wantZ = spot.z + (speaker ? stepZ * 0.28 : 0);
-      fig.position.x += (wantX - fig.position.x) * Math.min(1, 2.5 * delta);
-      fig.position.z += (wantZ - fig.position.z) * Math.min(1, 2.5 * delta);
+      /* A shuffle, not a stride: the step in and the step back are slow
+         enough to be a shift of weight, never a walk backwards. */
+      const shuffle = 0.25 * delta;
+      fig.position.x += Math.max(-shuffle, Math.min(shuffle, (wantX - fig.position.x) * (1 - Math.exp(-2.5 * delta))));
+      fig.position.z += Math.max(-shuffle, Math.min(shuffle, (wantZ - fig.position.z) * (1 - Math.exp(-2.5 * delta))));
+      npcMotion.record(`${guide.id}:${i}`, guide.at[0] + fig.position.x, guide.at[2] + fig.position.z, fig.rotation.y, delta);
 
       const head = fig.getObjectByName("head");
       if (head) {

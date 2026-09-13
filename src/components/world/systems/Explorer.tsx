@@ -50,19 +50,24 @@ const ACCELERATION = 50;
 const DAMPING = 12;
 const LOOK = 0.0021;
 /*
- * The stick. Its magnitude maps to pace through a curve that is gentle in
- * the middle — a thumb resting a third of the way out strolls — and reaches
- * a full walk near the rim; running takes the rim itself, held for a
- * moment, so a stroll never turns into a sprint because a thumb slipped.
- * The run on a phone is a little slower than the desktop's shift-run: the
- * screen is smaller and the same metres per second read as flying.
+ * The stick: direct. Its magnitude maps linearly to pace from a brisk
+ * minimum to a fast walk at the rim, and holding the rim for a tenth of a
+ * second runs. A phone walks and runs about forty per cent faster than the
+ * keyboard's pace — a thumb covers the world in fewer, shorter pushes — and
+ * reaches its speed, and stops, almost at once: no wind-up to wait through,
+ * no glide after the thumb lifts. The keyboard's values above are untouched.
  */
-const STICK_DEAD = 0.08;
+const STICK_DEAD = 0.02;
 const STICK_RIM = 0.94;
-const STICK_RUN_HOLD = 0.22;
-const TOUCH_RUN = 6.4;
-const TOUCH_ACCELERATION = 24;
-const TOUCH_DAMPING = 15;
+const STICK_RUN_HOLD = 0.1;
+const TOUCH_WALK = 5.9;
+const TOUCH_RUN = 8.8;
+const TOUCH_ACCELERATION = 70;
+const TOUCH_DAMPING = 60;
+/* On a phone the body turns to its new heading, and the camera follows it,
+   more tightly than on a desktop, so a fast thumb never leaves either behind. */
+const TOUCH_TURN = 24;
+const TOUCH_CAM_EASE = 12;
 /* A thumb drag turns the view about as far as a mouse move of the same
    length: a little more, because a thumb has less room. The turn is eased
    over a few frames so a finger's pixel steps never read as jitter. */
@@ -86,6 +91,9 @@ const CAM_EASE = 7;
 /* Approaching a station the camera eases a little further out and higher,
    so the guides, the dais and the screens come into one frame together. */
 const CAM_REVEAL = 1.6;
+
+/** What the walking loop decided last frame, for the QA harness. */
+const moveProbe = { stick: 0, running: false, byStick: false, rim: 0, target: 0 };
 
 const FORWARD = new THREE.Vector3();
 const STEP = new THREE.Vector3();
@@ -277,6 +285,7 @@ export function Explorer({ active }: { active: boolean }) {
       if (pitch !== undefined) here.pitch = THREE.MathUtils.clamp((pitch * Math.PI) / 180, PITCH_MIN, PITCH_MAX);
     };
     (window as unknown as { __archonBody?: () => unknown }).__archonBody = () => ({ ...body });
+    (window as unknown as { __archonMove?: () => unknown }).__archonMove = () => ({ ...moveProbe });
     (window as unknown as { __archonZoom?: (back: number, up?: number) => void }).__archonZoom = (back, up) => {
       here.camBack = back;
       here.camUp = up ?? CAM_UP;
@@ -350,18 +359,24 @@ export function Explorer({ active }: { active: boolean }) {
     if (length > 0) {
       let speed: number;
       if (byStick) {
-        /* Analog: the response curve, then the run over the top of it. */
+        /* Analog and linear, then the run over the top of it. */
         const reach = THREE.MathUtils.clamp((stick - STICK_DEAD) / (STICK_RIM - STICK_DEAD), 0, 1);
-        const pace = Math.pow(reach, 1.35);
-        speed = running ? TOUCH_RUN : WALK * (0.3 + 0.7 * pace);
+        speed = running ? TOUCH_RUN : TOUCH_WALK * (0.35 + 0.65 * reach);
       } else {
         speed = running ? RUN : WALK;
       }
       targetX = (targetX / length) * speed;
       targetZ = (targetZ / length) * speed;
+      moveProbe.target = speed;
+    } else {
+      moveProbe.target = 0;
     }
+    moveProbe.stick = stick;
+    moveProbe.running = running;
+    moveProbe.byStick = byStick;
+    moveProbe.rim = here.rim;
 
-    /* Thumbs get a slightly softer start and a short, controlled stop. */
+    /* A thumb gets its speed, and its stop, almost at once; the keys ease a little. */
     const rate = length > 0 ? (byStick ? TOUCH_ACCELERATION : ACCELERATION) : touchInput.active ? TOUCH_DAMPING : DAMPING;
     /* Exponential, so the same thumb gives the same pace at 30, 60 or 120
        frames a second: a fixed fraction per frame would reach top speed
@@ -484,7 +499,9 @@ export function Explorer({ active }: { active: boolean }) {
     }
 
     const speed = Math.hypot(here.vx, here.vz);
-    const pace = speed / RUN;
+    /* Pace against the fastest this input can go, so the stride and the run
+       posture match the speed on either. */
+    const pace = Math.min(1, speed / (touchInput.active ? TOUCH_RUN : RUN));
 
     /* The body. It faces the way it is moving; standing still it keeps the
        last heading, so stopping does not spin it round to face the camera. */
@@ -502,7 +519,7 @@ export function Explorer({ active }: { active: boolean }) {
       const heading = Math.atan2(-here.vx, -here.vz);
       let diff = heading - body.facing;
       diff = Math.atan2(Math.sin(diff), Math.cos(diff));
-      body.facing += diff * (1 - Math.exp(-12 * delta));
+      body.facing += diff * (1 - Math.exp(-(touchInput.active ? TOUCH_TURN : 12) * delta));
     }
 
     /* The camera. Behind, above and over the shoulder of the body, eased
@@ -542,7 +559,7 @@ export function Explorer({ active }: { active: boolean }) {
       here.camReady = true;
     } else {
       here.settle += delta;
-      const ease = THREE.MathUtils.lerp(1.4, CAM_EASE, Math.min(1, here.settle / 3));
+      const ease = THREE.MathUtils.lerp(1.4, touchInput.active ? TOUCH_CAM_EASE : CAM_EASE, Math.min(1, here.settle / 3));
       const k = 1 - Math.exp(-ease * delta);
       camera.position.lerp(WANT, k);
       AIMED.lerp(AIM, k * 1.4 > 1 ? 1 : k * 1.4);

@@ -31,6 +31,12 @@ export interface ReflectionRig {
   /** Photograph the world from the plaza and make it the environment. */
   capture(): void;
   /**
+   * The same photograph one face of the cube per frame: six small renders
+   * instead of one large one, so no frame carries the first draw of
+   * everything behind the camera. `nextFrame` waits for the next frame.
+   */
+  captureStaged(nextFrame: () => Promise<void>, cancelled: () => boolean): Promise<void>;
+  /**
    * The capture renders into a float target, untoned, so every material
    * needs a second program for it. Have them built ahead: `compile` is
    * called with the capture's target current.
@@ -72,7 +78,53 @@ export function createReflections(gl: THREE.WebGLRenderer, scene: THREE.Scene, s
         gl.setRenderTarget(previous);
       }
     },
+    async captureStaged(nextFrame, cancelled) {
+      camera.updateMatrixWorld();
+      if (camera.coordinateSystem !== gl.coordinateSystem) {
+        camera.coordinateSystem = gl.coordinateSystem;
+        camera.updateCoordinateSystem();
+      }
+      const faces = camera.children as THREE.PerspectiveCamera[];
+      for (let face = 0; face < 6; face += 1) {
+        if (cancelled()) return;
+        const hidden: THREE.Object3D[] = [];
+        scene.traverse((object) => {
+          if (object.userData.noReflect && object.visible) {
+            object.visible = false;
+            hidden.push(object);
+          }
+        });
+        const previous = gl.getRenderTarget();
+        const exposure = gl.toneMappingExposure;
+        const mapping = gl.toneMapping;
+        gl.toneMapping = THREE.NoToneMapping;
+        gl.toneMappingExposure = 1;
+        const mipmaps = target.texture.generateMipmaps;
+        target.texture.generateMipmaps = false;
+        gl.setRenderTarget(target, face);
+        gl.render(scene, faces[face]!);
+        target.texture.generateMipmaps = mipmaps;
+        gl.setRenderTarget(previous);
+        gl.toneMapping = mapping;
+        gl.toneMappingExposure = exposure;
+        for (const object of hidden) object.visible = true;
+        await nextFrame();
+      }
+      if (cancelled()) return;
+      target.texture.needsPMREMUpdate = true;
+      apply(pmrem.fromCubemap(target.texture).texture);
+    },
     capture() {
+      /* Points of light — stars, dust — are left out of the photograph: at
+         the capture's resolution each is a hot texel, and every rough
+         surface would wear it as a soft blob. */
+      const hidden: THREE.Object3D[] = [];
+      scene.traverse((object) => {
+        if (object.userData.noReflect && object.visible) {
+          object.visible = false;
+          hidden.push(object);
+        }
+      });
       const exposure = gl.toneMappingExposure;
       const mapping = gl.toneMapping;
       gl.toneMapping = THREE.NoToneMapping;
@@ -80,6 +132,7 @@ export function createReflections(gl: THREE.WebGLRenderer, scene: THREE.Scene, s
       camera.update(gl, scene);
       gl.toneMapping = mapping;
       gl.toneMappingExposure = exposure;
+      for (const object of hidden) object.visible = true;
       apply(pmrem.fromCubemap(target.texture).texture);
     },
     dispose() {

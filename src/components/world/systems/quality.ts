@@ -75,6 +75,12 @@ export const qualityStore = {
   frame: 16,
   /** How many times the governor has stepped, either way. */
   steps: 0,
+  /**
+   * The browser is rasterising on the CPU (SwiftShader, llvmpipe): a machine
+   * whose GPU is blocked or absent. Per-pixel detail is dropped for it —
+   * the world stays usable at a few frames a second rather than one.
+   */
+  software: false,
 };
 
 /* The governor's thresholds. A frame over 26ms for a second and a half is a

@@ -159,7 +159,9 @@ export function StudioClosing({ locale, copy }: { locale: Locale; copy: Copy }) 
             {SITE.name} © {year}
           </span>
           <span className="mono-micro flex items-center gap-4 text-[var(--fg-mute)]">
-            <Link href={localePath(locale, "/privacy")} className="transition-colors hover:text-[var(--fg)]">
+            {/* A small line of type, but a full-size target: the padding is
+                the tap area, the negative margin keeps the line where it was. */}
+            <Link href={localePath(locale, "/privacy")} className="-my-3 inline-flex min-h-[44px] items-center px-1 transition-colors hover:text-[var(--fg)]">
               {copy.nav.privacy}
             </Link>
             {copy.footer.rights}

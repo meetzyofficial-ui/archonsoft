@@ -264,7 +264,7 @@ export function OfficeCard({
               type="button"
               data-office-close
               onClick={onClose}
-              className="mono-micro -mr-2 -mt-1 px-2 py-1 text-[var(--fg-dim)] transition-colors hover:text-[var(--fg)]"
+              className="mono-micro -mr-3 -mt-3 inline-flex min-h-[44px] min-w-[44px] items-center justify-center px-3 text-[var(--fg-dim)] transition-colors hover:text-[var(--fg)]"
             >
               {copy.close}
             </button>

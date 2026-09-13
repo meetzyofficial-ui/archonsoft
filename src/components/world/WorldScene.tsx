@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { Robot } from "@/components/world/avatar/Robot";
 import {
@@ -26,10 +26,11 @@ import { Guides } from "@/components/world/npc/Guides";
 import { Host } from "@/components/world/npc/Host";
 import { Office } from "@/components/world/npc/Office";
 import { NpcShadows } from "@/components/world/npc/shadows";
-import { useContactTexture } from "@/components/world/pieces/Kit";
+import { Trees, useContactTexture } from "@/components/world/pieces/Kit";
 import { Explorer } from "@/components/world/systems/Explorer";
 import { detectTier, GOVERNOR, QUALITY, qualityStore, type Tier } from "@/components/world/systems/quality";
-import { EYE, VIEWPOINTS, type ZoneId } from "@/data/world-map";
+import { EYE, VIEWPOINTS, ZONES, type ZoneId } from "@/data/world-map";
+import { CAMPUS, TREES } from "@/data/world-campus";
 import { OFFICES, DEPARTMENTS } from "@/data/departments";
 import { t } from "@/lib/i18n";
 import type { PreparedDisplay, PreparedGuide, WorldPayload } from "@/lib/worldPayload";
@@ -97,6 +98,14 @@ export const WorldScene = memo(function WorldScene({
       camera={{ fov: 58, near: 0.1, far: 900, position: [0, EYE, 24] }}
       onCreated={({ gl, scene, camera }) => {
         gl.toneMapping = THREE.ACESFilmicToneMapping;
+        try {
+          const context = gl.getContext();
+          const info = context.getExtension("WEBGL_debug_renderer_info");
+          const renderer = String(info ? context.getParameter(info.UNMASKED_RENDERER_WEBGL) : context.getParameter(context.RENDERER));
+          qualityStore.software = /swiftshader|llvmpipe|softpipe|software/i.test(renderer);
+        } catch {
+          qualityStore.software = false;
+        }
         /* Where the draw calls go: visible, in-frustum objects tallied under
            the nearest named ancestor. A QA hook, not a runtime cost. */
         (window as unknown as { __archonBreakdown?: () => Record<string, number> }).__archonBreakdown = () => {
@@ -160,6 +169,41 @@ export const WorldScene = memo(function WorldScene({
           return { tagged, shown, tiers, faces };
         };
         (window as unknown as { __archonQuality?: () => unknown }).__archonQuality = () => ({ ...qualityStore });
+        /* The data the world is built from, for the QA harness to compare the
+           scene against: departments, the campus plan, the walkable zones. */
+        (window as unknown as { __archonPlan?: () => unknown }).__archonPlan = () => ({
+          departments: DEPARTMENTS.map((one) => ({ id: one.id, name: one.name, tagline: one.tagline, services: one.services })),
+          offices: OFFICES.map((one) => ({ id: one.id, department: one.department, at: one.office.at, arrival: one.office.arrival })),
+          campus: CAMPUS,
+          trees: TREES.length,
+          zones: ZONES.map((zone) => ({ id: zone.id, bounds: zone.bounds })),
+        });
+        /* How large an office's sign is on screen right now, in CSS pixels. */
+        (window as unknown as { __archonSignView?: (id: string) => unknown }).__archonSignView = (id) => {
+          const sign = scene.getObjectByName(`office:${id}`)?.getObjectByName("office-sign") as THREE.Mesh | undefined;
+          if (!sign) return null;
+          sign.updateWorldMatrix(true, false);
+          camera.updateMatrixWorld();
+          const box = new THREE.Box3().setFromObject(sign);
+          const size = gl.domElement.getBoundingClientRect();
+          const corners = [0, 1].flatMap((a) => [0, 1].flatMap((b) => [0, 1].map((c) => new THREE.Vector3(a ? box.max.x : box.min.x, b ? box.max.y : box.min.y, c ? box.max.z : box.min.z))));
+          const screen = corners.map((v) => v.project(camera));
+          const xs = screen.map((v) => ((v.x + 1) / 2) * size.width);
+          const ys = screen.map((v) => ((1 - v.y) / 2) * size.height);
+          const inFront = screen.every((v) => v.z < 1);
+          let shown = true;
+          for (let up: THREE.Object3D | null = sign; up; up = up.parent) if (!up.visible) shown = false;
+          return {
+            text: sign.userData.text,
+            cap: sign.userData.cap,
+            shown,
+            inFront,
+            height: Math.max(...ys) - Math.min(...ys),
+            width: Math.max(...xs) - Math.min(...xs),
+            centre: [(Math.max(...xs) + Math.min(...xs)) / 2, (Math.max(...ys) + Math.min(...ys)) / 2],
+            viewport: [size.width, size.height],
+          };
+        };
         /* The scene graph itself, for the QA harness to inspect, and a pick:
            what is under a point of the frame, in normalised device
            coordinates. */
@@ -210,10 +254,63 @@ export const WorldScene = memo(function WorldScene({
   );
 });
 
-function World({
+/**
+ * The frame each part of the world is mounted on. Two frames between the
+ * department offices, whose signs, boards and people are the heaviest thing
+ * built; the boot waits for the last of them before it compiles.
+ */
+const STAGE = {
+  host: 1,
+  gallery: 2,
+  trees: 3,
+  lobby: 4,
+  shipped: 5,
+  guides: 6,
+  boards: 7,
+  labs: 8,
+  systems: 9,
+  archive: 10,
+  displays: 11,
+  offices: 13,
+  crowd: 35,
+  animals: 37,
+} as const;
+const LAST_STAGE = Math.max(STAGE.animals, STAGE.displays + 24, STAGE.offices + 2 * 10) + 2;
+
+type WorldProps = {
+  payload: WorldPayload;
+  mode: WorldMode;
+  tourZone: ZoneId;
+  reduced: boolean;
+  compact: boolean;
+  onOpen: (display: PreparedDisplay) => void;
+  onTalk: (guide: PreparedGuide) => void;
+  onHost: () => void;
+  host: { label: string; action: string };
+  onOffice: (id: string) => void;
+  office: { label: string; action: string };
+  tier: Tier;
+  onReady?: () => void;
+};
+
+/**
+ * The lights, the governor and whatever drives the camera — the only things
+ * that change when the visitor enters — and the world itself, memoised
+ * apart, so entering does not re-render thousands of objects.
+ */
+function World({ mode, tourZone, ...rest }: WorldProps) {
+  return (
+    <>
+      <Lighting />
+      <Governor tier={rest.tier} />
+      {mode === "explore" ? <Explorer active /> : mode === "tour" ? <Tour zone={tourZone} reduced={rest.reduced} /> : <Overture reduced={rest.reduced} />}
+      <WorldBody {...rest} />
+    </>
+  );
+}
+
+const WorldBody = memo(function WorldBody({
   payload,
-  mode,
-  tourZone,
   reduced,
   compact,
   onOpen,
@@ -226,8 +323,6 @@ function World({
   onReady,
 }: {
   payload: WorldPayload;
-  mode: WorldMode;
-  tourZone: ZoneId;
   reduced: boolean;
   compact: boolean;
   onOpen: (display: PreparedDisplay) => void;
@@ -250,101 +345,91 @@ function World({
 
   return (
     <>
-      <Lighting />
-      <Boot tier={tier} compact={compact} world={world} onReady={onReady} />
-      <Governor tier={tier} />
+      {/* What drives the camera changes with the mode (see World); the robot
+          does not, so entering the world never builds it a second time. */}
       <group ref={world}>
+      {/* Mounted over frames, one heavy construction to a frame: the scene is
+          hidden while it builds (see Boot), so the order is about spreading
+          the work, and the plaza, the mark and the robot come first. */}
       <Cosmos reduced={reduced} compact={compact} />
       <Ocean reduced={reduced} />
-
-      {mode === "explore" ? (
-        <>
-          <Explorer active />
-          <Robot />
-        </>
-      ) : mode === "tour" ? (
-        <>
-          <Tour zone={tourZone} reduced={reduced} />
-          {/* The explorer stands at the arrival, so the tour has a figure
-              in it and the plaza a scale. */}
-          <Robot />
-        </>
-      ) : (
-        <>
-          <Overture reduced={reduced} />
-          <Robot />
-        </>
-      )}
-
+      <Robot />
       <Walls />
-      <Bridges texture={texture} />
-      <Hub texture={texture} locale={payload.locale} />
-      <Gallery texture={texture} />
-      <Shipped texture={texture} installations={payload.installations} />
-      {/* The far districts a frame or two after the hub, so the first frame
-          carries the plaza, the landmark and the people at the arrival. */}
-      <Staged frames={compact ? 2 : 1}>
-        <Boards
-          texture={texture}
-          installation={payload.installations.find((one) => one.id === "dppano")}
-        />
-        <Labs texture={texture} />
-        <Systems texture={texture} />
-        <Archive texture={texture} />
-      </Staged>
-
-      {/* The panels at the arrival in the first frame; the rest one or two a
-          frame after it, so no single frame paints every canvas. */}
-      {payload.displays.map((display, i) =>
-        display.zone === "hub" ? (
-          <Display key={display.id} display={display} texture={texture} onOpen={open} />
-        ) : (
-          <Staged key={display.id} frames={2 + (i % 8)}>
-            <Display display={display} texture={texture} onOpen={open} />
-          </Staged>
-        ),
-      )}
-
       <NpcShadows />
-      {/* The people. On a phone only the first two of each group, and the
-          guides still register so the tour can talk to them. */}
-      <Guides
-        guides={compact ? payload.guides.map((g) => ({ ...g, npcCount: 2 as const })) : payload.guides}
-        onTalk={talk}
-      />
-      {/* The host by the arrival, at once; the population and the animals a
-          few frames later, so the first frame is not held up building them. */}
-      <Host label={host.label} action={host.action} onTalk={onHost} />
-      {/* The company: the lobby team at the arrival, at once; the department
-          offices with their districts. */}
+      <Hub texture={texture} locale={payload.locale} />
+      <Staged frames={STAGE.host}>
+        <Host label={host.label} action={host.action} onTalk={onHost} />
+        <Bridges texture={texture} />
+      </Staged>
+      <Staged frames={STAGE.gallery}>
+        <Gallery texture={texture} />
+      </Staged>
+      <Staged frames={STAGE.trees}>
+        <Trees spots={TREES} />
+      </Staged>
       {OFFICES.map((one) =>
         one.department === null ? (
-          <Office key={one.id} id={one.id} office={one.office} label={office.label} action={office.action} onTalk={onOffice} compact={compact} />
+          <Staged key={one.id} frames={STAGE.lobby}>
+            <Office id={one.id} office={one.office} label={office.label} action={office.action} onTalk={onOffice} locale={payload.locale} compact={compact} />
+          </Staged>
         ) : null,
       )}
+      <Staged frames={STAGE.shipped}>
+        <Shipped texture={texture} installations={payload.installations} />
+      </Staged>
+      <Staged frames={STAGE.guides}>
+        {/* The people. On a phone only the first two of each group, and the
+            guides still register so the tour can talk to them. */}
+        <Guides guides={compact ? payload.guides.map((g) => ({ ...g, npcCount: 2 as const })) : payload.guides} onTalk={talk} />
+      </Staged>
+      <Staged frames={STAGE.boards}>
+        <Boards texture={texture} installation={payload.installations.find((one) => one.id === "dppano")} />
+      </Staged>
+      <Staged frames={STAGE.labs}>
+        <Labs texture={texture} />
+      </Staged>
+      <Staged frames={STAGE.systems}>
+        <Systems texture={texture} />
+      </Staged>
+      <Staged frames={STAGE.archive}>
+        <Archive texture={texture} />
+      </Staged>
+      {/* The panels, one a frame: the ones at the arrival first. */}
+      {[...payload.displays]
+        .sort((a, b) => Number(b.zone === "hub") - Number(a.zone === "hub"))
+        .map((display, i) => (
+          <Staged key={display.id} frames={STAGE.displays + i}>
+            <Display display={display} texture={texture} onOpen={open} />
+          </Staged>
+        ))}
       {/* One department a frame, then the population, then the animals. */}
       {OFFICES.filter((one) => one.department !== null).map((one, i) => (
-        <Staged key={one.id} frames={(compact ? 3 : 2) + i}>
+        <Staged key={one.id} frames={STAGE.offices + i * 2}>
           <Office
             id={one.id}
             office={one.office}
             label={t(DEPARTMENTS.find((d) => d.id === one.department)!.name, payload.locale)}
             action={office.action}
             onTalk={onOffice}
+            locale={payload.locale}
             compact={compact}
           />
         </Staged>
       ))}
-      <Staged frames={compact ? 14 : 12}>
+      <Staged frames={STAGE.crowd}>
         <Crowd compact={compact} />
       </Staged>
-      <Staged frames={compact ? 16 : 14}>
+      <Staged frames={STAGE.animals}>
         <Animals compact={compact} />
       </Staged>
       </group>
+      {/* After the group, not before it: refs are attached and layout effects
+          run in tree order, so only here is the group there to be hidden
+          before the first frame is drawn. */}
+      <Boot tier={tier} compact={compact} world={world} onReady={onReady} />
     </>
   );
-}
+});
 
 /* ------------------------------------------------------------------ boot */
 
@@ -392,6 +477,13 @@ function Boot({
   const { gl, scene, camera } = useThree();
   const done = useRef(false);
 
+  /* Hidden in the commit that mounts it, before the first frame is drawn: a
+     passive effect runs after that frame, and a world drawn once visible
+     links every shader it has on the spot. */
+  useLayoutEffect(() => {
+    if (world.current) world.current.visible = false;
+  }, [world]);
+
   useEffect(() => {
     let cancelled = false;
     const ready = () => {
@@ -412,7 +504,7 @@ function Boot({
     const mark = (name: string) => (window as unknown as { __mark?: (name: string) => void }).__mark?.(name);
     (async () => {
       /* The staged constructions land over the first frames. */
-      await frames(compact ? 18 : 16);
+      await frames(LAST_STAGE);
       if (cancelled) return;
       mark("boot:compile");
       rig.prime();
@@ -421,18 +513,27 @@ function Boot({
            otherwise in one go, now, which is still before anything shows.
            Asked directly, because the renderer warns to the console when
            it is asked for the parallel path on a driver without it. */
-        if (gl.extensions.has("KHR_parallel_shader_compile")) {
-          /* Both sets start compiling at once: the screen's, and the
-             reflection capture's, which renders untoned into a float target. */
-          const screen = gl.compileAsync(scene, camera);
-          const capture = rig.prewarm(() => gl.compileAsync(scene, camera)) as Promise<unknown>;
-          await Promise.all([screen, capture]);
-        } else {
-          gl.compile(scene, camera);
+        /* A part of the world at a time, a frame apart: preparing every
+           material's program is main-thread work (parameters, uniforms, the
+           shader source) even when the driver links in parallel, and done
+           for the whole world at once it was the longest frame of the boot.
+           Each part is compiled twice — for the screen, and for the
+           reflection capture, which renders untoned into a float target. */
+        const parts = group ? [...group.children] : [scene];
+        const parallel = gl.extensions.has("KHR_parallel_shader_compile");
+        const pending: Promise<unknown>[] = [];
+        for (const part of parts) {
+          if (parallel) {
+            pending.push(gl.compileAsync(part, camera, scene));
+            pending.push(rig.prewarm(() => gl.compileAsync(part, camera, scene)) as Promise<unknown>);
+          } else {
+            gl.compile(part, camera, scene);
+            rig.prewarm(() => gl.compile(part, camera, scene));
+          }
           await frames(1);
           if (cancelled) return;
-          rig.prewarm(() => gl.compile(scene, camera));
         }
+        await Promise.all(pending);
       } catch {
         /* A context that cannot compile ahead still renders; it just compiles on sight. */
       }
@@ -474,12 +575,13 @@ function Boot({
       await frames(2);
       if (cancelled) return;
       mark("boot:capture");
-      rig.capture();
+      await rig.captureStaged(() => frames(1), () => cancelled);
+      if (cancelled) return;
       mark("boot:ready");
       ready();
       /* A desktop photographs the world once more when the captures on the
          screens have had time to land; the shaders do not change for it. */
-      if (!compact) later = window.setTimeout(() => rig.capture(), 3500);
+      if (!compact) later = window.setTimeout(() => void rig.captureStaged(() => frames(1), () => cancelled), 3500);
     })();
 
     return () => {

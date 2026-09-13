@@ -6,6 +6,7 @@ import * as THREE from "three";
 import { animateFace, newFaceState } from "@/components/world/npc/face";
 import { FRAMES, Person, WARDROBE } from "@/components/world/npc/Guides";
 import { IMPORTANCE, npcTier } from "@/components/world/npc/lod";
+import { npcMotion } from "@/components/world/npc/motion";
 import { rigIn } from "@/components/world/npc/rig";
 import { guideStore } from "@/components/world/npc/Guides";
 import { Glow } from "@/components/world/pieces/Kit";
@@ -188,7 +189,15 @@ export function Host({
         here.lost = 0;
       }
       if (left > 0.6) {
-        const speed = left > CATCH_UP * 2 ? RUN : left > 1.2 ? WALK : WALK * 0.5;
+        /* She turns to where she is going first, and walks as fast as she
+           faces it: a figure faces +z, so that direction's yaw is
+           atan2(dx, dz). Never a slide backwards on a sudden reversal. */
+        const heading = Math.atan2(tx, tz);
+        const off = Math.atan2(Math.sin(heading - here.facing), Math.cos(heading - here.facing));
+        const most = 3.2 * delta;
+        here.facing += Math.max(-most, Math.min(most, off * (1 - Math.exp(-7 * delta))));
+        const align = Math.max(0, Math.cos(off) - 0.4) / 0.6;
+        const speed = (left > CATCH_UP * 2 ? RUN : left > 1.2 ? WALK : WALK * 0.5) * align * align;
         const stepX = (tx / left) * speed * delta;
         const stepZ = (tz / left) * speed * delta;
         const [nx, nz] = slide(here.x, here.z, here.x + stepX, here.z + stepZ, rects, here.floor);
@@ -197,10 +206,6 @@ export function Host({
         here.floor = floorAt(nx, nz, here.floor);
         here.leg += speed * delta * 3;
         moving = speed / WALK;
-        const heading = Math.atan2(-tx, -tz);
-        let diff = heading - here.facing;
-        diff = Math.atan2(Math.sin(diff), Math.cos(diff));
-        here.facing += diff * Math.min(1, 7 * delta);
       }
     }
 
@@ -222,6 +227,7 @@ export function Host({
 
     node.position.set(here.x, here.floor + Math.sin(here.t * 1.2) * 0.008, here.z);
     node.rotation.y = here.facing;
+    npcMotion.record(HOST_ID, here.x, here.z, here.facing, delta);
     node.rotation.z = Math.sin(here.t * 0.5) * 0.012 * (1 - Math.min(1, moving));
     /* Attention: a small lean toward the visitor when they are close. */
     const close = THREE.MathUtils.clamp(1 - (distance - 1.5) / 3, 0, 1);

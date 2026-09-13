@@ -72,6 +72,19 @@ await page.addInitScript(() => {
 
 await cdp.send("Profiler.start");
 await page.goto(BASE + "/tr", { waitUntil: "domcontentloaded" });
+/* Calibration: a named busy loop at a known performance.now(), so the CPU
+   profile's own clock can be laid over the page's frame times. */
+const calibratedAt = await page.evaluate(() => {
+  const t0 = performance.now();
+  const __archonCalibrate = () => {
+    const end = performance.now() + 60;
+    let x = 0;
+    while (performance.now() < end) x += 1;
+    return x;
+  };
+  __archonCalibrate();
+  return t0;
+});
 await enterWorld(page, "tr", 0);
 await page.evaluate(() => window.__mark("entered"));
 await page.waitForTimeout(3500);
@@ -127,5 +140,49 @@ const top = [...self.entries()]
   .slice(0, 22);
 console.log(`\n== CPU self time, top functions (whole run, ${SLOW}× slowdown) ==`);
 for (const [name, micros] of top) console.log(`  ${(micros / 1000).toFixed(0).padStart(6)}ms  ${name}`);
+
+/* Each long frame, attributed: what the CPU was doing inside it — self time
+   by function, and the application functions it was spent under. */
+{
+  const parent = new Map();
+  for (const node of profile.nodes) for (const child of node.children ?? []) parent.set(child, node.id);
+  let clock = profile.startTime;
+  const times = profile.timeDeltas.map((d) => (clock += d));
+  const calib = profile.samples.findIndex((id) => nodes.get(id).callFrame.functionName === "__archonCalibrate");
+  if (calib < 0) {
+    console.log("(no calibration sample; attribution skipped)");
+  } else {
+    const offset = calibratedAt - times[calib] / 1000;
+    const label = (frame) => `${frame.functionName || "(anonymous)"} ${frame.url.split("/").pop().split("?")[0]}:${frame.lineNumber}`;
+    const GENERIC = /^\((idle|program|garbage collector|root)\)|^\(anonymous\)/;
+    const worst = [...long].sort((a, b) => b[1] - a[1]).slice(0, Number(process.env.SPIKES ?? 6));
+    for (const [end, gap] of worst) {
+      const start = end - gap;
+      const own = new Map();
+      const under = new Map();
+      let total = 0;
+      for (let i = 0; i < profile.samples.length; i += 1) {
+        const when = times[i] / 1000 + offset;
+        if (when < start || when > end) continue;
+        const dt = (profile.timeDeltas[i + 1] ?? profile.timeDeltas[i]) / 1000;
+        total += dt;
+        const node = nodes.get(profile.samples[i]);
+        own.set(label(node.callFrame), (own.get(label(node.callFrame)) ?? 0) + dt);
+        const seen = new Set();
+        for (let id = node.id; id !== undefined; id = parent.get(id)) {
+          const frame = nodes.get(id).callFrame;
+          if (!frame.functionName || GENERIC.test(frame.functionName) || seen.has(frame.functionName)) continue;
+          seen.add(frame.functionName);
+          under.set(frame.functionName, (under.get(frame.functionName) ?? 0) + dt);
+        }
+      }
+      const fmt = (map, n) => [...map.entries()].filter(([k]) => !GENERIC.test(k)).sort((a, b) => b[1] - a[1]).slice(0, n).map(([k, v]) => `${v.toFixed(0)}ms ${k}`).join(" | ");
+      console.log(`
+== spike ${at(end)} ${gap.toFixed(0)}ms during ${during(end)} (sampled ${total.toFixed(0)}ms) ==`);
+      console.log(`  self:  ${fmt(own, 8)}`);
+      console.log(`  under: ${fmt(under, 14)}`);
+    }
+  }
+}
 
 await browser.close();

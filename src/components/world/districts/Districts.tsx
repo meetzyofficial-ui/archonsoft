@@ -10,7 +10,6 @@ import { TORCHES } from "@/data/world-torches";
 import { body } from "@/components/world/systems/body";
 import { qualityStore } from "@/components/world/systems/quality";
 import {
-  Arch,
   Backlight,
   BuiltWall,
   Colonnade,
@@ -20,17 +19,15 @@ import {
   Island,
   Label,
   LightLine,
-  LightTowers,
   LightWash,
   MATERIAL,
   Plinth,
   Service,
-  Spires,
-  Trees,
   WallField,
 } from "@/components/world/pieces/Kit";
 import { Gate } from "@/components/world/pieces/Gate";
-import { Facades, type Facade } from "@/components/world/pieces/Facades";
+import { Facades } from "@/components/world/pieces/Facades";
+import { CAMPUS } from "@/data/world-campus";
 import { useMerged } from "@/components/world/pieces/merge";
 import { PhotoSurface } from "@/components/world/pieces/Surface";
 import {
@@ -216,10 +213,6 @@ export function Gallery({ texture }: { texture: THREE.Texture }) {
 
       <Ramp />
 
-      {/* The museum: artwork hanging in the air beyond the flanks, over the
-          water — frames of pale metal around plates of violet glass, at
-          different sizes and heights, and two kinetic sculptures turning. */}
-      <GalleryArt />
 
       <LightLine at={[-FLANK_X + 1.9, GALLERY + 0.03, -7.3]} length={37} axis="z" colour={GALLERY_LIGHT} intensity={0.6} />
       <LightLine at={[FLANK_X - 1.9, GALLERY + 0.03, 2]} length={56} axis="z" colour={GALLERY_LIGHT} intensity={0.6} />
@@ -230,67 +223,6 @@ export function Gallery({ texture }: { texture: THREE.Texture }) {
       <Plinth at={[RAMP_FOOT[0], 0.09, RAMP_FOOT[2] + 0.6]} size={[4.4, 0.18, 1.2]} texture={texture} colour={GALLERY_LIGHT} />
       <LightLine at={[RAMP_FOOT[0], 0.2, RAMP_FOOT[2] + 0.62]} length={4.2} colour={GALLERY_LIGHT} intensity={0.7} />
       <LightWash at={[RAMP_FOOT[0], 0.03, RAMP_FOOT[2] - 1.4]} size={[4.4, 5]} texture={texture} colour={GALLERY_LIGHT} intensity={0.18} />
-    </group>
-  );
-}
-
-const ART: { at: [number, number, number]; w: number; h: number; turn: number }[] = [
-  { at: [-40, 13, -14], w: 7, h: 4.4, turn: 0.35 },
-  { at: [-44, 17.5, 2], w: 4.2, h: 6.4, turn: 0.2 },
-  { at: [-41, 11.5, 18], w: 9, h: 5, turn: 0.45 },
-  { at: [-47, 22, -26], w: 5, h: 5, turn: 0.1 },
-  { at: [40, 12.5, -20], w: 6.5, h: 4, turn: -0.4 },
-  { at: [45, 18, -4], w: 4.8, h: 7.2, turn: -0.25 },
-  { at: [42, 14, 12], w: 8.4, h: 4.8, turn: -0.35 },
-  { at: [48, 24, 28], w: 5.6, h: 5.6, turn: -0.15 },
-  { at: [-36, 26, 36], w: 6, h: 3.6, turn: 0.6 },
-  { at: [36, 28, 40], w: 3.8, h: 6, turn: -0.6 },
-];
-
-function GalleryArt() {
-  const frames = useMerged(
-    () =>
-      ART.flatMap((art) => {
-        const t = 0.14;
-        return [
-          { geometry: new THREE.BoxGeometry(art.w + t, t, t), at: [0, art.h / 2, 0] as [number, number, number] },
-          { geometry: new THREE.BoxGeometry(art.w + t, t, t), at: [0, -art.h / 2, 0] as [number, number, number] },
-          { geometry: new THREE.BoxGeometry(t, art.h + t, t), at: [-art.w / 2, 0, 0] as [number, number, number] },
-          { geometry: new THREE.BoxGeometry(t, art.h + t, t), at: [art.w / 2, 0, 0] as [number, number, number] },
-        ].map((part) => {
-          const g = part.geometry;
-          g.translate(...part.at);
-          g.rotateY(art.turn);
-          g.translate(...art.at);
-          return { geometry: g };
-        });
-      }),
-    [],
-  );
-  const plates = useMerged(
-    () =>
-      ART.map((art) => {
-        const g = new THREE.PlaneGeometry(art.w, art.h);
-        g.rotateY(art.turn);
-        g.translate(...art.at);
-        return { geometry: g };
-      }),
-    [],
-  );
-  const group = useRef<THREE.Group>(null);
-  useFrame(({ clock }) => {
-    if (group.current) group.current.position.y = Math.sin(clock.elapsedTime * 0.25) * 0.25;
-  });
-  return (
-    <group ref={group} name="gallery:art">
-      <mesh geometry={frames}>
-        <meshStandardMaterial color="#d9dee8" roughness={0.35} metalness={0.8} />
-      </mesh>
-      <mesh geometry={plates}>
-        <meshPhysicalMaterial color="#8b72ff" transparent opacity={0.22} roughness={0.15} metalness={0.3} side={THREE.DoubleSide} depthWrite={false} />
-      </mesh>
-      <Orbital at={[-42, 20, -6]} colour="#b9a7ff" scale={0.7} />
-      <Orbital at={[44, 21, 6]} colour="#c2e4ff" scale={0.55} />
     </group>
   );
 }
@@ -330,88 +262,16 @@ function Ramp() {
 
 /* ------------------------------------------------------------------- hub */
 
-const TOWERS: [number, number, number][] = [[-20, 0, -22], [-20, 0, 26], [20, 0, -22], [20, 0, 26]];
-
-/**
- * The landmark's skyline: spires rising out of the sea around the hub —
- * a dense group behind the gate framing the mark and the planet, and looser
- * ones at the corners, taller to the east than the west so the cluster is a
- * skyline and not a fence. Foot, height, girth; every foot is below the
- * waterline.
- */
-const HUB_SPIRES: [number, number, number, number, number][] = [
-  /* Behind the gate, either side of the bridge north: the landmark's own
-     towers, the tallest to the east. */
-  [-15, -4, -27.5, 62, 7],
-  [16.5, -4, -27.5, 84, 8.5],
-  [-25, -4, -27, 44, 5.2],
-  [26, -4, -27, 52, 5.6],
-  /* The corners, and one lone tower west. */
-  [38, -4, -38, 104, 10],
-  [-39, -4, -36, 70, 7.5],
-  [37.5, -4, 42, 58, 6.5],
-  [-37, -4, 44, 88, 8],
-  [-43, -4, 8, 36, 4.5],
-];
-
-/**
- * The campus round the plaza. Every one stands off the rim over the water,
- * clear of the four bridges; the tiers step back, the tall ones carry a
- * crown, and no two are the same height.
- */
-const HUB_FACADES: Facade[] = [
-  { at: [-41, -3, -16], size: [10, 8], tiers: [8, 6], turn: Math.PI / 2, light: MATERIAL.warmWhite },
-  { at: [-42, -3, 26], size: [9, 8], tiers: [14, 5, 4], turn: Math.PI / 2 },
-  { at: [41, -3, -14], size: [10, 8], tiers: [8, 5], turn: -Math.PI / 2 },
-  { at: [42, -3, 14], size: [9, 8], tiers: [12, 6], turn: -Math.PI / 2 },
-  { at: [-18, -3, 43], size: [12, 9], tiers: [9, 5], turn: Math.PI },
-  { at: [20, -3, 44], size: [10, 9], tiers: [12, 6, 3], turn: Math.PI },
-];
-const SHIPPED_FACADES: Facade[] = [
-  { at: [-41, -3, -40], size: [10, 8], tiers: [10, 6], turn: Math.PI / 2, light: "#ffd9c4" },
-  { at: [-42, -3, -58], size: [9, 8], tiers: [16, 6], turn: Math.PI / 2 },
-  { at: [41, -3, -36], size: [10, 8], tiers: [8, 6], turn: -Math.PI / 2 },
-  { at: [42, -3, -50], size: [9, 8], tiers: [13, 5], turn: -Math.PI / 2 },
-];
-const BOARDS_FACADES: Facade[] = [
-  { at: [50, -3, -89], size: [14, 9], tiers: [10, 6], turn: 0, light: "#cfe6ff" },
-  { at: [72, -3, -90], size: [10, 9], tiers: [15, 7], turn: 0 },
-  { at: [46, -3, -44], size: [12, 8], tiers: [8], turn: Math.PI },
-  { at: [70, -3, -43], size: [10, 8], tiers: [11, 5], turn: Math.PI },
-];
-const LABS_FACADES: Facade[] = [
-  { at: [50, -3, -37], size: [12, 9], tiers: [9, 5], turn: 0, light: "#c9b8ff" },
-  { at: [72, -3, -38], size: [10, 9], tiers: [14, 6], turn: 0 },
-  { at: [52, -3, 37], size: [12, 9], tiers: [11, 6], turn: Math.PI },
-  { at: [74, -3, 38], size: [9, 8], tiers: [7], turn: Math.PI },
-];
-const SYSTEMS_FACADES: Facade[] = [
-  { at: [-52, -3, -35], size: [12, 9], tiers: [10, 6], turn: 0, light: "#a8f0f0" },
-  { at: [-74, -3, -36], size: [10, 9], tiers: [15, 7], turn: 0 },
-  { at: [-54, -3, 35], size: [12, 9], tiers: [8], turn: Math.PI },
-  { at: [-76, -3, 36], size: [9, 9], tiers: [12, 5], turn: Math.PI },
-];
-const ARCHIVE_FACADES: Facade[] = [
-  { at: [34, -3, 60], size: [9, 9], tiers: [9, 5], turn: -Math.PI / 2, light: "#9fb0ff" },
-  { at: [-34, -3, 66], size: [9, 9], tiers: [12, 6], turn: Math.PI / 2 },
-];
-
-const HUB_TREES: [number, number, number][] = [
-  [-32.4, -0.3, -20], [-33, -0.3, -9], [-32.2, -0.3, 10], [-33, -0.3, 19], [-32.4, -0.3, 27],
-  [32.4, -0.3, -16], [33, -0.3, -6], [32.2, -0.3, 12], [33, -0.3, 22], [32.6, -0.3, 30],
-  [-14, -0.3, 36.6], [14.5, -0.3, 36.6], [-23, -0.3, 36.2], [23, -0.3, 36.2],
-  [-9.5, -0.3, -32.6], [9.5, -0.3, -32.6],
-];
-
 export function Hub({ texture, locale = "tr" }: { texture: THREE.Texture; locale?: Locale }) {
   const accent = getZone("hub").accent;
   const rings = useMerged(() => [14, 22, 30].map((r) => ({ geometry: new THREE.RingGeometry(r, r + 0.06, 96) })), []);
   return (
     <group name="hub">
       <Island at={[0, 2]} size={[60, 64]} runner={[CORRIDOR + 4, 64]} glass texture={texture} colour={accent} depth={3.2} />
-      {/* The buildings of the campus, standing round the plaza over the
-          water: stepped masses with bands of dark glass and lit parapets. */}
-      <Facades list={HUB_FACADES} />
+      {/* The campus: every glass building in the world in one plan, a
+          handful of draws for all of them. The trees, likewise one set, are
+          mounted with the world's staging (WorldScene). */}
+      <Facades list={CAMPUS} />
 
       {/* Concentric rings on the deck around the mark, in place of a grid —
           three rings, one draw. */}
@@ -422,45 +282,6 @@ export function Hub({ texture, locale = "tr" }: { texture: THREE.Texture; locale
       <LightWash at={[0, 0.02, 0]} size={[34, 30]} texture={texture} colour={MATERIAL.warmWhite} intensity={0.1} />
 
       <Gate texture={texture} />
-      {/* The landmark's ring: a great wheel of brushed metal suspended behind
-          the mark, a line of light around its inner edge — the circular
-          form the reference world hangs over its centre. */}
-      <group position={[0, 15.5, -11.5]} rotation={[0.06, 0, 0]} name="landmark-ring">
-        <mesh>
-          <torusGeometry args={[12, 0.55, 10, 96]} />
-          <meshStandardMaterial color="#aeb8c4" roughness={0.35} metalness={0.85} />
-        </mesh>
-        <mesh position={[0, 0, 0.35]}>
-          <torusGeometry args={[11.4, 0.09, 6, 96]} />
-          <Glow colour={MATERIAL.warmWhite} opacity={0.9} />
-        </mesh>
-        <mesh position={[0, 0, -0.35]}>
-          <torusGeometry args={[11.4, 0.09, 6, 96]} />
-          <Glow colour={MATERIAL.cyan} opacity={0.5} />
-        </mesh>
-        {/* Four spokes of stone to the hub of the wheel. */}
-        {[0, 1, 2, 3].map((k) => (
-          <mesh key={k} rotation={[0, 0, (k * Math.PI) / 4 + Math.PI / 8]}>
-            <boxGeometry args={[23.4, 0.22, 0.3]} />
-            <meshStandardMaterial color="#26344f" roughness={0.5} metalness={0.4} />
-          </mesh>
-        ))}
-        <mesh>
-          <cylinderGeometry args={[1.4, 1.4, 0.7, 12]} />
-          <meshStandardMaterial color="#c9d2de" roughness={0.4} metalness={0.6} />
-        </mesh>
-      </group>
-
-      {/* The skyline behind and around the landmark. */}
-      <Spires at={HUB_SPIRES} />
-
-      {/* Four sculptural pylons at the corners of the plaza. */}
-      <LightTowers at={TOWERS} height={19} />
-
-      {/* Trees along the flanks and around the arrival: dark green, and the
-          blossom the hub is known for. */}
-      <Trees at={HUB_TREES} blossom={0.55} rock />
-
       {/* The four ways out, each lit in the colour of what is beyond it. */}
       <Threshold at={[0, 0, -30]} width={CORRIDOR} height={7.5} zone="shipped" texture={texture} />
       <Threshold at={[0, 0, 34]} width={CORRIDOR} height={5.4} zone="archive" texture={texture} facing={-1} />
@@ -619,6 +440,33 @@ function Station({
       })),
     [photos, photoHeight, span, spacing],
   );
+  /* Erden's backdrop: the frame round the glass wall, and its two lines of light. */
+  const backW = span + spacing + 1.6;
+  const backH = photoHeight + 2.2;
+  const backdropFrame = useMerged(
+    () =>
+      theme.shape !== "arch"
+        ? []
+        : [
+            { geometry: new THREE.BoxGeometry(backW + 0.24, 0.12, 0.2), at: [0, height + backH / 2 + 0.06, -0.9] as [number, number, number] },
+            { geometry: new THREE.BoxGeometry(backW + 0.24, 0.12, 0.2), at: [0, height - backH / 2 - 0.06, -0.9] as [number, number, number] },
+            { geometry: new THREE.BoxGeometry(0.12, backH, 0.2), at: [-backW / 2 - 0.06, height, -0.9] as [number, number, number] },
+            { geometry: new THREE.BoxGeometry(0.12, backH, 0.2), at: [backW / 2 + 0.06, height, -0.9] as [number, number, number] },
+            { geometry: new THREE.BoxGeometry(0.16, height - backH / 2, 0.16), at: [-backW / 2 + 0.6, (height - backH / 2) / 2, -0.9] as [number, number, number] },
+            { geometry: new THREE.BoxGeometry(0.16, height - backH / 2, 0.16), at: [backW / 2 - 0.6, (height - backH / 2) / 2, -0.9] as [number, number, number] },
+          ],
+    [theme.shape, backW, backH, height],
+  );
+  const backdropLight = useMerged(
+    () =>
+      theme.shape !== "arch"
+        ? []
+        : [
+            { geometry: new THREE.PlaneGeometry(backW - 0.4, 0.035), at: [0, height + backH / 2 - 0.12, -0.83] as [number, number, number] },
+            { geometry: new THREE.PlaneGeometry(backW - 0.4, 0.035), at: [0, height - backH / 2 + 0.12, -0.83] as [number, number, number] },
+          ],
+    [theme.shape, backW, backH, height],
+  );
   const threads = useMerged(
     () =>
       photos.map((_, i) => ({
@@ -666,9 +514,20 @@ function Station({
         </>
       ) : null}
       {theme.shape === "arch" ? (
-        <group rotation={[0, turn, 0]}>
-          <Arch at={[0, 0, -1.2]} radius={Math.max(7.6, span / 2 + 2.6)} tube={0.6} stone={theme.frame} colour={theme.wash} sweep={Math.PI * 0.92} />
-          <Arch at={[0, 0, -2.6]} radius={Math.max(8.8, span / 2 + 3.6)} tube={0.42} stone={theme.frame} colour={accent} sweep={Math.PI * 0.8} />
+        /* Behind Erden's four screens: a wall of dark glass in a slim cream
+           frame, with one line of warm light along its head and foot — the
+           screens hang in front of a quiet surface, not a sculpture. */
+        <group rotation={[0, turn, 0]} name="station:backdrop">
+          <mesh position={[0, height, -0.9]}>
+            <boxGeometry args={[span + spacing + 1.6, photoHeight + 2.2, 0.12]} />
+            <meshStandardMaterial color="#0b0e15" roughness={0.28} metalness={0.55} envMapIntensity={0.9} />
+          </mesh>
+          <mesh geometry={backdropFrame}>
+            <meshStandardMaterial color={theme.frame} roughness={0.4} metalness={0.3} />
+          </mesh>
+          <mesh geometry={backdropLight}>
+            <Glow colour={accent} opacity={0.75} />
+          </mesh>
         </group>
       ) : null}
       <mesh position={[0, 0.37, 0]} rotation={[-Math.PI / 2, 0, 0]}>
@@ -774,9 +633,9 @@ function Station({
         align="center"
       />
 
-      {/* The beacon. */}
-      <mesh ref={beacon} position={[0, 30, 0]}>
-        <cylinderGeometry args={[0.05, 0.12, 60, 8, 1, true]} />
+      {/* The beacon: a short line of light to find the station by — not a tower in the sky. */}
+      <mesh ref={beacon} position={[0, 17, 0]} name="station:beacon">
+        <cylinderGeometry args={[0.04, 0.1, 12, 8, 1, true]} />
         <meshBasicMaterial color={accent} transparent opacity={0.25} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
       </mesh>
     </group>
@@ -799,16 +658,7 @@ export function Shipped({
   return (
     <group name="shipped">
       <Island at={[0, -48]} size={[60, 52]} runner={[CORRIDOR + 6, 52]} glass texture={texture} colour={accent} depth={3} deck="#0b142c" />
-      <Facades list={SHIPPED_FACADES} />
       <DistrictLine zone="shipped" at={[0, -48]} length={50} intensity={0.55} />
-      <Trees
-        at={[[-32.4, -0.3, -30], [-33, -0.3, -42], [-32.5, -0.3, -54], [-33, -0.3, -64], [32.4, -0.3, -32], [33, -0.3, -46], [32.5, -0.3, -58], [33, -0.3, -27], [-6, -0.3, -76.6], [6, -0.3, -76.6], [-16, -0.3, -76.8], [16, -0.3, -76.8]]}
-        blossom={0.5}
-        rock
-      />
-      {/* Spires beyond the far rim, so the hall has a skyline of its own. */}
-      <Spires at={[[-34, -4, -70, 48, 3.2], [35, -4, -72, 60, 3.6], [-14, -4, -80, 36, 2.6], [16, -4, -81, 42, 2.8], [-38, -4, -50, 30, 2.4]]} />
-
       {[-1, 1].map((side) => (
         <Service key={side} at={[side * 21, 9.4, -48]} length={44} turn={Math.PI / 2} colour={accent} />
       ))}
@@ -817,9 +667,6 @@ export function Shipped({
           cream for Erden, on a floor that stays the same stone. */}
       <LightWash at={[-16, 0.03, -44]} size={[24, 30]} texture={texture} colour="#f2a889" intensity={0.12} />
       <LightWash at={[16, 0.03, -44]} size={[24, 30]} texture={texture} colour="#e7c7b5" intensity={0.12} />
-      {/* Blossom around Erden, evergreens around Meetzy. */}
-      <Trees at={[[23.5, 0, -31.5], [24, 0, -57], [23.5, 0, -44]]} blossom={1} />
-      <Trees at={[[-23.5, 0, -31.5], [-24, 0, -57]]} blossom={0} />
 
       {/* Meetzy — 02 — on the west; its screens face the axis. */}
       {meetzy ? (
@@ -847,10 +694,7 @@ export function Boards({
   return (
     <group name="boards">
       <Island at={[59, -66]} size={[50, 24]} runner={[50, CORRIDOR]} glass texture={texture} colour={accent} depth={2.6} deck="#091629" />
-      <Facades list={BOARDS_FACADES} />
       <DistrictLine zone="boards" at={[59, -66]} length={46} intensity={0.45} />
-      <Trees at={[[40, -0.3, -80.6], [52, -0.3, -80.8], [66, -0.3, -80.6], [78, -0.3, -80.8], [80, -0.3, -51.4], [66, -0.3, -51.2], [52, -0.3, -51.4], [42, -0.3, -51.2]]} blossom={0.25} rock />
-      <Spires at={[[88, -4, -66, 52, 3.6], [86, -4, -78, 34, 2.8], [60, -4, -84, 40, 3]]} />
 
       {[-1, 1].map((side) => (
         <Service key={side} at={[59, 7.2, -66 + side * 10.6]} length={44} colour={accent} />
@@ -1059,17 +903,11 @@ export function Labs({ texture }: { texture: THREE.Texture }) {
   return (
     <group name="labs">
       <Island at={[58, 0]} size={[50, 52]} runner={[24, 52]} texture={texture} colour={accent} depth={2.8} deck="#0e1129" />
-      <Facades list={LABS_FACADES} />
       <DistrictLine zone="labs" at={[58, 0]} length={48} intensity={0.45} />
-      <Trees at={[[40, -0.3, -28.6], [80, -0.3, -28.8], [80, -0.3, 28.6], [40, -0.3, 28.8], [52, -0.3, -28.4], [64, -0.3, 28.4], [85.6, -0.3, -12], [85.6, -0.3, 14]]} blossom={0.35} rock />
       <group position={[58, 0, 0]}>
         <Colonnade from={-16} to={16} step={16} x={-8} height={7} texture={texture} thickness={0.4} colour={accent} />
         <Colonnade from={-16} to={16} step={16} x={8} height={7} texture={texture} thickness={0.4} colour={accent} />
       </group>
-      {/* Labs: an orbital sculpture over the middle of the island — three
-          rings turning about each other, the ideas-in-motion of the place. */}
-      <Orbital at={[58, 14, 0]} colour={accent} />
-      <Spires at={[[86, -4, -18, 46, 3.2], [88, -4, 16, 58, 3.6], [84, -4, 0, 30, 2.6]]} />
       <Doorway at={[34, 0, 0]} width={CORRIDOR} height={6.4} turn={Math.PI / 2} colour={accent} />
       <Service at={[58, 7.6, -24]} length={46} turn={Math.PI / 2} colour={accent} />
       <Service at={[58, 7.6, 24]} length={46} turn={Math.PI / 2} colour={accent} />
@@ -1084,10 +922,7 @@ export function Systems({ texture }: { texture: THREE.Texture }) {
   return (
     <group name="systems">
       <Island at={[-58, 0]} size={[50, 48]} runner={[26, 48]} texture={texture} colour={accent} depth={2.8} deck="#08121f" />
-      <Facades list={SYSTEMS_FACADES} />
       <DistrictLine zone="systems" at={[-58, 0]} length={44} intensity={0.4} />
-      <Trees at={[[-40, -0.3, -26.6], [-80, -0.3, -26.8], [-80, -0.3, 26.6], [-40, -0.3, 26.8], [-56, -0.3, -26.4], [-60, -0.3, 26.4], [-85.6, -0.3, -10], [-85.6, -0.3, 12]]} blossom={0.2} rock />
-      <Spires at={[[-86, -4, -14, 40, 3], [-88, -4, 12, 52, 3.4]]} />
       <Plinth at={[-58, 0.24, 0]} size={[1.4, 0.48, 26]} texture={texture} colour={accent} />
       <Service at={[-70, 11.4, 0]} length={38} turn={Math.PI / 2} colour={accent} />
       <Service at={[-70, 1.1, 0]} length={38} turn={Math.PI / 2} colour={accent} />
@@ -1104,7 +939,6 @@ export function Archive({ texture }: { texture: THREE.Texture }) {
   return (
     <group name="archive">
       <Island at={[0, 61]} size={[48, 42]} runner={[16, 42]} texture={texture} colour={accent} depth={2.4} deck="#070b18" />
-      <Facades list={ARCHIVE_FACADES} />
       <DistrictLine zone="archive" at={[0, 61]} length={38} intensity={0.28} />
       <Doorway at={[0, 0, 40]} width={CORRIDOR} height={4.4} colour={accent} />
       {/* The stacks: dark monoliths with one lit edge each. */}

@@ -6,6 +6,7 @@ import * as THREE from "three";
 import { animateFace, newFaceState } from "@/components/world/npc/face";
 import { FRAMES, HAIRS, Person, SKINS, WARDROBE } from "@/components/world/npc/Guides";
 import { IMPORTANCE, npcFocus, npcStride, npcTier } from "@/components/world/npc/lod";
+import { npcMotion } from "@/components/world/npc/motion";
 import { rigIn, type PersonRig } from "@/components/world/npc/rig";
 import { useMerged } from "@/components/world/pieces/merge";
 import { body } from "@/components/world/systems/body";
@@ -120,6 +121,8 @@ export const POPULATION: Citizen[] = [
 const GONE = 110;
 const NOTICE = 6;
 const WALK_SPEED = 1.35;
+/** The fastest a walker turns, radians a second: a person, not a turret. */
+const TURN_RATE = 2.4;
 
 type Rig = {
   fig: THREE.Group;
@@ -245,45 +248,58 @@ export function Crowd({ compact }: { compact: boolean }) {
       st.t += dt;
       const t = st.t;
 
-      /* Walkers move; everyone else stands where they were put. */
-      let moving = 0;
-      if (c.behaviour === "walk" && c.path && c.path.length >= 2) {
-        if (st.wait > 0) {
-          st.wait -= dt;
-        } else {
-          const target = c.path[st.dir > 0 ? c.path.length - 1 : 0]!;
-          const tx = target[0] - st.x;
-          const tz = target[1] - st.z;
-          const left = Math.hypot(tx, tz);
-          if (left < 0.3) {
-            st.dir *= -1;
-            st.wait = 2.5 + Math.random() * 3;
-          } else if ((t % st.pauseAt) < 1.6 && left > 4) {
-            /* A pause along the way, now and then. */
-          } else {
-            const speed = WALK_SPEED * st.pace;
-            st.x += (tx / left) * speed * dt;
-            st.z += (tz / left) * speed * dt;
-            const heading = Math.atan2(-tx, -tz);
-            let diff = heading - st.facing;
-            diff = Math.atan2(Math.sin(diff), Math.cos(diff));
-            st.facing += diff * Math.min(1, 6 * dt);
-            st.leg += speed * dt * 3.1;
-            moving = 1;
-          }
-        }
-        fig.position.set(st.x, c.at[1], st.z);
-      }
-
-      /* Facing: the way they were put, or toward the visitor when close —
-         after a beat, and not everyone; walkers face the way they go. */
+      /* Facing toward the visitor, when close — after a beat, and not everyone. */
       const bearing = Math.atan2(-dx, -dz) + Math.PI;
       st.nearFor = distance < NOTICE ? st.nearFor + dt : 0;
       const near = st.reacts && st.nearFor > st.reactDelay && c.behaviour !== "rest";
-      const wantYaw = moving ? st.facing : near ? bearing : c.facing;
-      let diff = wantYaw - fig.rotation.y;
-      diff = Math.atan2(Math.sin(diff), Math.cos(diff));
-      fig.rotation.y += diff * Math.min(1, (moving ? 6 : 2.2) * dt);
+
+      /* Walkers move; everyone else stands where they were put.
+
+         A figure faces +z, so the yaw that points it along a direction
+         (dx, dz) is atan2(dx, dz). Walkers turn toward where they are going
+         at a bounded rate — while they wait at the end of the path, too, so
+         they set off already facing the way — and only walk as fast as they
+         face it: squarely, at full pace; more than about sixty degrees off,
+         not at all. So a turn at the end of the path is a turn on the spot,
+         never a slide backwards or sideways. */
+      let moving = 0;
+      const walker = c.behaviour === "walk" && c.path && c.path.length >= 2;
+      if (walker) {
+        let target = c.path![st.dir > 0 ? c.path!.length - 1 : 0]!;
+        if (Math.hypot(target[0] - st.x, target[1] - st.z) < 0.3) {
+          st.dir *= -1;
+          st.wait = 2.5 + Math.random() * 3;
+          target = c.path![st.dir > 0 ? c.path!.length - 1 : 0]!;
+        }
+        const tx = target[0] - st.x;
+        const tz = target[1] - st.z;
+        const left = Math.hypot(tx, tz);
+        const resting = st.wait > 0 || ((t % st.pauseAt) < 1.6 && left > 4);
+        const heading = resting && near ? bearing : Math.atan2(tx, tz);
+        const off = Math.atan2(Math.sin(heading - st.facing), Math.cos(heading - st.facing));
+        const turn = off * (1 - Math.exp(-4.5 * dt));
+        const most = TURN_RATE * dt;
+        st.facing += Math.max(-most, Math.min(most, turn));
+        if (st.wait > 0) st.wait -= dt;
+        if (!resting && left > 0.01) {
+          const align = Math.max(0, Math.cos(off) - 0.5) / 0.5;
+          const speed = WALK_SPEED * st.pace * align * align;
+          st.x += (tx / left) * speed * dt;
+          st.z += (tz / left) * speed * dt;
+          st.leg += speed * dt * 3.1;
+          moving = speed / (WALK_SPEED * st.pace);
+        }
+        fig.position.set(st.x, c.at[1], st.z);
+        fig.rotation.y = st.facing;
+        npcMotion.record(`crowd:${i}`, st.x, st.z, fig.rotation.y, dt);
+      } else {
+        const wantYaw = near ? bearing : c.facing;
+        let diff = wantYaw - fig.rotation.y;
+        diff = Math.atan2(Math.sin(diff), Math.cos(diff));
+        const most = TURN_RATE * dt;
+        fig.rotation.y += Math.max(-most, Math.min(most, diff * (1 - Math.exp(-2.2 * dt))));
+        npcMotion.record(`crowd:${i}`, st.x, st.z, fig.rotation.y, dt);
+      }
 
       /* Weight shift and breathing. */
       const sway = Math.sin(t * 0.55 * st.rhythm + st.seed) * 0.02;

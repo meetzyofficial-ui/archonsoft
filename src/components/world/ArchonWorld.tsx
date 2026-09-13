@@ -404,7 +404,7 @@ export function ArchonWorld({
           <button
             type="button"
             onClick={exit}
-            className="mono-label link-rule -my-2 py-2 text-[var(--fg-mute)] transition-colors hover:text-[var(--fg)]"
+            className="mono-label link-rule [--link-pad:15px] text-[var(--fg-mute)] transition-colors hover:text-[var(--fg)]"
           >
             {copy.mainSite} →
           </button>
@@ -480,7 +480,7 @@ export function ArchonWorld({
               type="button"
               data-enter
               onClick={() => setStage("world")}
-              className="mono-label group/enter link-rule mt-10 inline-flex cursor-pointer items-center gap-4 text-[var(--fg)]"
+              className="mono-label group/enter link-rule mt-10 inline-flex cursor-pointer items-center gap-4 text-[var(--fg)] [--link-pad:15px]"
             >
               {copy.enterWorld}
               <span
