@@ -1,8 +1,8 @@
-import Image from "next/image";
+import Image, { type StaticImageData } from "next/image";
 import type { CSSProperties } from "react";
 import { TiltFrame } from "@/components/projects/TiltFrame";
-import type { ShowcaseMedia, ShowcaseProject } from "@/data/showcase";
-import { t, type Locale } from "@/lib/i18n";
+import type { ShowcaseProject } from "@/data/showcase";
+import { t, type Locale, type Localized } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 /**
@@ -32,9 +32,47 @@ export function ProjectStage({
   size?: "index" | "hero";
   className?: string;
 }) {
-  const [lead, ...rest] = project.hero;
+  return (
+    <MediaStage
+      media={project.hero}
+      accent={project.accent}
+      locale={locale}
+      priority={priority}
+      size={size}
+      className={className}
+    />
+  );
+}
+
+/** Anything a stage can hold: a picture, what it shows, and its shape. */
+export type StageMedia = {
+  image: StaticImageData;
+  alt: Localized;
+  kind: "phone" | "screen" | "scene";
+};
+
+/**
+ * The stage itself, for any set of pictures — a project's, or a service's.
+ * The first picture decides the composition.
+ */
+export function MediaStage({
+  media,
+  accent,
+  locale,
+  priority = false,
+  size = "index",
+  className,
+}: {
+  media: StageMedia[];
+  accent: string;
+  locale: Locale;
+  priority?: boolean;
+  size?: "index" | "hero";
+  className?: string;
+}) {
+  const [lead, ...rest] = media;
   if (!lead) return null;
-  const glow = { "--stage-glow": project.accent } as CSSProperties;
+  const glow = { "--stage-glow": accent } as CSSProperties;
 
   return (
     <TiltFrame
@@ -65,7 +103,7 @@ function Scene({
   priority,
   size,
 }: {
-  media: ShowcaseMedia;
+  media: StageMedia;
   locale: Locale;
   priority: boolean;
   size: "index" | "hero";
@@ -97,7 +135,7 @@ function Phones({
   priority,
   size,
 }: {
-  items: ShowcaseMedia[];
+  items: StageMedia[];
   locale: Locale;
   priority: boolean;
   size: "index" | "hero";
@@ -132,7 +170,7 @@ function Device({
   priority = false,
   className,
 }: {
-  media: ShowcaseMedia;
+  media: StageMedia;
   locale: Locale;
   sizes: string;
   priority?: boolean;
@@ -162,7 +200,7 @@ function Screens({
   priority,
   size,
 }: {
-  items: ShowcaseMedia[];
+  items: StageMedia[];
   locale: Locale;
   priority: boolean;
   size: "index" | "hero";
@@ -196,7 +234,7 @@ function Window({
   priority = false,
   className,
 }: {
-  media: ShowcaseMedia;
+  media: StageMedia;
   locale: Locale;
   sizes: string;
   priority?: boolean;

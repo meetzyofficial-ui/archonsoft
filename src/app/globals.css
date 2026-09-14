@@ -1784,3 +1784,324 @@ html.robot-cursor-on
   aspect-ratio: 16 / 10;
   box-shadow: inset 0 0 0 1px color-mix(in oklab, #ffffff 9%, transparent);
 }
+
+/* ------------------------------------------------------------------ */
+/*  The service explorer.                                              */
+/* ------------------------------------------------------------------ */
+.service-tab {
+  position: relative;
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 0.9rem;
+  min-height: 3rem;
+  padding: 0.7rem 1rem;
+  border-radius: 999px;
+  text-align: left;
+  color: var(--fg-dim);
+  background: color-mix(in oklab, #ffffff 3%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, #ffffff 9%, transparent);
+  cursor: pointer;
+  transition:
+    color 400ms linear,
+    opacity 500ms var(--ease-out-expo),
+    background-color 500ms var(--ease-out-expo),
+    box-shadow 500ms var(--ease-out-expo),
+    transform 600ms var(--ease-out-expo);
+  scroll-snap-align: start;
+}
+.service-tab__index {
+  color: var(--fg-mute);
+}
+.service-tab__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.service-tab__title {
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: -0.012em;
+  white-space: nowrap;
+}
+.service-tab__eyebrow {
+  display: none;
+  color: var(--fg-mute);
+}
+.service-tab__mark {
+  display: none;
+}
+.service-tab[aria-selected="true"] {
+  color: var(--fg);
+  background: linear-gradient(180deg, #1a2029, #0f1319);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, var(--color-cyan) 34%, transparent),
+    inset 0 1px 0 color-mix(in oklab, #c9f1ff 18%, transparent),
+    0 12px 28px -16px color-mix(in oklab, var(--color-cyan) 40%, transparent);
+}
+.service-tab[aria-selected="true"] .service-tab__index {
+  color: var(--accent);
+}
+.service-tabs {
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: var(--spacing-gutter);
+}
+@media (min-width: 768px) {
+  .service-tabs {
+    scroll-snap-type: none;
+    border-top: 1px solid var(--line);
+  }
+  .service-tab {
+    width: 100%;
+    min-height: 4.25rem;
+    padding: 1rem 0.25rem 1rem 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    border-bottom: 1px solid var(--line);
+  }
+  .service-tab__title {
+    font-size: clamp(1.05rem, 1.35vw, 1.3rem);
+    white-space: normal;
+  }
+  .service-tab__eyebrow {
+    display: block;
+  }
+  .service-tab__mark {
+    display: block;
+    position: absolute;
+    right: 0.25rem;
+    top: 50%;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-top: 1px solid currentColor;
+    border-right: 1px solid currentColor;
+    transform: translate3d(-0.4rem, -50%, 0) rotate(45deg);
+    opacity: 0;
+    transition:
+      opacity 400ms linear,
+      transform 600ms var(--ease-out-expo);
+  }
+  /* A light running along the lower edge of the chosen row. */
+  .service-tab::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 1px;
+    background: linear-gradient(90deg, var(--color-cyan), transparent 80%);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 900ms var(--ease-out-expo);
+  }
+  .service-tab[aria-selected="true"] {
+    background: linear-gradient(90deg, color-mix(in oklab, var(--color-cyan) 7%, transparent), transparent 70%);
+    box-shadow: none;
+    padding-left: 0.9rem;
+  }
+  .service-tab[aria-selected="true"]::after {
+    transform: scaleX(1);
+  }
+  .service-tab[aria-selected="true"] .service-tab__mark {
+    opacity: 1;
+    transform: translate3d(0, -50%, 0) rotate(45deg);
+  }
+}
+@media (hover: hover) {
+  /* Considering one: the others step back. */
+  .service-tabs:has(.service-tab:hover) .service-tab:not(:hover):not([aria-selected="true"]) {
+    opacity: 0.45;
+  }
+  .service-tab:hover {
+    color: var(--fg);
+  }
+}
+@media (hover: hover) and (min-width: 768px) {
+  .service-tab:hover:not([aria-selected="true"]) {
+    transform: translate3d(0.4rem, 0, 0);
+  }
+}
+.service-tab:focus-visible {
+  outline: 2px solid var(--color-cyan);
+  outline-offset: 2px;
+}
+
+.service-panel[data-open="false"] {
+  display: none;
+}
+.no-js .service-panel[data-open="false"] {
+  display: block;
+  margin-top: 5rem;
+}
+.service-enter {
+  animation: service-enter 700ms var(--ease-out-expo) both;
+}
+.service-enter .service-stage {
+  animation: service-stage 1100ms var(--ease-out-expo) both;
+  animation-delay: 120ms;
+}
+@keyframes service-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes service-stage {
+  from {
+    opacity: 0;
+    transform: scale(0.975);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.service-capabilities {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (min-width: 640px) {
+  .service-capabilities {
+    grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
+  }
+}
+.service-capability {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 2.9rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 0.75rem;
+  color: var(--fg);
+  background: linear-gradient(180deg, color-mix(in oklab, #ffffff 4%, transparent), color-mix(in oklab, #ffffff 1.5%, transparent));
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, #ffffff 9%, transparent),
+    inset 0 1px 0 color-mix(in oklab, #ffffff 6%, transparent);
+  font-size: 0.93rem;
+  line-height: 1.25;
+}
+@media (max-width: 639px) {
+  .service-capability {
+    gap: 0.5rem;
+    padding: 0.55rem 0.7rem;
+    font-size: 0.85rem;
+  }
+}
+
+.service-evidence {
+  border-top: 1px solid var(--line);
+}
+.service-evidence__row {
+  display: grid;
+  gap: 0.35rem 1.5rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--line);
+}
+@media (min-width: 640px) {
+  .service-evidence__row {
+    grid-template-columns: 11rem 1fr;
+    align-items: baseline;
+  }
+}
+
+.service-cta {
+  padding: 1.75rem;
+  border-radius: 1.25rem;
+  background:
+    radial-gradient(ellipse 60% 90% at 0% 100%, color-mix(in oklab, var(--color-cyan) 9%, transparent), transparent 70%),
+    linear-gradient(180deg, #10141b, #0a0d12);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, #ffffff 9%, transparent),
+    inset 0 1px 0 color-mix(in oklab, #ffffff 7%, transparent);
+}
+@media (min-width: 768px) {
+  .service-cta {
+    padding: 2.25rem 2.5rem;
+  }
+}
+
+.service-brief {
+  animation: service-enter 700ms var(--ease-out-expo) both;
+}
+
+/* The gallery. */
+.service-gallery {
+  background: color-mix(in oklab, #03050a 96%, transparent);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  animation: service-gallery-in 380ms var(--ease-out-expo) both;
+  touch-action: pan-y;
+}
+@keyframes service-gallery-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.service-gallery__figure {
+  animation: service-stage 600ms var(--ease-out-expo) both;
+}
+.service-gallery__nav {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 2.9rem;
+  height: 2.9rem;
+  border-radius: 999px;
+  color: var(--color-frost);
+  background: linear-gradient(180deg, #1a202a, #0f131a);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, #ffffff 13%, transparent),
+    inset 0 1px 0 color-mix(in oklab, #ffffff 15%, transparent),
+    0 10px 24px -12px rgba(0, 0, 0, 0.8);
+  transform: translateY(-50%);
+  cursor: pointer;
+  transition: box-shadow 400ms var(--ease-out-expo);
+}
+.service-gallery__nav:hover {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, var(--color-cyan) 40%, transparent),
+    inset 0 1px 0 color-mix(in oklab, #ffffff 18%, transparent),
+    0 10px 24px -12px rgba(0, 0, 0, 0.8);
+}
+.service-gallery__nav:focus-visible {
+  outline: 2px solid var(--color-cyan);
+  outline-offset: 3px;
+}
+.service-gallery__tick {
+  display: block;
+  width: 1.4rem;
+  height: 2px;
+  border-radius: 2px;
+  background: color-mix(in oklab, #ffffff 16%, transparent);
+  transition: background-color 400ms linear;
+}
+.service-gallery__tick.is-current {
+  background: var(--color-cyan);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .service-enter,
+  .service-enter .service-stage,
+  .service-brief,
+  .service-gallery,
+  .service-gallery__figure {
+    animation: none !important;
+  }
+  .service-tab,
+  .service-tab::after,
+  .service-tab__mark {
+    transition: none !important;
+  }
+}

@@ -7,6 +7,8 @@
  * and the client turns the key into a message from its own dictionary.
  */
 
+import { isServiceId } from "@/data/serviceIds";
+
 export const PROJECT_TYPES = [
   "product",
   "web",
@@ -26,6 +28,11 @@ export type ContactPayload = {
   email: string;
   company?: string;
   projectType: string;
+  /**
+   * The service the visitor chose in the home page's explorer, when they came
+   * from there. Context for the studio, never required.
+   */
+  service?: string;
   message: string;
   /** Hidden field. A bot filling it in is the only thing that ever will. */
   website?: string;
@@ -39,6 +46,7 @@ export type ErrorKey =
   | "company"
   | "type"
   | "typeInvalid"
+  | "serviceInvalid"
   | "message"
   | "messageLong";
 
@@ -63,6 +71,8 @@ export function validateContact(input: Partial<ContactPayload>): FieldErrors {
   const projectType = input.projectType?.trim() ?? "";
   if (!projectType) errors.projectType = "type";
   else if (!PROJECT_TYPES.includes(projectType as ProjectType)) errors.projectType = "typeInvalid";
+
+  if (input.service && !isServiceId(input.service)) errors.service = "serviceInvalid";
 
   const message = input.message?.trim() ?? "";
   if (message.length < 20) errors.message = "message";

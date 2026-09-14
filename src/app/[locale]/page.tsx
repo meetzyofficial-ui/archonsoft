@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { Opening } from "@/components/site/Opening";
 import { ProjectShowcase } from "@/components/projects/ProjectShowcase";
 import { LabsBand } from "@/components/sections/LabsBand";
-import { Capabilities } from "@/components/site/Capabilities";
+import { ServiceSection } from "@/components/services/ServiceSection";
 import { DesignEngineering } from "@/components/site/DesignEngineering";
 import { WorldEntry } from "@/components/site/WorldEntry";
 import { dict } from "@/i18n/dictionary";
@@ -26,7 +26,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 /**
  * The home page, in six movements, each with one job.
  *
- * What the studio does (the opening), what it builds (capabilities), the proof
+ * What the studio does (the opening), what a visitor can have built — shown,
+ * not listed, and ending in the contact form (the service explorer), the proof
  * (selected projects, staged), how it works (design × engineering), what else
  * it can build (Archon Labs, ten running concepts), and the door out of the
  * website into the world. Contact is the close, in the footer every page ends
@@ -45,7 +46,7 @@ export default async function HomePage({ params }: Params) {
   return (
     <>
       <Opening locale={locale} copy={copy} />
-      <Capabilities locale={locale} copy={copy} />
+      <ServiceSection locale={locale} copy={copy} />
       <ProjectShowcase locale={locale} copy={copy} />
       <DesignEngineering copy={copy} />
       <LabsBand locale={locale} copy={copy} />

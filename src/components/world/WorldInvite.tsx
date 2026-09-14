@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
  * invitation, and this is the only place that check needs to live because
  * every entry point comes through here.
  */
-function useWebGL(): boolean {
+export function useWebGL(): boolean {
   const [able, setAble] = useState(true);
   useEffect(() => {
     try {

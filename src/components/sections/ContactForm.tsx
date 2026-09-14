@@ -1,11 +1,13 @@
 "use client";
 
-import { useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
+import { SERVICE_META, isServiceId, type ServiceId } from "@/data/serviceIds";
 import { ActionButton } from "@/components/ui/Action";
 import type { Copy } from "@/i18n/dictionary";
 import {
   PROJECT_TYPES,
   hasErrors,
+  type ProjectType,
   validateContact,
   type ContactPayload,
   type FieldErrors,
@@ -26,6 +28,7 @@ const EMPTY: ContactPayload = {
   email: "",
   company: "",
   projectType: "",
+  service: "",
   message: "",
   website: "",
 };
@@ -77,9 +80,46 @@ function Chip({
   );
 }
 
-export function ContactForm({ locale, copy }: { locale: Locale; copy: Copy }) {
+export type ContactPreset = { service: ServiceId; projectType: ProjectType };
+
+export function ContactForm({
+  locale,
+  copy,
+  preset,
+}: {
+  locale: Locale;
+  copy: Copy;
+  /**
+   * The service the visitor chose before arriving at the form. It selects the
+   * matching project type and travels with the message as context; changing
+   * it later (from the explorer) changes both, and nothing else they typed.
+   */
+  preset?: ContactPreset;
+}) {
   const uid = useId();
   const [values, setValues] = useState<ContactPayload>(EMPTY);
+
+  useEffect(() => {
+    if (!preset) return;
+    setValues((current) => ({ ...current, service: preset.service, projectType: preset.projectType }));
+  }, [preset?.service, preset?.projectType]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  /* Arriving at /contact?service=… from a link that could not open the
+     explorer (no JavaScript at the time, or a shared address). An unknown
+     value is simply ignored. */
+  useEffect(() => {
+    if (preset) return;
+    try {
+      const asked = new URLSearchParams(window.location.search).get("service");
+      if (isServiceId(asked)) {
+        setValues((current) => ({ ...current, service: asked, projectType: SERVICE_META[asked].projectType }));
+      }
+    } catch {
+      /* No query to read. */
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const chosen = isServiceId(values.service) ? { id: values.service, ...SERVICE_META[values.service] } : undefined;
   const [errors, setErrors] = useState<FieldErrors>({});
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const errorRef = useRef<HTMLDivElement>(null);
@@ -163,6 +203,7 @@ export function ContactForm({ locale, copy }: { locale: Locale; copy: Copy }) {
           `${form.email}: ${values.email}`,
           values.company ? `${form.company}: ${values.company}` : null,
           `${form.type} ${form.types[values.projectType as keyof typeof form.types] ?? ""}`,
+          chosen ? `${copy.explorer.selected}: ${chosen.title[locale]}` : null,
           "",
           values.message,
         ]
@@ -306,6 +347,12 @@ export function ContactForm({ locale, copy }: { locale: Locale; copy: Copy }) {
         <legend className="mono-label text-[var(--fg-mute)]">
           {form.type} <span className="text-[var(--accent)]">*</span>
         </legend>
+        {chosen ? (
+          <p className="mt-4 flex flex-wrap items-center gap-3" data-chosen-service={chosen.id}>
+            <span className="mono-micro text-[var(--fg-mute)]">{copy.explorer.selected}</span>
+            <span className="chip mono-micro !text-[var(--fg)]">{chosen.title[locale]}</span>
+          </p>
+        ) : null}
         {/* A grid, not a wrapping row.
             These chips are set in the mono face and are wider in the
             fallback, so the row they wrapped to changed the moment the real
