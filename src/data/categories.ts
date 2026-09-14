@@ -60,7 +60,7 @@ export const CATEGORIES: Category[] = [
     kind: "shipped",
     slug: "meetzy",
     name: "Meetzy",
-    screen: MEETZY.mood!,
+    screen: MEETZY.problem!,
   },
   {
     id: "mobile",
@@ -73,7 +73,7 @@ export const CATEGORIES: Category[] = [
     kind: "shipped",
     slug: "meetzy",
     name: "Meetzy",
-    screen: MEETZY.map!,
+    screen: MEETZY.plan!,
   },
   {
     id: "web",

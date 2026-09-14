@@ -21,6 +21,7 @@ import path from "node:path";
 
 const ROOT = process.cwd();
 const RAW_M = path.join(ROOT, "_incoming/meetzy-raw");
+const RAW_MS = path.join(ROOT, "_incoming/meetzy-store");
 const RAW_E = path.join(ROOT, "_incoming/erden-raw");
 const OUT_M = path.join(ROOT, "src/assets/work/meetzy");
 const OUT_E = path.join(ROOT, "src/assets/work/erden");
@@ -98,6 +99,21 @@ const MEETZY = [
   { src: "WhatsApp Image 2026-09-03 at 21.26.59 (4).jpeg", out: "07-memories.jpg" },
 ];
 
+/**
+ * Meetzy — the App Store set, and the product's main images.
+ *
+ * Designed marketing plates rather than captures: the people in them are
+ * stock photography, not Meetzy users, so nothing here is redacted. They
+ * arrive at 1290x2796 and are kept at that size — unlike the WhatsApp
+ * captures there is real resolution to keep.
+ */
+const MEETZY_STORE = [
+  { src: "01-problem.png", out: "store-01-problem.jpg" },
+  { src: "02-plan.png", out: "store-02-plan.jpg" },
+  { src: "03-real.png", out: "store-03-real.jpg" },
+  { src: "04-join.png", out: "store-04-join.jpg" },
+];
+
 /** Erden Davetiye — browser captures, chrome cropped to a clean plane. */
 const ERDEN = [
   { src: "WhatsApp Image 2026-09-03 at 21.25.49.jpeg", out: "01-home.jpg" },
@@ -148,8 +164,8 @@ const DPPANO = [
   { src: "11-yetkili-hesap-yetkileri.png", out: "11-permissions.jpg", width: 1346 },
 ];
 
-async function run(list, rawDir, outDir, { chrome = false, width = 0 } = {}) {
-  await rm(outDir, { recursive: true, force: true });
+async function run(list, rawDir, outDir, { chrome = false, width = 0, clean = true } = {}) {
+  if (clean) await rm(outDir, { recursive: true, force: true });
   await mkdir(outDir, { recursive: true });
 
   for (const item of list) {
@@ -182,6 +198,7 @@ async function run(list, rawDir, outDir, { chrome = false, width = 0 } = {}) {
 
 console.log("Meetzy →");
 await run(MEETZY, RAW_M, OUT_M);
+await run(MEETZY_STORE, RAW_MS, OUT_M, { clean: false });
 console.log("Erden Davetiye →");
 await run(ERDEN, RAW_E, OUT_E, { chrome: true });
 console.log("DP Pano →");

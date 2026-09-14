@@ -323,11 +323,12 @@ export const PROJECTS: Project[] = [
     },
     platform: { en: "Mobile app", tr: "Mobil uygulama" },
     accent: "#F0483C",
-    /* Four handset captures and a product about people: a column of moments. */
+    /* Four handset plates and a product about people: a column of moments.
+       The App Store set leads, here and in the world; the captures follow. */
     layout: "stack",
-    lead: MEETZY.mood!,
-    screens: [MEETZY.mood!, MEETZY.nearby!, MEETZY.feed!, MEETZY.map!],
-    detail: [MEETZY.profile!, MEETZY.memories!, MEETZY.auth!],
+    lead: MEETZY.problem!,
+    screens: [MEETZY.problem!, MEETZY.plan!, MEETZY.real!, MEETZY.join!],
+    detail: [MEETZY.mood!, MEETZY.nearby!, MEETZY.feed!, MEETZY.map!],
     systemAreas: {
       title: { en: "What the product holds", tr: "Ürünün tuttuğu" },
       areas: [
@@ -395,11 +396,11 @@ export const PROJECTS: Project[] = [
         body: {
           en: [
             "A profile here is not a photo and a bio. It is structured: how someone communicates, how they live, what they do at weekends, what they are into. Enough to make a judgement, laid out so the judgement takes seconds.",
-            "The screens in this case study have their users' names and faces removed. That is not a design flourish — real people are in there, and none of them agreed to appear in a portfolio.",
+            "The app captures in this case study have their users' names and faces removed. That is not a design flourish — real people are in there, and none of them agreed to appear in a portfolio. The people in the App Store images are stock photography.",
           ],
           tr: [
             "Buradaki profil bir fotoğraf ve iki cümle değil. Yapılandırılmış: kişi nasıl iletişim kuruyor, nasıl yaşıyor, hafta sonu ne yapıyor, nelerle ilgileniyor. Karar vermeye yetecek kadar bilgi, kararın saniyeler sürmesini sağlayacak şekilde dizilmiş.",
-            "Bu vaka çalışmasındaki ekranlarda kullanıcı isimleri ve yüzleri kaldırıldı. Bu bir tasarım süsü değil — orada gerçek insanlar var ve hiçbiri bir portfolyoda yer almayı kabul etmedi.",
+            "Bu vaka çalışmasındaki uygulama ekranlarında kullanıcı isimleri ve yüzleri kaldırıldı. Bu bir tasarım süsü değil — orada gerçek insanlar var ve hiçbiri bir portfolyoda yer almayı kabul etmedi. App Store görsellerindeki kişiler stok fotoğraftır.",
           ],
         },
       },

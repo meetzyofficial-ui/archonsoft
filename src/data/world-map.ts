@@ -490,8 +490,8 @@ const ARCHIVE_NOTES: { title: Localized; body: Localized }[] = [
   {
     title: { en: "Redaction", tr: "Maskeleme" },
     body: {
-      en: "Meetzy is a social product. No screen here shows a face, and names in list rows are pixelated before the image ever reaches the site.",
-      tr: "Meetzy sosyal bir ürün. Buradaki hiçbir ekran yüz göstermiyor; liste satırlarındaki isimler görsel siteye ulaşmadan önce pikselleniyor.",
+      en: "Meetzy is a social product. No app capture here shows a user's face, and names in list rows are pixelated before the image ever reaches the site. The faces on its App Store images are stock photography.",
+      tr: "Meetzy sosyal bir ürün. Buradaki hiçbir uygulama ekranı bir kullanıcının yüzünü göstermiyor; liste satırlarındaki isimler görsel siteye ulaşmadan önce pikselleniyor. App Store görsellerindeki yüzler stok fotoğraftır.",
     },
   },
   {

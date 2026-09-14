@@ -8,6 +8,10 @@ import meetzyProfile from "@/assets/work/meetzy/04-profile-detail.jpg";
 import meetzyNearby from "@/assets/work/meetzy/05-nearby.jpg";
 import meetzyFeed from "@/assets/work/meetzy/06-feed.jpg";
 import meetzyMemories from "@/assets/work/meetzy/07-memories.jpg";
+import meetzyProblem from "@/assets/work/meetzy/store-01-problem.jpg";
+import meetzyPlan from "@/assets/work/meetzy/store-02-plan.jpg";
+import meetzyReal from "@/assets/work/meetzy/store-03-real.jpg";
+import meetzyJoin from "@/assets/work/meetzy/store-04-join.jpg";
 
 import erdenHome from "@/assets/work/erden/01-home.jpg";
 import erdenCategories from "@/assets/work/erden/02-categories.jpg";
@@ -41,9 +45,13 @@ import dpPermissions from "@/assets/work/dppano/11-permissions.jpg";
  * - They arrived as WhatsApp images at 942px wide, so they are never blown up
  *   past device scale. Compression artefacts would be the first thing a
  *   visitor noticed, and a soft screenshot undoes the argument it is making.
- * - Meetzy is a social product. Screens showing users' faces are not used at
- *   all; screens carrying names in list rows are pixelated over those rows by
+ * - Meetzy is a social product. Captures showing users' faces are not used at
+ *   all; captures carrying names in list rows are pixelated over those rows by
  *   `scripts/prepare-assets.mjs`, and the site says so where they appear.
+ *
+ * Meetzy's main images are the exception to the first point: its App Store
+ * set, designed plates at 1290x2796 whose people are stock photography rather
+ * than users. They lead wherever Meetzy is shown; the captures follow them.
  */
 
 export type Screen = {
@@ -55,6 +63,34 @@ export type Screen = {
 };
 
 export const MEETZY: Record<string, Screen> = {
+  problem: {
+    image: meetzyProblem,
+    caption: {
+      en: "Going to the concert, and your friend isn't coming?",
+      tr: "Konsere gideceksin, arkadaşın gelmiyor mu?",
+    },
+  },
+  plan: {
+    image: meetzyPlan,
+    caption: {
+      en: "Make the plan. Find your crew on Meetzy.",
+      tr: "Planını oluştur. Ekibini Meetzy'de bul.",
+    },
+  },
+  real: {
+    image: meetzyReal,
+    caption: {
+      en: "Get off the screen. Make the plan real.",
+      tr: "Ekrandan çık. Planın gerçek olsun.",
+    },
+  },
+  join: {
+    image: meetzyJoin,
+    caption: {
+      en: "Don't cancel because your friends are busy",
+      tr: "Arkadaşların müsait değil diye planını iptal etme",
+    },
+  },
   mood: {
     image: meetzyMood,
     caption: { en: "Mood-led discovery", tr: "Ruh hâline göre keşif" },
