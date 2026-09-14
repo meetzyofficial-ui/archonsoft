@@ -606,7 +606,7 @@
   top: 22vmax;
   right: calc(12vmax + 5vw);
   width: min(30vw, 480px);
-  color: color-mix(in oklab, var(--color-frost) 4%, transparent);
+  color: color-mix(in oklab, var(--color-frost) 6%, transparent);
   transition: opacity 1.2s var(--ease-out-soft);
 }
 html[data-logo-live="true"] .atmosphere__mark {

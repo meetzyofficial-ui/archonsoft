@@ -56,24 +56,24 @@ const MARK_FRAGMENT = /* glsl */ `
     vec3 h = normalize(l + v);
 
     /* Titanium, nearly the night: a brushed gradient across each face. */
-    vec3 base = mix(vec3(0.030, 0.037, 0.050), vec3(0.058, 0.068, 0.086), clamp(vLocal.y * 0.35 + 0.5, 0.0, 1.0));
+    vec3 base = mix(vec3(0.046, 0.056, 0.074), vec3(0.086, 0.100, 0.124), clamp(vLocal.y * 0.35 + 0.5, 0.0, 1.0));
     float diffuse = max(dot(n, l), 0.0);
     float spec = pow(max(dot(n, h), 0.0), 48.0);
     float fres = pow(1.0 - max(dot(n, v), 0.0), 3.0);
 
     vec3 colour = base * (0.55 + diffuse * 0.9);
-    colour += vec3(0.62, 0.78, 0.90) * spec * 0.55;
-    colour += vec3(0.24, 0.78, 1.0) * fres * 0.42;
+    colour += vec3(0.62, 0.78, 0.90) * spec * 0.72;
+    colour += vec3(0.24, 0.78, 1.0) * fres * 0.58;
 
     /* The scan: one soft band travelling along the bars. */
     float band = uSweep - (vWorld.x * 0.22 + vWorld.y * 0.08);
     float scan = exp(-band * band * 38.0);
-    colour += vec3(0.38, 0.85, 1.0) * scan * (0.10 + 0.45 * fres);
+    colour += vec3(0.38, 0.85, 1.0) * scan * (0.14 + 0.55 * fres);
 
     /* Not a solid: the faces let most of the night through and the light is
        what carries the shape — edges, the moving highlight, the scan. A
        solid dark slab read as a hole cut in the page. */
-    float body = 0.22 + fres * 0.5 + spec * 0.7 + scan * 0.35 + diffuse * 0.08;
+    float body = 0.34 + fres * 0.6 + spec * 0.75 + scan * 0.4 + diffuse * 0.1;
     gl_FragColor = vec4(colour, clamp(body, 0.0, 1.0) * uFade);
   }
 `;
@@ -170,7 +170,7 @@ function Mark({ tier }: { tier: LogoTier }) {
     smooth.current.x += (pointer.y * 0.09 - smooth.current.x) * k;
     smooth.current.y += (pointer.x * 0.16 - smooth.current.y) * k;
     smooth.current.scroll += (scroll - smooth.current.scroll) * k;
-    smooth.current.fade += (1 - past * 0.62 - smooth.current.fade) * k;
+    smooth.current.fade += (1 - past * 0.5 - smooth.current.fade) * k;
     u.uFade!.value = smooth.current.fade;
     fade.value = smooth.current.fade;
 
@@ -191,8 +191,8 @@ function Mark({ tier }: { tier: LogoTier }) {
      so it is always too big to be a logo and never so big it is a wall. */
   const scale =
     tier === "desktop"
-      ? Math.min((viewport.height * 0.4) / 2.94, (viewport.width * 0.3) / 3.4)
-      : Math.min((viewport.width * 0.44) / 3.4, (viewport.height * 0.22) / 2.94);
+      ? Math.min((viewport.height * 0.43) / 2.94, (viewport.width * 0.32) / 3.4)
+      : Math.min((viewport.width * 0.48) / 3.4, (viewport.height * 0.24) / 2.94);
 
   return (
     <group ref={group} scale={scale}>
@@ -227,7 +227,7 @@ function Halo({ fade }: { fade: { value: number } }) {
           void main() {
             vec2 p = vUv - 0.5;
             float d = length(p * vec2(1.0, 1.25));
-            float glow = exp(-d * d * 9.0) * (0.09 + 0.02 * sin(uTime * 0.6)) * uFade;
+            float glow = exp(-d * d * 9.0) * (0.13 + 0.025 * sin(uTime * 0.6)) * uFade;
             /* Alpha is the light's own amount: writing 1 here made the canvas
                opaque over the whole quad and cut a dark rectangle in the page. */
             gl_FragColor = vec4(vec3(0.22, 0.62, 0.95), glow);
