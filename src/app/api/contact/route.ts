@@ -50,7 +50,6 @@ async function deliver(payload: ContactPayload): Promise<void> {
     ["Email", payload.email],
     ["Company", payload.company || "—"],
     ["Project type", payload.projectType],
-    ["Budget", payload.budget || "—"],
   ];
 
   const html = [
@@ -120,7 +119,6 @@ export async function POST(request: Request) {
     email: body.email!.trim(),
     company: body.company?.trim() || undefined,
     projectType: body.projectType!.trim(),
-    budget: body.budget?.trim() || undefined,
     message: body.message!.trim(),
   };
 

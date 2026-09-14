@@ -82,13 +82,13 @@ fs.mkdirSync(".qa/world", { recursive: true });
   check("the brief opens short: name, email, project", (await card.locator("input, textarea, select").count()) <= 5);
   await card.locator("[data-office-more]").click();
   await page.waitForTimeout(200);
-  check("more detail unfolds the optional fields", (await card.locator("select[name=budget]").count()) === 1);
+  check("more detail unfolds the optional fields", (await card.locator("select[name=timeline]").count()) === 1);
+  check("the brief never asks for a budget", (await card.locator("[name=budget]").count()) === 0);
   await card.locator("input[name=name]").fill("QA Ziyaretçi");
   await card.locator("input[name=company]").fill("QA Studio");
   await card.locator("input[name=email]").fill("qa@example.com");
   await card.locator("input[name=phone]").fill("+90 555 000 00 00");
   await card.locator("textarea[name=description]").fill("Archon World QA: end-to-end lead flow test, not a real request.");
-  await card.locator("select[name=budget]").selectOption("10-25");
   await card.locator("select[name=timeline]").selectOption("1-3m");
   await card.locator("input[name=consent]").check();
 

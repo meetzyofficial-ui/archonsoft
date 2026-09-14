@@ -44,16 +44,8 @@ const escapeHtml = (value: string) =>
 /** One line, no control characters: what goes into a header or a subject. */
 const oneLine = (value: string) => value.replace(/[\r\n\t]|[\x00-\x1f\x7f]/g, " ").replace(/\s+/g, " ").trim();
 
-type Names = { department: string; service: string; budget: string; timeline: string };
+type Names = { department: string; service: string; timeline: string };
 
-const BUDGET_LABELS: Record<string, string> = {
-  unsure: "Not sure yet",
-  lt10: "Under $10k",
-  "10-25": "$10k – $25k",
-  "25-50": "$25k – $50k",
-  "50-100": "$50k – $100k",
-  "100plus": "$100k+",
-};
 const TIMELINE_LABELS: Record<string, string> = { asap: "As soon as possible", "1-3m": "1–3 months", "3-6m": "3–6 months", flexible: "Flexible" };
 
 function emailHtml(lead: LeadPayload, when: string, names: Names, id: string, storedWhere: string): string {
@@ -67,7 +59,7 @@ function emailHtml(lead: LeadPayload, when: string, names: Names, id: string, st
 <h1 style="margin:8px 0 0;font:600 22px/1.3 system-ui;color:#111827">New client request</h1>
 <p style="margin:6px 0 0;font:13px/1.5 system-ui;color:#7a8394">${escapeHtml(when)} · ${escapeHtml(lead.device)} · ${escapeHtml(lead.locale.toUpperCase())} · ref ${escapeHtml(id)}</p>
 ${section("Client", row("Client", lead.name, true) + row("Company", lead.company || "—") + row("Contact", contact))}
-${section("Request", row("Department", names.department, true) + row("Service", names.service, true) + row("Project", lead.description) + row("Budget", names.budget) + row("Timeline", names.timeline) + (lead.notes ? row("Notes", lead.notes) : ""))}
+${section("Request", row("Department", names.department, true) + row("Service", names.service, true) + row("Project", lead.description) + row("Timeline", names.timeline) + (lead.notes ? row("Notes", lead.notes) : ""))}
 ${section("Context", row("Journey", (lead.journey ?? []).join(" → ") || "—") + row("Stored", storedWhere) + row("Source", "archon_world"))}
 <p style="margin:28px 0 0;font:13px/1.5 system-ui;color:#7a8394">Reply to this email to answer the client directly.</p>
 </div></body></html>`;
@@ -83,7 +75,6 @@ function emailText(lead: LeadPayload, when: string, names: Names, id: string): s
     `DEPARTMENT  ${names.department}`,
     `SERVICE     ${names.service}`,
     `PROJECT     ${lead.description}`,
-    `BUDGET      ${names.budget}`,
     `TIMELINE    ${names.timeline}`,
     lead.notes ? `NOTES       ${lead.notes}` : "",
     "",
@@ -185,7 +176,6 @@ export async function POST(request: Request) {
     department: body.department!,
     service: body.service!,
     description: body.description!.trim().slice(0, 4000),
-    budget: body.budget || "",
     timeline: body.timeline || "",
     notes: body.notes?.trim().slice(0, 2000) || undefined,
     consent: true,
@@ -199,7 +189,6 @@ export async function POST(request: Request) {
   const names: Names = {
     department: department.name[lead.locale],
     service: service.name[lead.locale],
-    budget: lead.budget ? BUDGET_LABELS[lead.budget] ?? lead.budget : "—",
     timeline: lead.timeline ? TIMELINE_LABELS[lead.timeline] ?? lead.timeline : "—",
   };
   const when = new Date().toISOString();
@@ -226,7 +215,6 @@ export async function POST(request: Request) {
     `Hizmet: ${names.service}`,
     `Departman: ${names.department}`,
     `Proje: ${lead.description.slice(0, 600)}`,
-    `Bütçe: ${names.budget}`,
     `Teslim: ${names.timeline}`,
     `Ref: ${stored.id}`,
   ].join("\n");

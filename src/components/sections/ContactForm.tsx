@@ -4,7 +4,6 @@ import { useId, useRef, useState } from "react";
 import { ActionButton } from "@/components/ui/Action";
 import type { Copy } from "@/i18n/dictionary";
 import {
-  BUDGET_RANGES,
   PROJECT_TYPES,
   hasErrors,
   validateContact,
@@ -27,7 +26,6 @@ const EMPTY: ContactPayload = {
   email: "",
   company: "",
   projectType: "",
-  budget: "",
   message: "",
   website: "",
 };
@@ -165,9 +163,6 @@ export function ContactForm({ locale, copy }: { locale: Locale; copy: Copy }) {
           `${form.email}: ${values.email}`,
           values.company ? `${form.company}: ${values.company}` : null,
           `${form.type} ${form.types[values.projectType as keyof typeof form.types] ?? ""}`,
-          values.budget
-            ? `${form.budget}: ${form.budgets[values.budget as keyof typeof form.budgets] ?? ""}`
-            : null,
           "",
           values.message,
         ]
@@ -336,25 +331,6 @@ export function ContactForm({ locale, copy }: { locale: Locale; copy: Copy }) {
             {message("projectType")}
           </p>
         ) : null}
-      </fieldset>
-
-      <fieldset className="mt-12">
-        <legend className="mono-label text-[var(--fg-mute)]">
-          {form.budget}{" "}
-          <span className="normal-case tracking-normal">{form.budgetHint}</span>
-        </legend>
-        <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
-          {BUDGET_RANGES.map((range) => (
-            <Chip
-              key={range}
-              name="budget"
-              value={range}
-              label={form.budgets[range]}
-              checked={values.budget === range}
-              onChange={(value) => set("budget", values.budget === value ? "" : value)}
-            />
-          ))}
-        </div>
       </fieldset>
 
       <div className="mt-12">

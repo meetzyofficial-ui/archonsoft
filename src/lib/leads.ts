@@ -1,4 +1,3 @@
-import { BUDGET_RANGES, type BudgetRange } from "@/lib/contact";
 import { DEPARTMENTS, type DepartmentId } from "@/data/departments";
 
 /**
@@ -22,7 +21,6 @@ export type LeadPayload = {
   department: DepartmentId;
   service: string;
   description: string;
-  budget?: BudgetRange | "";
   timeline?: Timeline | "";
   notes?: string;
   /** The visitor agreed to be contacted about this request. */
@@ -46,7 +44,6 @@ export type LeadErrorKey =
   | "service"
   | "description"
   | "descriptionLong"
-  | "budgetInvalid"
   | "timelineInvalid"
   | "notes"
   | "consent";
@@ -81,9 +78,6 @@ export function validateLead(input: Partial<LeadPayload>): LeadErrors {
   const description = input.description?.trim() ?? "";
   if (description.length < 10) errors.description = "description";
   else if (description.length > 4000) errors.description = "descriptionLong";
-
-  const budget = input.budget?.trim() ?? "";
-  if (budget && !BUDGET_RANGES.includes(budget as BudgetRange)) errors.budget = "budgetInvalid";
 
   const timeline = input.timeline?.trim() ?? "";
   if (timeline && !TIMELINES.includes(timeline as Timeline)) errors.timeline = "timelineInvalid";

@@ -9,7 +9,6 @@ import { teleportStore } from "@/components/world/systems/teleport";
 import { voiceStore } from "@/components/world/systems/voice";
 import type { WorldCopy } from "@/components/world/WorldGate";
 import { arrivalYaw, DEPARTMENTS, departmentById, type Department } from "@/data/departments";
-import { BUDGET_RANGES } from "@/lib/contact";
 import { t, type Locale } from "@/lib/i18n";
 import { hasLeadErrors, TIMELINES, validateLead, type LeadErrors, type LeadPayload, type LeadResult } from "@/lib/leads";
 import { cn } from "@/lib/utils";
@@ -67,7 +66,6 @@ export function OfficeCard({
     phone: "",
     whatsapp: "",
     description: "",
-    budget: "",
     timeline: "",
     notes: "",
     consent: false,
@@ -181,7 +179,6 @@ export function OfficeCard({
       department: department.id,
       service,
       description: form.description,
-      budget: form.budget as LeadPayload["budget"],
       timeline: form.timeline as LeadPayload["timeline"],
       notes: form.notes || undefined,
       consent: form.consent,
@@ -392,19 +389,6 @@ export function OfficeCard({
                         {copy.fields.whatsapp} <em className="not-italic opacity-60">· {copy.optional}</em>
                       </span>
                       <input name="whatsapp" type="tel" inputMode="tel" value={form.whatsapp} onChange={field("whatsapp")} className={inputClass} />
-                    </label>
-                    <label className="flex flex-col gap-1">
-                      <span className="mono-micro text-[var(--fg-dim)]">
-                        {copy.fields.budget} <em className="not-italic opacity-60">· {copy.optional}</em>
-                      </span>
-                      <select name="budget" value={form.budget} onChange={field("budget")} className={inputClass}>
-                        <option value="">—</option>
-                        {BUDGET_RANGES.map((range) => (
-                          <option key={range} value={range}>
-                            {copy.budgets[range]}
-                          </option>
-                        ))}
-                      </select>
                     </label>
                     <label className="flex flex-col gap-1">
                       <span className="mono-micro text-[var(--fg-dim)]">

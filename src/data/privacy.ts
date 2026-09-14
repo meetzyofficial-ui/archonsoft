@@ -41,8 +41,8 @@ export const PRIVACY: Record<"en" | "tr", PrivacyCopy> = {
         title: "What we collect",
         body: ["Only what you type into a form, and the little that is needed to answer it."],
         items: [
-          "Contact form: name, email, company (optional), the kind of project, a budget range (optional), your message.",
-          "Archon World brief: name, email, company, phone and WhatsApp number (all but name and email optional), the department and service you chose, a description of the project, budget and timeline (optional), notes (optional), and your consent.",
+          "Contact form: name, email, company (optional), the kind of project, your message.",
+          "Archon World brief: name, email, company, phone and WhatsApp number (all but name and email optional), the department and service you chose, a description of the project, timeline (optional), notes (optional), and your consent.",
           "With a brief we also keep the language you were reading in, whether you were on a phone or a desktop, and the path you took through the world to the office — so we know what you were looking at when you wrote to us.",
           "Technical: the time of the request and a coarse network address, used only to limit abuse of the forms.",
         ],
@@ -129,8 +129,8 @@ export const PRIVACY: Record<"en" | "tr", PrivacyCopy> = {
         title: "Neyi topluyoruz",
         body: ["Yalnızca bir forma yazdığınızı ve ona yanıt vermek için gereken çok azını."],
         items: [
-          "İletişim formu: ad, e-posta, şirket (isteğe bağlı), proje türü, bütçe aralığı (isteğe bağlı), mesajınız.",
-          "Archon Dünyası proje talebi: ad, e-posta, şirket, telefon ve WhatsApp numarası (ad ve e-posta dışında hepsi isteğe bağlı), seçtiğiniz bölüm ve hizmet, proje açıklaması, bütçe ve teslim süresi (isteğe bağlı), notlar (isteğe bağlı) ve onayınız.",
+          "İletişim formu: ad, e-posta, şirket (isteğe bağlı), proje türü, mesajınız.",
+          "Archon Dünyası proje talebi: ad, e-posta, şirket, telefon ve WhatsApp numarası (ad ve e-posta dışında hepsi isteğe bağlı), seçtiğiniz bölüm ve hizmet, proje açıklaması, teslim süresi (isteğe bağlı), notlar (isteğe bağlı) ve onayınız.",
           "Talebin yanında okuduğunuz dili, telefonda mı masaüstünde mi olduğunuzu ve dünyada ofise kadar izlediğiniz yolu da tutuyoruz — bize yazdığınızda neye baktığınızı bilmek için.",
           "Teknik: talebin zamanı ve yalnızca formların kötüye kullanımını sınırlamak için kullanılan kaba bir ağ adresi.",
         ],

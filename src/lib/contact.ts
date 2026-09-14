@@ -21,15 +21,11 @@ export const PROJECT_TYPES = [
 ] as const;
 export type ProjectType = (typeof PROJECT_TYPES)[number];
 
-export const BUDGET_RANGES = ["unsure", "lt10", "10-25", "25-50", "50-100", "100plus"] as const;
-export type BudgetRange = (typeof BUDGET_RANGES)[number];
-
 export type ContactPayload = {
   name: string;
   email: string;
   company?: string;
   projectType: string;
-  budget?: string;
   message: string;
   /** Hidden field. A bot filling it in is the only thing that ever will. */
   website?: string;
@@ -43,7 +39,6 @@ export type ErrorKey =
   | "company"
   | "type"
   | "typeInvalid"
-  | "budgetInvalid"
   | "message"
   | "messageLong";
 
@@ -68,9 +63,6 @@ export function validateContact(input: Partial<ContactPayload>): FieldErrors {
   const projectType = input.projectType?.trim() ?? "";
   if (!projectType) errors.projectType = "type";
   else if (!PROJECT_TYPES.includes(projectType as ProjectType)) errors.projectType = "typeInvalid";
-
-  const budget = input.budget?.trim() ?? "";
-  if (budget && !BUDGET_RANGES.includes(budget as BudgetRange)) errors.budget = "budgetInvalid";
 
   const message = input.message?.trim() ?? "";
   if (message.length < 20) errors.message = "message";
