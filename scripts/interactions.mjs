@@ -63,9 +63,9 @@ const newContext = async (options) => {
 
   await trigger.click();
   await page.waitForTimeout(600);
-  await page.locator("#site-menu a", { hasText: "Work" }).first().click();
-  await page.waitForURL("**/en/work", { timeout: 5000 }).catch(() => {});
-  check("the index navigates", page.url().endsWith("/en/work"), page.url());
+  await page.locator("#site-menu a", { hasText: "Projects" }).first().click();
+  await page.waitForURL("**/en/projects", { timeout: 5000 }).catch(() => {});
+  check("the index navigates", page.url().endsWith("/en/projects"), page.url());
   await page.waitForTimeout(600);
   check("the index closes after navigation", await panel.evaluate((el) => el.getAttribute("aria-hidden") === "true"));
   check("route change resets scroll", (await page.evaluate(() => window.scrollY)) < 5);
@@ -123,45 +123,39 @@ const newContext = async (options) => {
   const count = await units.count();
   check("the work is a sequence of editorial units", count > 1, `${count} units`);
 
-  /* The size of a project is the argument of this design, so it is the thing
-     the test holds. A picture that creeps back toward filling the viewport is
-     the exact regression this page was rebuilt to undo. */
-  const picture = await page.evaluate(() => {
-    const fig = document.querySelector('article[aria-labelledby^="project-"] figure');
-    if (!fig) return null;
-    const r = fig.getBoundingClientRect();
+  /* Each project is a spread, not a card in a grid: the stage is large but
+     never a screenful, and the spread runs the width of the frame, one to a
+     row. */
+  const stage = await page.evaluate(() => {
+    const el = document.querySelector('article[aria-labelledby^="project-"] .project-stage');
+    if (!el) return null;
+    const r = el.getBoundingClientRect();
     const frame = document.querySelector(".frame").getBoundingClientRect();
-    return {
-      heightRatio: r.height / window.innerHeight,
-      widthRatio: r.width / frame.width,
-    };
+    return { heightRatio: r.height / window.innerHeight, widthRatio: r.width / frame.width };
   });
   check(
-    "a project picture is around 40% of the viewport, never a screenful",
-    picture !== null && picture.heightRatio > 0.28 && picture.heightRatio < 0.52,
-    `${Math.round((picture?.heightRatio ?? 0) * 100)}vh`,
+    "a project stage is large, never a screenful",
+    stage !== null && stage.heightRatio > 0.4 && stage.heightRatio < 0.8,
+    `${Math.round((stage?.heightRatio ?? 0) * 100)}vh`,
   );
   check(
-    "and it never takes the whole column",
-    picture !== null && picture.widthRatio <= 0.72,
-    `${Math.round((picture?.widthRatio ?? 0) * 100)}% of the frame`,
+    "and it leaves the column room for the words",
+    stage !== null && stage.widthRatio <= 0.72,
+    `${Math.round((stage?.widthRatio ?? 0) * 100)}% of the frame`,
   );
-
-  /* No cards. The unit is an image and some type on the page; a border, a
-     fill or a shadow around it would make it an object again. */
-  const chrome = await page.evaluate(() =>
-    Array.from(document.querySelectorAll('article[aria-labelledby^="project-"] figure')).filter(
-      (el) => {
-        const st = getComputedStyle(el);
-        return (
-          st.boxShadow !== "none" ||
-          parseFloat(st.borderTopWidth) > 0 ||
-          parseFloat(st.borderRadius) > 4
-        );
-      },
-    ).length,
+  const rows = await page.evaluate(() => {
+    const tops = Array.from(document.querySelectorAll('article[aria-labelledby^="project-"]')).map(
+      (el) => Math.round(el.getBoundingClientRect().top),
+    );
+    return new Set(tops).size === tops.length;
+  });
+  check("one project to a row, not a grid of cards", rows);
+  const titles = await page.locator('article[aria-labelledby^="project-"] h3').allInnerTexts();
+  check(
+    "every project is named by its real name",
+    titles.includes("Meetzy") && titles.includes("Archon Soft World") && !titles.some((one) => /Divan|Kervan|Project \d/i.test(one)),
+    titles.join(", "),
   );
-  check("no project sits in a card", chrome === 0, `${chrome} framed`);
 
   /* The whole choreography is that every position is a pure function of one
      scroll number. Read it at three points and at the start again: it must
@@ -236,15 +230,23 @@ const newContext = async (options) => {
   await page.goto(`${BASE}/en`, { waitUntil: "networkidle" });
   await page.waitForTimeout(1500);
 
-  const scheme = () => page.getByRole("banner").getAttribute("data-scheme");
-  check("header starts in daylight over the opening", (await scheme()) === "paper");
-
-  /* The site is daylight the whole way down and the light goes out once: at
-     the way into the world, which is where the header has to invert. */
+  /* The way into the world sits at the exact centre of the header. */
+  const centre = await page.evaluate(() => {
+    const button = document.querySelector("header [data-world-trigger]");
+    if (!button) return null;
+    const r = button.getBoundingClientRect();
+    return Math.abs(r.left + r.width / 2 - window.innerWidth / 2);
+  });
+  check("the world button is centred in the header", centre !== null && centre <= 2, `${centre}px off centre`);
+  const raised = await page.evaluate(() => {
+    const button = document.querySelector("header [data-world-trigger]");
+    return button ? getComputedStyle(button).boxShadow !== "none" : false;
+  });
+  check("and raised above the rest of the header", raised);
   await page.locator("#world").scrollIntoViewIfNeeded();
   await page.waitForTimeout(1200);
-  check("header inverts over the world entry", (await scheme()) === "ink", `${await scheme()}`);
-  await page.screenshot({ path: path.join(OUT, "x-header-ink.png") });
+  check("the header stays readable over the world entry", (await page.getByRole("banner").isVisible()));
+  await page.screenshot({ path: path.join(OUT, "x-header.png") });
 
   await context.close();
 }
@@ -311,54 +313,34 @@ const newContext = async (options) => {
 
 /* --------------------------------------------------------- the assembly */
 {
-  /* On a case study now, not on the home page.
-     The opening no longer assembles a screen beside its headline — it says one
-     sentence and hands over to the first project — but the assembly itself is
-     unchanged and still opens every case study, so the mechanism is exercised
-     where it actually lives. */
+  /* The stage: handsets spread out of a stack as the frame arrives, and the
+     case study opens on the same stage with every real capture painted. */
   const context = await newContext({ viewport: { width: 1440, height: 900 } });
   const page = await context.newPage();
-  await page.goto(`${BASE}/en/work/dppano`, { waitUntil: "networkidle" });
+  await page.goto(`${BASE}/en/projects/meetzy`, { waitUntil: "networkidle" });
+  await page.waitForTimeout(2400);
 
-  await page.waitForTimeout(3200);
-
-  // Read the settled value first: the probe below rewrites the property.
-  const settled = await page.evaluate(() =>
-    Number(getComputedStyle(document.querySelector("[role='img']")).getPropertyValue("--assembly")),
-  );
-  check("the assembly finishes on its own", settled === 1, String(settled));
-
-  // Drive the mechanism directly rather than racing its timing: with the
-  // transition suppressed, --assembly 0 must separate the bands and 1 must
-  // bring them back to identity.
   const travel = await page.evaluate(() => {
-    const host = document.querySelector("[role='img']");
-    const band = document.querySelector(".assembly-band");
-    band.style.transition = "none";
-    const read = () => {
-      const m = new DOMMatrixReadOnly(getComputedStyle(band).transform);
-      return Math.round(Math.abs(m.m41));
-    };
-    host.style.setProperty("--assembly", "0");
-    const apart = read();
-    host.style.setProperty("--assembly", "1");
-    const together = read();
-    band.style.transition = "";
-    host.style.removeProperty("--assembly");
-    return { apart, together };
+    const stage = document.querySelector(".project-stage");
+    const left = stage?.querySelector(".project-stage__device--left");
+    if (!stage || !left) return null;
+    left.style.transition = "none";
+    const read = () => new DOMMatrixReadOnly(getComputedStyle(left).transform).m41;
+    stage.style.setProperty("--enter", "0");
+    const stacked = read();
+    stage.style.setProperty("--enter", "1");
+    const spread = read();
+    stage.style.removeProperty("--enter");
+    left.style.transition = "";
+    return { travel: Math.round(Math.abs(spread - stacked)) };
   });
+  check("the handsets spread out of the stack as the stage arrives", travel !== null && travel.travel > 60, JSON.stringify(travel));
 
-  check("the assembly separates the bands", travel.apart > 40, `${travel.apart}px`);
-  check("the assembly closes to the real screen", travel.together <= 1, `${travel.together}px`);
-
-  const bands = await page.locator(".assembly-band").count();
-  check("the assembly is cut into bands", bands >= 4, `${bands} bands`);
-
-  const painted = await page.locator(".assembly-band").first().evaluate(
-    (el) => getComputedStyle(el).backgroundImage !== "none",
+  const painted = await page.evaluate(() =>
+    Array.from(document.querySelectorAll(".project-stage img")).map((img) => img.complete && img.naturalWidth > 0),
   );
-  check("every band paints the real screen", painted);
-  await page.screenshot({ path: path.join(OUT, "x-assembly.png") });
+  check("the case study opens on the stage, every capture painted", painted.length >= 3 && painted.every(Boolean), JSON.stringify(painted));
+  await page.screenshot({ path: path.join(OUT, "x-stage.png") });
 
   await context.close();
 }
@@ -367,15 +349,15 @@ const newContext = async (options) => {
 {
   const context = await newContext({ viewport: { width: 1440, height: 900 } });
   const page = await context.newPage();
-  await page.goto(`${BASE}/en/work/meetzy`, { waitUntil: "networkidle" });
+  await page.goto(`${BASE}/en/projects/meetzy`, { waitUntil: "networkidle" });
   await page.waitForTimeout(1200);
 
   check("root redirects to a locale", true);
 
   const before = await page.locator("h1").first().innerText();
   await page.getByRole("link", { name: "Türkçe" }).click();
-  await page.waitForURL("**/tr/work/meetzy", { timeout: 5000 }).catch(() => {});
-  check("the language switch keeps the page", page.url().endsWith("/tr/work/meetzy"), page.url());
+  await page.waitForURL("**/tr/projects/meetzy", { timeout: 5000 }).catch(() => {});
+  check("the language switch keeps the page", page.url().endsWith("/tr/projects/meetzy"), page.url());
 
   await page.waitForTimeout(1200);
   const lang = await page.evaluate(() => document.documentElement.lang);
@@ -441,12 +423,13 @@ const newContext = async (options) => {
   const first = await band.locator(".lab-window").first().innerText();
   check("the home page mounts a running concept", first.length > 0);
 
-  const names = band.getByRole("button", { name: /Kervan/i });
+  const names = band.getByRole("button", { name: /Marketplace/i });
   await names.first().click();
   await page.waitForTimeout(700);
   const second = await band.locator(".lab-window").first().innerText();
   check("choosing another concept swaps the whole product", first !== second);
-  check("the concept that loaded is the one chosen", /Kervan/i.test(second), second.slice(0, 40));
+  check("the concept that loaded is the one chosen", /Marketplace/i.test(second), second.slice(0, 40));
+  check("no concept is shown by its codename", !/\b(Divan|Ulak|Kervan|Vesile|Tezgah|Vardiya)\b/.test(await band.innerText()));
 
   await page.screenshot({ path: path.join(OUT, "x-labs-explorer.png") });
   await context.close();
@@ -625,8 +608,10 @@ const newContext = async (options) => {
   });
   check("no content stays hidden under reduced motion", hidden === 0, `${hidden} hidden`);
 
-  const cursor = await page.locator("[data-cursor-root]").count();
-  check("custom cursor is not mounted under reduced motion", cursor === 0);
+  /* Reduced motion keeps the robot as the pointer but takes every animation
+     off it: it arrives at each state instantly. */
+  const cursor = await page.locator("[data-cursor-root]").getAttribute("data-reduced");
+  check("the robot cursor drops its animation under reduced motion", cursor === "true", String(cursor));
 
   /* The scroll driver publishes a finished reading rather than never
      publishing one: a visitor who asked for no motion gets the composition

@@ -22,19 +22,38 @@ const make = async (options = {}) => {
 {
   const ctx = await make();
   const page = await ctx.newPage();
-  await page.goto(BASE + "/en/work", { waitUntil: "networkidle" });
+  await page.goto(BASE + "/en/projects", { waitUntil: "networkidle" });
   await page.waitForTimeout(1000);
-  check("the custom cursor is mounted", (await page.locator("[data-cursor-root]").count()) === 1);
+  check("the robot cursor is mounted", (await page.locator("[data-cursor-root]").count()) === 1);
+  check(
+    "and it stands in for the native arrow",
+    await page.evaluate(() => document.documentElement.classList.contains("robot-cursor-on")),
+  );
 
-  await page.locator("article h2").first().hover();
-  await page.waitForTimeout(500);
-  const label = await page.locator("[data-cursor-root]").innerText();
-  check("and it names what a row will do", /case study/i.test(label), label.replace(/\s+/g, " "));
+  const label = async () => (await page.locator(".robot-cursor__label").innerText()).replace(/\s+/g, " ");
+  const shown = async () => (await page.locator(".robot-cursor__label").getAttribute("data-shown")) === "true";
 
-  await page.locator("article").nth(3).locator("h2").hover();
+  await page.locator("#live article h3").first().hover();
   await page.waitForTimeout(500);
-  const conceptLabel = await page.locator("[data-cursor-root]").innerText();
-  check("a concept row says so instead", /concept/i.test(conceptLabel), conceptLabel.replace(/\s+/g, " "));
+  check("it names what a project will do", (await shown()) && /explore/i.test(await label()), await label());
+  check(
+    "and leans in over it",
+    (await page.locator("[data-cursor-root]").getAttribute("data-state")) === "hover",
+  );
+
+  await page.locator('[data-provenance="concept"] h2').first().hover();
+  await page.waitForTimeout(500);
+  check("a concept row says so instead", /concept/i.test(await label()), await label());
+
+  await page.locator("#live article h3").first().hover();
+  await page.mouse.down();
+  await page.waitForTimeout(60);
+  check(
+    "a press gives a reaction",
+    (await page.locator(".robot-cursor__head").getAttribute("data-pressed")) === "true",
+  );
+  await page.mouse.up();
+  await page.keyboard.press("Escape");
   await page.screenshot({ path: path.join(OUT, "p-cursor.png") });
   await ctx.close();
 }
@@ -63,7 +82,7 @@ const make = async (options = {}) => {
 {
   const ctx = await make();
   const page = await ctx.newPage();
-  await page.goto(BASE + "/en/work/meetzy", { waitUntil: "networkidle" });
+  await page.goto(BASE + "/en/projects/meetzy", { waitUntil: "networkidle" });
   await page.waitForTimeout(900);
   const h1 = await page.locator("h1").first().innerText();
   check("the case study names the product", /Meetzy/.test(h1), h1);
@@ -75,7 +94,7 @@ const make = async (options = {}) => {
      one rather than to itself. */
   check(
     "and leads on to the next one",
-    /Erden|DP Pano/i.test(tail) && !/next[\s\S]{0,80}Meetzy/i.test(tail),
+    /Archon Soft World|Erden|DP Pano/i.test(tail) && !/next project[\s\S]{0,80}Meetzy/i.test(tail),
   );
   await page.screenshot({ path: path.join(OUT, "p-case-tail.png") });
   await ctx.close();
@@ -99,7 +118,7 @@ const make = async (options = {}) => {
 {
   const ctx = await make(devices["iPhone SE"]);
   const page = await ctx.newPage();
-  for (const route of ["/en", "/en/work", "/tr/work"]) {
+  for (const route of ["/en", "/en/projects", "/tr/projects", "/tr/projects/archon-soft-world"]) {
     await page.goto(BASE + route, { waitUntil: "networkidle" });
     await page.waitForTimeout(700);
     const overflow = await page.evaluate(
@@ -107,7 +126,7 @@ const make = async (options = {}) => {
     );
     check(`375px ${route} does not overflow`, overflow <= 2, `${overflow}px`);
   }
-  await page.goto(BASE + "/en/work", { waitUntil: "networkidle" });
+  await page.goto(BASE + "/en/projects", { waitUntil: "networkidle" });
   await page.waitForTimeout(700);
   await page.screenshot({ path: path.join(OUT, "p-375-work.png") });
   await ctx.close();

@@ -9,6 +9,7 @@ import { LABS } from "@/data/labs";
 import type { Copy } from "@/i18n/dictionary";
 import { localePath, t, type Locale } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import { conceptTitle } from "@/data/labs/titles";
 
 /**
  * Ten concepts, one window.
@@ -44,7 +45,7 @@ export function LabsExplorer({
       <div className="lg:col-span-9 lg:col-start-4 lg:row-start-1">
         <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
           <Provenance kind="concept" copy={copy} />
-          <h3 className="display text-quote">{lab.name}</h3>
+          <h3 className="display text-quote">{conceptTitle(lab.slug, locale, lab.name)}</h3>
           <span className="mono-label text-[var(--accent)]">{t(lab.sector, locale)}</span>
           <span className="mono-label ml-auto flex items-center gap-2 text-[var(--fg-mute)]">
             <Icon name="play" size={11} />
@@ -106,7 +107,7 @@ export function LabsExplorer({
                           : "text-[var(--fg-mute)] group-hover/lab:text-[var(--fg-dim)]",
                       )}
                     >
-                      {candidate.name}
+                      {conceptTitle(candidate.slug, locale, candidate.name)}
                     </span>
                     <span className="mono-label mt-1 hidden truncate text-[var(--fg-mute)] lg:block">
                       {t(candidate.sector, locale)}

@@ -95,7 +95,7 @@ export function SiteMenu({
       data-scheme="paper"
       aria-hidden={!open}
       className={cn(
-        "pointer-events-auto fixed inset-0 z-[88] flex flex-col bg-[var(--color-paper)]",
+        "pointer-events-auto fixed inset-0 z-[88] flex flex-col bg-[var(--color-night)]",
         "transition-[clip-path,opacity] duration-[800ms] ease-[var(--ease-in-out-quart)]",
         open
           ? "pointer-events-auto opacity-100 [clip-path:inset(0_0_0%_0)]"
@@ -109,8 +109,8 @@ export function SiteMenu({
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse 80% 60% at 78% 18%, color-mix(in oklab, var(--color-sky) 40%, transparent), transparent 68%)," +
-            "radial-gradient(ellipse 60% 50% at 10% 92%, color-mix(in oklab, var(--color-clay) 34%, transparent), transparent 70%)",
+            "radial-gradient(ellipse 80% 60% at 78% 18%, color-mix(in oklab, var(--color-cyan) 10%, transparent), transparent 68%)," +
+            "radial-gradient(ellipse 60% 50% at 10% 92%, color-mix(in oklab, #3b5bdb 12%, transparent), transparent 70%)",
         }}
       />
 

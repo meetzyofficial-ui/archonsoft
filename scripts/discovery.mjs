@@ -18,7 +18,7 @@ const page = await ctx.newPage();
 const errors = [];
 page.on("pageerror", (e) => errors.push(e.message.slice(0, 160)));
 
-await page.goto(BASE + "/en/work", { waitUntil: "networkidle" });
+await page.goto(BASE + "/en/projects", { waitUntil: "networkidle" });
 await page.waitForTimeout(1200);
 
 const rows = () => page.locator("article[data-provenance]").count();
@@ -91,8 +91,8 @@ check("the filters are reachable by keyboard", focused.length > 0, focused.slice
 /* Rows are links to real pages.
    Which project sits at the top of the index is an editorial decision that has
    changed; what the row has to do is open the page it names. */
-const firstHref = await page.locator("article a").first().getAttribute("href");
-await page.locator("article h2").first().click();
+const firstHref = await page.locator("article[data-provenance] a").first().getAttribute("href");
+await page.locator("article[data-provenance] h2").first().click();
 await page.waitForTimeout(1600);
 check(
   "a row opens its case study",
@@ -112,14 +112,14 @@ await ctx.close();
     } catch {}
   });
   const tr = await trCtx.newPage();
-  await tr.goto(BASE + "/tr/work", { waitUntil: "networkidle" });
+  await tr.goto(BASE + "/tr/projects", { waitUntil: "networkidle" });
   await tr.waitForTimeout(1000);
   const text = await tr.locator("main").innerText();
   /* Labels are uppercased in CSS, and Turkish uppercase turns i into İ, so
      the comparison has to be case-insensitive to mean anything. */
   check(
     "the Turkish index is Turkish",
-    /yayında/i.test(text) && /g[öo]ster[iİ]len/i.test(text),
+    /yay[ıi]nda|YAYINDA/i.test(text) && /g[öo]ster[iİ]len/i.test(text),
     text.replace(/\s+/g, " ").slice(0, 70),
   );
   check(
@@ -146,7 +146,7 @@ await ctx.close();
     } catch {}
   });
   const m = await mCtx.newPage();
-  await m.goto(BASE + "/en/work", { waitUntil: "networkidle" });
+  await m.goto(BASE + "/en/projects", { waitUntil: "networkidle" });
   await m.waitForTimeout(1000);
   const overflow = await m.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,

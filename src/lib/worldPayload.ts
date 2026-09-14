@@ -148,7 +148,7 @@ export function buildWorld(locale: Locale): WorldPayload {
       voiceText: `${project.name}. ${statement} ${body}`,
       greetingText: t(guide.greeting, locale),
       askText: t(guide.ask, locale),
-      href: localePath(locale, `/work/${project.slug}`),
+      href: localePath(locale, `/projects/${project.slug}`),
       accent: project.accent,
     };
   });
@@ -204,7 +204,7 @@ function prepare(display: Display, locale: Locale): PreparedDisplay {
         meta: project.facts.map((fact) => t(fact.value, locale)),
         accent: project.accent,
       },
-      href: localePath(locale, `/work/${project.slug}`),
+      href: localePath(locale, `/projects/${project.slug}`),
       action: locale === "tr" ? "Projeyi aç" : "Open project",
     };
   }

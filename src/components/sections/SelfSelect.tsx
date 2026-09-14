@@ -9,6 +9,7 @@ import type { Copy } from "@/i18n/dictionary";
 import { useHasPointer } from "@/lib/hooks";
 import { localePath, t, tl, type Locale } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import { workName } from "@/data/labs/titles";
 
 /**
  * What are you building?
@@ -32,7 +33,7 @@ export function SelfSelect({ locale, copy }: { locale: Locale; copy: Copy }) {
   const domain = getDomain(row.domain);
   const href =
     row.proof.kind === "shipped"
-      ? localePath(locale, `/work/${row.proof.slug}`)
+      ? localePath(locale, `/projects/${row.proof.slug}`)
       : localePath(locale, `/labs/${row.proof.slug}`);
 
   const onKeyDown = (event: React.KeyboardEvent) => {
@@ -159,7 +160,7 @@ export function SelfSelect({ locale, copy }: { locale: Locale; copy: Copy }) {
                 >
                   <span className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
                     <span className="display text-quote transition-transform duration-500 ease-[var(--ease-out-expo)] group-hover/proof:translate-x-1.5">
-                      {row.proof.name}
+                      {workName(row.proof, locale)}
                     </span>
                     <Provenance kind={row.proof.kind} copy={copy} />
                   </span>
@@ -181,12 +182,12 @@ export function SelfSelect({ locale, copy }: { locale: Locale; copy: Copy }) {
                         href={localePath(
                           locale,
                           other.kind === "shipped"
-                            ? `/work/${other.slug}`
+                            ? `/projects/${other.slug}`
                             : `/labs/${other.slug}`,
                         )}
                         className="mono-label link-rule inline-flex items-center gap-2 border border-[var(--line)] px-2.5 py-1.5 text-[var(--fg-dim)] hover:text-[var(--fg)]"
                       >
-                        {other.name}
+                        {workName(other, locale)}
                         <ProvenanceText kind={other.kind} copy={copy} className="opacity-70" />
                       </Link>
                     ))}

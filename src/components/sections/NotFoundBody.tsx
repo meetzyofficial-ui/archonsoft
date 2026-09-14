@@ -19,7 +19,7 @@ export function NotFoundBody({ locale }: { locale: Locale }) {
   const copy = dict(locale);
 
   const items = [
-    { label: copy.nav.work, href: "/work", index: "01" },
+    { label: copy.nav.work, href: "/projects", index: "01" },
     { label: copy.nav.labs, href: "/labs", index: "02" },
     { label: copy.nav.capabilities, href: "/capabilities", index: "03" },
     { label: copy.nav.process, href: "/process", index: "04" },
@@ -64,7 +64,7 @@ export function NotFoundBody({ locale }: { locale: Locale }) {
           <ActionLink href={localePath(locale)} variant="solid">
             {copy.notFound.home}
           </ActionLink>
-          <ActionLink href={localePath(locale, "/work")} variant="line">
+          <ActionLink href={localePath(locale, "/projects")} variant="line">
             {copy.notFound.work}
           </ActionLink>
         </div>

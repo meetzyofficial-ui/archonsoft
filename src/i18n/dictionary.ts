@@ -54,7 +54,7 @@ const en = {
 
   nav: {
     privacy: "Privacy",
-    work: "Work",
+    work: "Projects",
     capabilities: "Capabilities",
     labs: "Labs",
     process: "Process",
@@ -74,11 +74,11 @@ const en = {
     system: "System",
     studio: "Product & technology studio",
     location: "Ankara, Turkey",
-    lead: "We build the whole",
-    leadAccent: "system.",
+    lead: "Ideas into products,",
+    leadAccent: "products into systems.",
     standfirst:
-      "Products, systems, commerce, AI, automation and data. One studio, from the first decision to the release.",
-    ctaWork: "See the work",
+      "Web, mobile, AI and custom software — taken from the first decision to a product that runs, by one studio.",
+    ctaWork: "Explore projects",
     /* Printed on the rule above the first project, at the foot of the
        opening. It is the only thing that says what comes next. */
     nextLabel: "First up",
@@ -173,6 +173,52 @@ const en = {
     visit: "Visit the live site",
     built: "What it is built on",
     scaleNote: "Size, in the repository’s own units",
+  },
+
+  /* The projects experience: the index on the home page, /projects and a
+     case study. Section names are the questions a case study answers. */
+  showcase: {
+    label: "Selected projects",
+    aside: "Live, and built end to end",
+    statement: "Work you can",
+    statementAccent: "open.",
+    body: "Real products, running today — each one defined, designed, engineered and shipped by the same studio.",
+    explore: "Explore project",
+    exploreShort: "Explore",
+    enterWorld: "Enter the world",
+    all: "All projects",
+    live: "Live",
+    services: "Services",
+    platform: "Platform",
+    role: "Role",
+    year: "Year",
+    status: "Status",
+    caseStudy: "Case study",
+    idea: "The idea",
+    product: "The product",
+    experience: "The experience",
+    built: "What we built",
+    visuals: "Visuals",
+    result: "Result",
+    technology: "Technology",
+    scale: "Size, in the repository’s own units",
+    liveProject: "Live project",
+    visit: "Visit",
+    next: "Next project",
+    back: "All projects",
+    redacted: "App captures: users’ names and faces removed",
+    indexLead: "Products that are",
+    indexAccent: "running.",
+    indexBody:
+      "Four live pieces of work, from a social app people use every week to a world you can walk through in the browser. Below them, the whole archive, including ten concept products built in the open.",
+    archiveLabel: "The whole archive",
+    archiveAside: "Filter by domain and status",
+    worldNote: "Opens Archon World, on this site",
+  },
+
+  chrome: {
+    world: "Enter world",
+    worldShort: "World",
   },
 
   capabilities: {
@@ -700,7 +746,7 @@ const tr: Dictionary = {
 
   nav: {
     privacy: "Gizlilik",
-    work: "İşler",
+    work: "Projeler",
     capabilities: "Yetkinlikler",
     labs: "Labs",
     process: "Süreç",
@@ -720,11 +766,11 @@ const tr: Dictionary = {
     system: "Sistem",
     studio: "Ürün ve teknoloji stüdyosu",
     location: "Ankara, Türkiye",
-    lead: "Sistemin tamamını",
-    leadAccent: "kuruyoruz.",
+    lead: "Fikri ürüne,",
+    leadAccent: "ürünü sisteme dönüştürüyoruz.",
     standfirst:
-      "Ürün, sistem, ticaret, yapay zekâ, otomasyon ve veri. Tek stüdyo; ilk karardan yayına kadar.",
-    ctaWork: "İşlere bak",
+      "Web, mobil uygulama, yapay zekâ ve özel yazılım — ilk karardan çalışan ürüne kadar, tek stüdyoda.",
+    ctaWork: "Projeleri keşfet",
     nextLabel: "İlk sırada",
     ctaContact: "Projeye başla",
     assembling: "Kuruluyor",
@@ -810,6 +856,50 @@ const tr: Dictionary = {
     visit: "Canlı siteyi aç",
     built: "Neyin üzerine kuruldu",
     scaleNote: "Boyut, deponun kendi birimleriyle",
+  },
+
+  showcase: {
+    label: "Seçili projeler",
+    aside: "Canlı ve uçtan uca kuruldu",
+    statement: "Açıp",
+    statementAccent: "inceleyebileceğin işler.",
+    body: "Bugün çalışan gerçek ürünler — her biri aynı stüdyo tarafından tanımlandı, tasarlandı, geliştirildi ve yayına alındı.",
+    explore: "Projeyi incele",
+    exploreShort: "İncele",
+    enterWorld: "Dünyaya gir",
+    all: "Tüm projeler",
+    live: "Canlı",
+    services: "Hizmetler",
+    platform: "Platform",
+    role: "Rol",
+    year: "Yıl",
+    status: "Durum",
+    caseStudy: "Vaka çalışması",
+    idea: "Fikir",
+    product: "Ürün",
+    experience: "Deneyim",
+    built: "Ne inşa ettik",
+    visuals: "Görseller",
+    result: "Sonuç",
+    technology: "Teknoloji",
+    scale: "Boyut, deponun kendi birimleriyle",
+    liveProject: "Canlı proje",
+    visit: "Ziyaret et",
+    next: "Sonraki proje",
+    back: "Tüm projeler",
+    redacted: "Uygulama ekranları: kullanıcı isimleri ve yüzleri kaldırıldı",
+    indexLead: "Çalışan",
+    indexAccent: "ürünler.",
+    indexBody:
+      "Her hafta kullanılan bir sosyal uygulamadan tarayıcıda içinde yürüyebildiğin bir dünyaya, dört canlı iş. Altında tüm arşiv — açıkça inşa edilmiş on konsept ürün dahil.",
+    archiveLabel: "Tüm arşiv",
+    archiveAside: "Alana ve duruma göre filtrele",
+    worldNote: "Archon Dünyası'nı bu sitede açar",
+  },
+
+  chrome: {
+    world: "Dünyaya git",
+    worldShort: "Dünya",
   },
 
   capabilities: {

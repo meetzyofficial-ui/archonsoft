@@ -26,6 +26,7 @@ import type { Cell, Lab, ViewBody } from "@/data/labs";
 import type { Copy } from "@/i18n/dictionary";
 import { t, tl, type Locale } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import { conceptTitle } from "@/data/labs/titles";
 
 /**
  * A concept product, running.
@@ -71,12 +72,12 @@ export function LabSurface({
     <div className={className}>
       <LabWindow
         accent={lab.accent}
-        product={lab.name}
+        product={conceptTitle(lab.slug, locale, lab.name)}
         sector={t(lab.sector, locale)}
         chip={copy.labs.chip}
       >
         <LabShell
-          navLabel={`${lab.name} — ${copy.labs.nav}`}
+          navLabel={`${conceptTitle(lab.slug, locale, lab.name)} — ${copy.labs.nav}`}
           nav={lab.views.map((candidate) => ({
             id: candidate.id,
             label: t(candidate.label, locale),

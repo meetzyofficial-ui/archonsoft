@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { LABS } from "@/data/labs";
-import { PROJECTS } from "@/data/projects";
+import { SHOWCASE } from "@/data/showcase";
 import { LOCALES } from "@/lib/i18n";
 import { SITE } from "@/lib/site";
 
@@ -13,15 +13,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const paths: { path: string; priority: number; changeFrequency: "monthly" | "yearly" }[] = [
     { path: "", priority: 1, changeFrequency: "monthly" },
-    { path: "/work", priority: 0.9, changeFrequency: "monthly" },
+    { path: "/projects", priority: 0.9, changeFrequency: "monthly" },
     { path: "/labs", priority: 0.9, changeFrequency: "monthly" },
     { path: "/capabilities", priority: 0.8, changeFrequency: "yearly" },
     { path: "/process", priority: 0.7, changeFrequency: "yearly" },
     { path: "/about", priority: 0.7, changeFrequency: "yearly" },
     { path: "/contact", priority: 0.8, changeFrequency: "yearly" },
     { path: "/privacy", priority: 0.3, changeFrequency: "yearly" },
-    ...PROJECTS.map((project) => ({
-      path: `/work/${project.slug}`,
+    ...SHOWCASE.map((project) => ({
+      path: `/projects/${project.slug}`,
       priority: 0.85,
       changeFrequency: "yearly" as const,
     })),

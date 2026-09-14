@@ -29,9 +29,9 @@ export function WorldEntry({ locale, copy }: { locale: Locale; copy: Copy }) {
   return (
     <section
       id="world"
-      data-scheme="ink"
+      data-scheme="paper"
       data-band="ink"
-      className="scheme-surface relative overflow-hidden"
+      className="relative overflow-hidden bg-[linear-gradient(to_bottom,transparent,#02030a_38svh)]"
     >
       {/* The dusk. A screen's worth of the paper colour draining into the
           ink, so the band is entered rather than cut to. */}
@@ -40,7 +40,7 @@ export function WorldEntry({ locale, copy }: { locale: Locale; copy: Copy }) {
         className="pointer-events-none absolute inset-x-0 top-0 h-[38svh]"
         style={{
           background:
-            "linear-gradient(to bottom, var(--color-paper) 0%, color-mix(in oklab, var(--color-haze) 70%, var(--color-ink)) 34%, var(--color-ink) 100%)",
+            "linear-gradient(to bottom, transparent 0%, color-mix(in oklab, #02030a 70%, transparent) 60%, #02030a 100%)",
         }}
       />
 

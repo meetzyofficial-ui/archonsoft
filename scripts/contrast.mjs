@@ -11,10 +11,10 @@ const BASE = process.env.ARCHON_BASE ?? "http://localhost:3210";
 const ROUTES = [
   "/en",
   "/tr",
-  "/en/work",
-  "/en/work/meetzy",
-  "/en/work/dppano",
-  "/en/work/erden",
+  "/en/projects",
+  "/en/projects/meetzy",
+  "/en/projects/dppano",
+  "/en/projects/erden",
   "/en/capabilities",
   "/en/labs",
   "/en/labs/divan",
@@ -76,20 +76,18 @@ const audit = () => {
     for (let node = el; node; node = node.parentElement) {
       const c = toRgba(getComputedStyle(node).backgroundColor);
       if (c.a >= 0.98) return c;
-      // The header floats over the page with no background of its own; what
-      // it actually sits on is the band it has adopted the scheme of.
-      if (node.tagName === "HEADER" && node.dataset.scheme) {
-        return toRgba(node.dataset.scheme === "ink" ? "#101722" : "#fbfcff");
-      }
-      // Sections paint nothing now — the atmosphere behind the document shows
-      // through them — so a paper band resolves to the paper colour and a
-      // tinted one to the palest value its own gradient reaches.
+      // The header floats over the page with no background of its own. The
+      // site's ground is night since the creative-tech rebuild (html paints
+      // #05070b under a fixed atmosphere), so that is what it sits on.
+      if (node.tagName === "HEADER") return { r: 5, g: 7, b: 11, a: 1 };
+      // Sections paint nothing; the lifted chapters reach graphite at most,
+      // which is the lightest ground text has to hold against.
       if (node.dataset && node.dataset.band) {
-        if (node.dataset.band === "ink") return { r: 16, g: 23, b: 34, a: 1 };
-        if (node.dataset.band === "haze") return { r: 232, g: 242, b: 254, a: 1 };
+        if (node.dataset.band === "ink") return { r: 2, g: 3, b: 10, a: 1 };
+        if (node.dataset.band === "haze") return { r: 16, g: 20, b: 28, a: 1 };
       }
     }
-    return { r: 251, g: 252, b: 255, a: 1 };
+    return { r: 10, g: 13, b: 19, a: 1 };
   };
 
   const problems = [];

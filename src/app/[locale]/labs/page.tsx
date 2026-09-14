@@ -16,6 +16,7 @@ import { EXPERIMENTS, LAB_NOTES } from "@/data/lab";
 import { dict } from "@/i18n/dictionary";
 import { isLocale, localePath, t, type Locale } from "@/lib/i18n";
 import { SITE } from "@/lib/site";
+import { conceptTitle } from "@/data/labs/titles";
 
 type Params = { params: Promise<{ locale: string }> };
 
@@ -59,7 +60,7 @@ export default async function LabsPage({ params }: Params) {
     itemListElement: LABS.map((lab, index) => ({
       "@type": "ListItem",
       position: index + 1,
-      name: `${lab.name} — ${t(lab.sector, locale)}`,
+      name: conceptTitle(lab.slug, locale, lab.name),
       description: t(lab.statement, locale),
       url: `${SITE.url}/${locale}/labs/${lab.slug}`,
     })),
@@ -106,7 +107,7 @@ export default async function LabsPage({ params }: Params) {
                   style={{
                     transitionDelay: `${index * 45}ms`,
                   }}
-                  className="reveal-fade group/card flex h-full flex-col py-6 pr-6 transition-colors duration-500 hover:bg-[color-mix(in_oklab,var(--color-sky)_26%,transparent)] md:py-7"
+                  className="reveal-fade group/card flex h-full flex-col py-6 pr-6 transition-colors duration-500 hover:bg-[color-mix(in_oklab,var(--color-cyan)_6%,transparent)] md:py-7"
                 >
                   <div className="flex items-baseline gap-3">
                     <span className="mono-label text-[var(--fg-mute)]">{lab.index}</span>
@@ -120,7 +121,7 @@ export default async function LabsPage({ params }: Params) {
                       className="ml-auto shrink-0 text-[var(--fg-mute)] transition-colors duration-500 group-hover/card:text-[var(--accent)]"
                     />
                   </div>
-                  <h3 className="display mt-4 text-quote">{lab.name}</h3>
+                  <h3 className="display mt-4 text-quote">{conceptTitle(lab.slug, locale, lab.name)}</h3>
                   <p className="mono-label mt-2 text-[var(--fg-mute)]">{t(lab.sector, locale)}</p>
                   <p className="mt-4 text-lead text-[var(--fg)]">{t(lab.story.promise, locale)}</p>
                   <p className="mt-3 text-[var(--fg-dim)]">{t(lab.story.problem, locale)}</p>

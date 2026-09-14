@@ -165,11 +165,11 @@ const hold = async (page, key, ms) => {
   );
   check(
     "and the ordinary home page is underneath it",
-    /Digital products/i.test(await page.locator("main").innerText()),
+    /Ideas into products/i.test(await page.locator("main").innerText()),
   );
   check(
-    "a quiet way back in is offered",
-    (await page.getByRole("button", { name: /^Archon World/ }).count()) === 1,
+    "a way back in is offered, at the centre of the header",
+    (await page.locator("header [data-world-trigger].btn-world").count()) === 1,
   );
 
   await page.reload({ waitUntil: "networkidle" });
@@ -192,11 +192,11 @@ const hold = async (page, key, ms) => {
   check("without WebGL the world stands aside", (await page.locator(".world-overlay").count()) === 0);
   check(
     "and no dead entry point is left behind",
-    (await page.getByRole("button", { name: /^Archon World/ }).count()) === 0,
+    (await page.locator("[data-world-trigger]").count()) === 0,
   );
   check(
     "the site itself is simply what loads",
-    /Digital products/i.test(await page.locator("main").innerText()),
+    /Ideas into products/i.test(await page.locator("main").innerText()),
   );
   await ctx.close();
 }
@@ -264,11 +264,11 @@ const hold = async (page, key, ms) => {
 {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const page = await ctx.newPage();
-  for (const route of ["/en/work", "/en/labs", "/en/contact", "/tr/work/meetzy", "/tr/labs"]) {
+  for (const route of ["/en/projects", "/en/labs", "/en/contact", "/tr/projects/meetzy", "/tr/labs"]) {
     await page.goto(`${BASE}${route}`, { waitUntil: "networkidle" });
     check(`the world stays off ${route}`, (await page.locator(".world-overlay").count()) === 0);
   }
-  await page.goto(`${BASE}/en/work`, { waitUntil: "networkidle" });
+  await page.goto(`${BASE}/en/projects`, { waitUntil: "networkidle" });
   await page.locator('header a[href="/en"]').first().click();
   await page.waitForTimeout(1600);
   check(

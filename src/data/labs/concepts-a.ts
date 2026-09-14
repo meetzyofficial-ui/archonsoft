@@ -30,11 +30,11 @@ export const CONCEPTS_A: LabBase[] = [
     premise: {
       en: [
         "A growing company does not usually lack software. It has a CRM nobody updates, a spreadsheet the finance side actually trusts, a chat thread where the real decisions happen, and no single place where the state of the company is true.",
-        "Divan is the opposite arrangement: customers, pipeline, work, invoicing and permissions in one model, so that moving a deal forward and the invoice that follows it are the same record rather than two systems that disagree by Friday.",
+        "This concept is the opposite arrangement: customers, pipeline, work, invoicing and permissions in one model, so that moving a deal forward and the invoice that follows it are the same record rather than two systems that disagree by Friday.",
       ],
       tr: [
         "Büyüyen bir şirketin yazılımı genelde eksik değildir. Kimsenin güncellemediği bir CRM, finansın gerçekten güvendiği bir tablo, asıl kararların alındığı bir sohbet dizisi vardır — ve şirketin durumunun doğru olduğu tek bir yer yoktur.",
-        "Divan bunun tersi: müşteri, satış hattı, iş, faturalama ve yetkiler tek bir modelde. Bir fırsatı ilerletmekle onu izleyen fatura, cuma günü birbiriyle çelişen iki sistem değil, aynı kayıt oluyor.",
+        "Bu konsept bunun tersi: müşteri, satış hattı, iş, faturalama ve yetkiler tek bir modelde. Bir fırsatı ilerletmekle onu izleyen fatura, cuma günü birbiriyle çelişen iki sistem değil, aynı kayıt oluyor.",
       ],
     },
     proves: {
@@ -568,11 +568,11 @@ export const CONCEPTS_A: LabBase[] = [
     premise: {
       en: [
         "Most of the work inside a company arrives unstructured: a mail with an attachment, a request in a chat, a document somebody needs read. It gets handled by whoever notices, and nothing about it is measurable afterwards.",
-        "Ulak puts a model at the front of that queue and a workflow behind it. Requests are classified, documents are read and turned into fields, routine cases complete on their own, and anything above a confidence line stops for a person to approve — with the reasoning and the source attached.",
+        "This concept puts a model at the front of that queue and a workflow behind it. Requests are classified, documents are read and turned into fields, routine cases complete on their own, and anything above a confidence line stops for a person to approve — with the reasoning and the source attached.",
       ],
       tr: [
         "Bir şirketteki işin çoğu yapısız gelir: ekli bir e-posta, sohbette bir talep, birinin okuması gereken bir belge. Kim fark ederse o hallettiği için, sonrasında ölçülebilir hiçbir yanı kalmaz.",
-        "Ulak bu kuyruğun önüne bir model, arkasına bir akış koyuyor. Talepler sınıflandırılıyor, belgeler okunup alanlara dönüştürülüyor, rutin işler kendiliğinden tamamlanıyor; güven eşiğinin üstündeki her şey, gerekçesi ve kaynağıyla birlikte bir insanın onayı için duruyor.",
+        "Bu konsept bu kuyruğun önüne bir model, arkasına bir akış koyuyor. Talepler sınıflandırılıyor, belgeler okunup alanlara dönüştürülüyor, rutin işler kendiliğinden tamamlanıyor; güven eşiğinin üstündeki her şey, gerekçesi ve kaynağıyla birlikte bir insanın onayı için duruyor.",
       ],
     },
     proves: {

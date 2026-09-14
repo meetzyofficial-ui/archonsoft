@@ -77,11 +77,11 @@ export function Capabilities({ locale, copy }: { locale: Locale; copy: Copy }) {
                   )}
                   style={{
                     background:
-                      "linear-gradient(90deg, color-mix(in oklab, var(--color-sky) 34%, transparent), transparent 72%)",
+                      "linear-gradient(90deg, color-mix(in oklab, var(--color-cyan) 9%, transparent), transparent 72%)",
                   }}
                 />
                 <Link
-                  href={localePath(locale, `/work?domain=${domain.id}`)}
+                  href={localePath(locale, `/projects?domain=${domain.id}`)}
                   className="block py-6 md:py-7"
                   data-cursor-label={copy.work.open}
                 >

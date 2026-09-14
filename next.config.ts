@@ -16,6 +16,7 @@ const nextConfig: NextConfig = {
     // that is missing is a 400 in production and nothing at all in dev, so
     // every value `optimizedSrc` is ever called with has to appear.
     qualities: [62, 75, 88],
+    formats: ["image/avif", "image/webp"],
   },
   compiler: {
     removeConsole: process.env.NODE_ENV === "production" ? { exclude: ["error", "warn"] } : false,
@@ -29,14 +30,30 @@ const nextConfig: NextConfig = {
       { source: "/lab", destination: "/en/labs", permanent: true },
       {
         source: "/:locale(en|tr)/work/dp-pano",
-        destination: "/:locale/work/dppano",
+        destination: "/:locale/projects/dppano",
         permanent: true,
       },
       {
         source: "/:locale(en|tr)/work/erden-davetiye",
-        destination: "/:locale/work/erden",
+        destination: "/:locale/projects/erden",
         permanent: true,
       },
+      /* The work became projects in the creative-tech rebuild; every old
+         address still lands on the same thing. */
+      {
+        source: "/:locale(en|tr)/projects/erden-davetiye",
+        destination: "/:locale/projects/erden",
+        permanent: true,
+      },
+      {
+        source: "/:locale(en|tr)/projects/dp-pano",
+        destination: "/:locale/projects/dppano",
+        permanent: true,
+      },
+      { source: "/:locale(en|tr)/work", destination: "/:locale/projects", permanent: true },
+      { source: "/:locale(en|tr)/work/:slug", destination: "/:locale/projects/:slug", permanent: true },
+      { source: "/work", destination: "/projects", permanent: true },
+      { source: "/work/:slug", destination: "/projects/:slug", permanent: true },
     ];
   },
   async headers() {

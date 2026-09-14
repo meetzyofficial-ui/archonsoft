@@ -18,11 +18,11 @@ export const CONCEPTS_C: LabBase[] = [
     premise: {
       en: [
         "Most analytics screens answer a question nobody asked. They report totals going up and to the right, which feels good and changes nothing, while the question a product team actually has — where did people stop, and which ones came back — takes an afternoon and an export.",
-        "Ölçek is built the other way around: events first, funnels and cohorts as first-class objects, and every chart sitting one click from the rows that produced it.",
+        "This concept is built the other way around: events first, funnels and cohorts as first-class objects, and every chart sitting one click from the rows that produced it.",
       ],
       tr: [
         "Analitik ekranlarının çoğu kimsenin sormadığı bir soruyu cevaplar. Sağa yukarı giden toplamları raporlar; iyi hissettirir, hiçbir şeyi değiştirmez. Ürün ekibinin asıl sorusu — insanlar nerede durdu ve hangileri geri döndü — ise bir öğleden sonra ve bir dışa aktarma ister.",
-        "Ölçek tersinden kuruluyor: önce olaylar, birinci sınıf nesne olarak huniler ve kohortlar, ve her grafiğin onu üreten satırlara bir tık uzaklıkta durması.",
+        "Bu konsept tersinden kuruluyor: önce olaylar, birinci sınıf nesne olarak huniler ve kohortlar, ve her grafiğin onu üreten satırlara bir tık uzaklıkta durması.",
       ],
     },
     proves: {
@@ -250,11 +250,11 @@ export const CONCEPTS_C: LabBase[] = [
     premise: {
       en: [
         "A great many working businesses are held together by one spreadsheet, a group chat and somebody who remembers everything. It works until that person is on leave, and it produces no record anybody can look back at.",
-        "Atölye is what that becomes when it is written down properly: jobs with a state, people with a schedule, stock that decrements when a job consumes it, approvals with a name attached, and a phone in the van that works without signal.",
+        "This concept is what that becomes when it is written down properly: jobs with a state, people with a schedule, stock that decrements when a job consumes it, approvals with a name attached, and a phone in the van that works without signal.",
       ],
       tr: [
         "Çalışan pek çok işletmeyi bir arada tutan şey tek bir tablo, bir grup sohbeti ve her şeyi hatırlayan bir kişidir. Bu kişi izne çıkana kadar işler; ve geriye kimsenin dönüp bakabileceği bir kayıt bırakmaz.",
-        "Atölye, bunun düzgünce yazıya döküldüğünde neye dönüştüğü: durumu olan işler, programı olan kişiler, iş tükettikçe düşen stok, adı olan onaylar ve çekmediği yerde de çalışan bir saha telefonu.",
+        "Bu konsept, bunun düzgünce yazıya döküldüğünde neye dönüştüğü: durumu olan işler, programı olan kişiler, iş tükettikçe düşen stok, adı olan onaylar ve çekmediği yerde de çalışan bir saha telefonu.",
       ],
     },
     proves: {
@@ -556,11 +556,11 @@ export const CONCEPTS_C: LabBase[] = [
     premise: {
       en: [
         "Company knowledge is not missing. It is in a contract folder, a handbook nobody opened, and four people's heads, and none of it is findable at the moment someone needs it.",
-        "Kütük indexes what a company already has and answers from it — with the passage, the document and the permission that allowed it, every time. If the source is not there, the answer is not given.",
+        "This concept indexes what a company already has and answers from it — with the passage, the document and the permission that allowed it, every time. If the source is not there, the answer is not given.",
       ],
       tr: [
         "Şirket bilgisi eksik değildir. Bir sözleşme klasöründe, kimsenin açmadığı bir el kitabında ve dört kişinin kafasındadır; ve tam ihtiyaç duyulduğu anda hiçbiri bulunabilir değildir.",
-        "Kütük, şirketin zaten sahip olduğunu indeksler ve oradan cevap verir — her seferinde pasajı, belgeyi ve buna izin veren yetkiyle birlikte. Kaynak yoksa cevap da verilmez.",
+        "Bu konsept, şirketin zaten sahip olduğunu indeksler ve oradan cevap verir — her seferinde pasajı, belgeyi ve buna izin veren yetkiyle birlikte. Kaynak yoksa cevap da verilmez.",
       ],
     },
     proves: {
@@ -830,11 +830,11 @@ export const CONCEPTS_C: LabBase[] = [
     premise: {
       en: [
         "Every business with ongoing customers runs a second, invisible job: telling people what is happening. It is done by mail, by phone, by forwarding a document somebody already sent, and it consumes more time than anyone counts.",
-        "Eşik is the customer's own window onto the same records the business already keeps. Nothing is duplicated and nothing is retyped — the portal reads the system, and the questions stop arriving.",
+        "This concept is the customer's own window onto the same records the business already keeps. Nothing is duplicated and nothing is retyped — the portal reads the system, and the questions stop arriving.",
       ],
       tr: [
         "Devam eden müşterisi olan her işletme, ikinci ve görünmez bir işi yürütür: insanlara ne olduğunu anlatmak. Bu iş e-postayla, telefonla, birinin zaten gönderdiği bir belgeyi yeniden yollayarak yapılır ve kimsenin hesapladığından fazla zaman yer.",
-        "Eşik, müşterinin işletmenin zaten tuttuğu kayıtlara açılan kendi penceresi. Hiçbir şey kopyalanmıyor, hiçbir şey yeniden yazılmıyor — portal sistemi okuyor ve sorular gelmeyi bırakıyor.",
+        "Bu konsept, müşterinin işletmenin zaten tuttuğu kayıtlara açılan kendi penceresi. Hiçbir şey kopyalanmıyor, hiçbir şey yeniden yazılmıyor — portal sistemi okuyor ve sorular gelmeyi bırakıyor.",
       ],
     },
     proves: {

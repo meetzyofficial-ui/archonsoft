@@ -17,9 +17,9 @@ const OUT = process.argv[2] ?? ".qa/responsive";
 const WIDTHS = [1440, 1280, 1024, 768, 430, 390, 375];
 const ROUTES = [
   "/en",
-  "/en/work",
-  "/en/work/meetzy",
-  "/en/work/dppano",
+  "/en/projects",
+  "/en/projects/meetzy",
+  "/en/projects/dppano",
   "/en/labs",
   "/en/labs/divan",
   "/en/capabilities",
@@ -27,7 +27,7 @@ const ROUTES = [
   "/en/about",
   "/en/contact",
   "/tr",
-  "/tr/work",
+  "/tr/projects",
 ];
 
 const findings = [];

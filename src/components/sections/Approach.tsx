@@ -358,7 +358,7 @@ export function TechBand({
                               href={localePath(
                                 locale,
                                 layer.evidence.kind === "shipped"
-                                  ? `/work/${layer.evidence.slug}`
+                                  ? `/projects/${layer.evidence.slug}`
                                   : `/labs/${layer.evidence.slug}`,
                               )}
                               className="link-rule inline-flex items-center gap-2 hover:text-[var(--fg)]"

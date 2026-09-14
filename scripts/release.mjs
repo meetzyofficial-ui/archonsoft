@@ -14,10 +14,11 @@ const BASE = process.env.ARCHON_BASE ?? "http://localhost:3210";
 const PATHS = [
   "",
   "/privacy",
-  "/work",
-  "/work/meetzy",
-  "/work/dppano",
-  "/work/erden",
+  "/projects",
+  "/projects/meetzy",
+  "/projects/dppano",
+  "/projects/erden",
+  "/projects/archon-soft-world",
   "/labs",
   "/labs/divan",
   "/labs/ulak",
@@ -119,6 +120,10 @@ for (const locale of ["en", "tr"]) {
         ogImage: get('meta[property="og:image"]'),
         lang: document.documentElement.lang,
         h1: Array.from(document.querySelectorAll("h1")).map((h) => h.textContent?.trim() ?? ""),
+        imageAboveFold: Array.from(document.querySelectorAll("main img")).some((img) => {
+          const r = img.getBoundingClientRect();
+          return r.width > 32 && r.height > 32 && r.top < window.innerHeight && r.bottom > 0;
+        }),
         preloads: Array.from(document.querySelectorAll('link[rel="preload"][as="image"]')).map(
           (l) => l.getAttribute("href"),
         ),
@@ -149,14 +154,16 @@ for (const locale of ["en", "tr"]) {
       note("HIGH", `${url} hreflang missing a language: ${langs.join(", ") || "none"}`);
     }
 
-    if (path === "" && meta.preloads.length === 0 && !meta.preloadInjector) {
-      note("CRIT", `${url} has neither a hero image preload nor its injector`);
+    /* A preload is only owed to a picture that paints in the first screen.
+       An opening set in type has its largest paint in the type. */
+    if (path === "" && meta.imageAboveFold && meta.preloads.length === 0 && !meta.preloadInjector) {
+      note("CRIT", `${url} has an image in the first screen but neither a preload nor its injector`);
     }
 
     if (path.startsWith("/labs/") && meta.conceptMarks < 2) {
       note("CRIT", `${url} is a concept page with only ${meta.conceptMarks} concept marks`);
     }
-    if (path.startsWith("/work/") && meta.shippedMarks < 1) {
+    if (path.startsWith("/projects/") && meta.shippedMarks < 1) {
       note("HIGH", `${url} is shipped work with no SHIPPED mark`);
     }
   }
@@ -179,7 +186,7 @@ for (const locale of ["en", "tr"]) {
   // The middleware matcher is a regex inside a string, and an escape lost in
   // that string once left every prefix-less URL answering 404. Nothing about
   // it is visible in a screenshot, so it is asserted here instead.
-  for (const path of ["/work", "/labs", "/contact", "/about", "/process", "/capabilities"]) {
+  for (const path of ["/projects", "/labs", "/contact", "/about", "/process", "/capabilities"]) {
     /* The language comes from Accept-Language: none (a link-preview crawler)
        is Turkish, a browser asking for English is English. */
     for (const [language, expected] of [["", "tr"], ["en-US,en;q=0.9", "en"], ["tr-TR,tr;q=0.9", "tr"]]) {
@@ -241,7 +248,7 @@ for (const locale of ["en", "tr"]) {
 {
   const mobile = await browser.newContext({ ...devices["iPhone 13"] });
   const mp = await mobile.newPage();
-  for (const path of ["", "/labs", "/labs/divan", "/work/erden", "/contact"]) {
+  for (const path of ["", "/labs", "/labs/divan", "/projects/erden", "/contact"]) {
     await mp.goto(`${BASE}/en${path}`, { waitUntil: "networkidle" });
     await mp.waitForTimeout(900);
     const overflow = await mp.evaluate(

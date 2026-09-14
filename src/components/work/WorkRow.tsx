@@ -117,7 +117,7 @@ export function WorkRow({
                   shipped ? "text-head" : "text-sub",
                 )}
               >
-                {piece.name}
+                {t(piece.name, locale)}
               </h2>
 
               <p className="mt-3.5 max-w-[46ch] text-[var(--fg-mute)]">

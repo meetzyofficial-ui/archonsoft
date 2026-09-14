@@ -18,11 +18,11 @@ export const CONCEPTS_B: LabBase[] = [
     premise: {
       en: [
         "A marketplace looks like a shop and is not one. There are two products — the side that buys and the side that sells — and a third thing underneath them that has to stay correct while both are moving: who owes what to whom.",
-        "Kervan is built from that centre outward. An order is one record with two views of it, payouts are derived rather than typed, and moderation is a state on the catalogue instead of a separate spreadsheet.",
+        "This concept is built from that centre outward. An order is one record with two views of it, payouts are derived rather than typed, and moderation is a state on the catalogue instead of a separate spreadsheet.",
       ],
       tr: [
         "Pazar yeri bir dükkâna benzer ama dükkân değildir. İki ürün vardır — alan taraf ve satan taraf — ve ikisi de hareket hâlindeyken doğru kalması gereken üçüncü bir şey: kimin kime ne borçlu olduğu.",
-        "Kervan bu merkezden dışa doğru kuruluyor. Sipariş, iki görünümü olan tek bir kayıt; hakedişler elle yazılmak yerine türetiliyor; moderasyon ayrı bir tablo değil, katalogun üzerindeki bir durum.",
+        "Bu konsept bu merkezden dışa doğru kuruluyor. Sipariş, iki görünümü olan tek bir kayıt; hakedişler elle yazılmak yerine türetiliyor; moderasyon ayrı bir tablo değil, katalogun üzerindeki bir durum.",
       ],
     },
     proves: {
@@ -283,11 +283,11 @@ export const CONCEPTS_B: LabBase[] = [
     premise: {
       en: [
         "Meetzy answered one half of this problem for real: finding someone to go with. The other half — selling the ticket, scanning it at a door with no signal, and telling the organiser what actually happened — is a different system entirely, and it is the half most event products get wrong.",
-        "Vesile is that second half drawn out properly. It is a concept, not a roadmap: nothing here is a feature of Meetzy, planned or otherwise.",
+        "This concept is that second half drawn out properly. It is a concept, not a roadmap: nothing here is a feature of Meetzy, planned or otherwise.",
       ],
       tr: [
         "Meetzy bu problemin bir yarısını gerçekten çözdü: birlikte gidecek kişiyi bulmak. Diğer yarısı — bileti satmak, kapıda çekmeyen bir telefonla okutmak ve organizatöre gerçekte ne olduğunu anlatmak — bambaşka bir sistem ve etkinlik ürünlerinin çoğunun yanıldığı yarı da bu.",
-        "Vesile, o ikinci yarının düzgünce çizilmiş hâli. Bir konsept; yol haritası değil. Buradaki hiçbir şey Meetzy'nin planlanmış ya da planlanmamış bir özelliği değildir.",
+        "Bu konsept, o ikinci yarının düzgünce çizilmiş hâli. Bir konsept; yol haritası değil. Buradaki hiçbir şey Meetzy'nin planlanmış ya da planlanmamış bir özelliği değildir.",
       ],
     },
     proves: {
@@ -511,11 +511,11 @@ export const CONCEPTS_B: LabBase[] = [
     },
     premise: {
       en: [
-        "Erden Davetiye is the real version of this argument and it is live: a storefront and the admin the atelier actually runs on. Tezgah asks what the same system looks like when the catalogue has variants, stock is finite, and campaigns and returns are moving at the same time.",
+        "Erden Davetiye is the real version of this argument and it is live: a storefront and the admin the atelier actually runs on. This concept asks what the same system looks like when the catalogue has variants, stock is finite, and campaigns and returns are moving at the same time.",
         "The interesting problems are not on the product page. They are the ones that decide whether a business can be operated from the software: what happens to a basket when the last one sells, what a coupon does to a margin, what a return does to stock that was already counted.",
       ],
       tr: [
-        "Bu argümanın gerçek ve canlı hâli Erden Davetiye: bir vitrin ve atölyenin işini gerçekten yürüttüğü yönetim tarafı. Tezgah ise aynı sistemin katalog varyantlandığında, stok sınırlı olduğunda, kampanya ve iadeler aynı anda hareket ettiğinde neye benzediğini soruyor.",
+        "Bu argümanın gerçek ve canlı hâli Erden Davetiye: bir vitrin ve atölyenin işini gerçekten yürüttüğü yönetim tarafı. Bu konsept ise aynı sistemin katalog varyantlandığında, stok sınırlı olduğunda, kampanya ve iadeler aynı anda hareket ettiğinde neye benzediğini soruyor.",
         "İlginç problemler ürün sayfasında değil. Bir işin yazılımın üzerinden yürütülüp yürütülemeyeceğine karar veren sorularda: sonuncusu satıldığında sepete ne olur, bir kupon marja ne yapar, iade edilen bir ürün zaten sayılmış stoğa ne yapar.",
       ],
     },
@@ -810,11 +810,11 @@ export const CONCEPTS_B: LabBase[] = [
     premise: {
       en: [
         "A support assistant that guesses is worse than no assistant, because a confident wrong answer costs more than a slow right one. The whole design problem is the handover: knowing when not to answer, and passing the conversation across with everything the person needs already gathered.",
-        "Vardiya answers from the order record and the policy text, cites both, and escalates the moment the ground under the answer runs out — with the customer history, the order and the draft reply already on the agent's screen.",
+        "This concept answers from the order record and the policy text, cites both, and escalates the moment the ground under the answer runs out — with the customer history, the order and the draft reply already on the agent's screen.",
       ],
       tr: [
         "Tahmin eden bir destek asistanı, hiç asistan olmamasından kötüdür; çünkü kendinden emin yanlış bir cevap, yavaş ama doğru olandan pahalıya patlar. Asıl tasarım problemi devir: ne zaman cevap vermemesi gerektiğini bilmek ve görüşmeyi, karşı tarafın ihtiyacı olan her şey toplanmış hâlde teslim etmek.",
-        "Vardiya cevabını sipariş kaydından ve politika metninden veriyor, ikisini de kaynak gösteriyor ve cevabın altındaki zemin bittiği anda devrediyor — müşteri geçmişi, sipariş ve taslak yanıt temsilcinin ekranında hazır.",
+        "Bu konsept cevabını sipariş kaydından ve politika metninden veriyor, ikisini de kaynak gösteriyor ve cevabın altındaki zemin bittiği anda devrediyor — müşteri geçmişi, sipariş ve taslak yanıt temsilcinin ekranında hazır.",
       ],
     },
     proves: {

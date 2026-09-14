@@ -7,7 +7,7 @@ import { Cursor } from "@/components/chrome/Cursor";
 import { Preloader } from "@/components/chrome/Preloader";
 import { SmoothScroll } from "@/components/chrome/SmoothScroll";
 import { Atmosphere } from "@/components/site/Atmosphere";
-import { Sculpture } from "@/components/site/Sculpture";
+import { LogoField } from "@/components/site/LogoField";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { StudioClosing } from "@/components/site/StudioClosing";
 import { WorldMount } from "@/components/world/WorldMount";
@@ -108,8 +108,8 @@ export async function generateMetadata({
 }
 
 export const viewport: Viewport = {
-  themeColor: "#fbfcff",
-  colorScheme: "light",
+  themeColor: "#05070b",
+  colorScheme: "dark",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -194,7 +194,7 @@ export default async function LocaleLayout({
             the load: the atmosphere is four CSS gradients and the sculpture
             does not exist until the browser is idle. */}
         <Atmosphere />
-        <Sculpture />
+        <LogoField />
         <Preloader />
         <SmoothScroll />
         <Cursor />

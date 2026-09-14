@@ -7,13 +7,13 @@ import { chromium } from "playwright";
 const BASE = process.env.ARCHON_BASE ?? "http://localhost:3210";
 const ROUTES = [
   "/en",
-  "/en/work",
-  "/en/work/meetzy",
-  "/en/work/dppano",
+  "/en/projects",
+  "/en/projects/meetzy",
+  "/en/projects/dppano",
   "/en/capabilities",
   "/en/labs",
   "/en/labs/divan",
-  "/en/work/erden",
+  "/en/projects/erden",
   "/en/about",
   "/en/contact",
 ];

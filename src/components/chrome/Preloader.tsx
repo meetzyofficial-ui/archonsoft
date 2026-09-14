@@ -83,7 +83,7 @@ export function Preloader() {
         // `entrance-panel` is hidden by the no-js rule in globals.css: without
         // JavaScript nothing would ever lift this, and the visitor would be
         // left looking at an empty ink screen.
-        "entrance-panel pointer-events-none fixed inset-0 z-[98] bg-[var(--color-paper)] text-[var(--color-ink)]",
+        "entrance-panel pointer-events-none fixed inset-0 z-[98] bg-[var(--color-night)] text-[var(--color-frost)]",
         !instant && "transition-[clip-path] duration-[900ms] ease-[var(--ease-in-out-quart)]",
         done ? "[clip-path:inset(0_0_100%_0)]" : "[clip-path:inset(0_0_0_0)]",
       )}
@@ -96,11 +96,11 @@ export function Preloader() {
         )}
         style={{ transitionDelay: done ? "0ms" : "80ms" }}
       >
-        <span className="mono-label flex items-center gap-2.5 text-[var(--color-ink)]">
+        <span className="mono-label flex items-center gap-2.5 text-[var(--color-frost)]">
           <ArchonIcon className="h-3" />
           Archon Soft
         </span>
-        <span className="mono-label self-end text-[var(--color-slate)]">
+        <span className="mono-label self-end text-[#8a95a8]">
           Ankara
         </span>
       </div>

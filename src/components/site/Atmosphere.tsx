@@ -3,22 +3,27 @@
 import { useEffect, useRef } from "react";
 
 /**
- * The light the whole site sits in.
+ * The night the whole site sits in.
  *
- * One fixed field behind every page: a white core through the middle of the
- * viewport, baby blue blooming at the shoulders, a breath of cream and one of
- * clay at the far corners. It is deliberately not a gradient *on* a section —
- * sections here paint nothing, so this is what shows through all of them, and
- * scrolling moves the page across a sky that stays put.
+ * One fixed field behind every page: graphite ground, three light pools a few
+ * percent strong — a cold key high on the right where the mark hangs, a navy
+ * fill low on the left, a trace of the robot's ember at the foot — a hairline
+ * grid laid into the floor in perspective, and a vignette. Sections paint
+ * nothing, so this is what shows through all of them, and scrolling moves the
+ * page across a room that stays put.
  *
- * Two things move it, both barely. The blooms drift on their own two-minute
+ * Two things move it, both barely. The pools drift on their own two-minute
  * cycles in CSS, and on a desktop the whole field leans a few pixels toward
- * the pointer. The lean is deliberately over-damped — 1.6s of easing on a
- * 26px maximum — so it can never be perceived as "following the mouse". You
- * should only be able to tell that the page is not a photograph.
+ * the pointer, over-damped so it can never read as "following the mouse".
  *
- * Cost: one composited layer, one `transform` written at most once per frame,
- * and nothing at all when the visitor has asked for reduced motion.
+ * The mark drawn here is the flat one — the live, lit mark is a WebGL layer
+ * above this (`LogoField`), and when it arrives it stamps
+ * `html[data-logo-live]` so this one steps back. Anyone the live mark is not
+ * for (reduced motion, no WebGL, a low-core device) keeps this one, which
+ * costs nothing.
+ *
+ * Cost: a handful of composited layers, one `transform` written at most once
+ * per frame, and nothing at all under reduced motion.
  */
 export function Atmosphere() {
   const fieldRef = useRef<HTMLDivElement>(null);
@@ -61,9 +66,17 @@ export function Atmosphere() {
         <div className="atmosphere__bloom atmosphere__bloom--b" />
         <div className="atmosphere__bloom atmosphere__bloom--c" />
         <div className="atmosphere__bloom atmosphere__bloom--d" />
+        <div className="atmosphere__grid" />
+        {/* The supplied mark's geometry, unchanged: three left-aligned bars,
+            7.4 high on an 11-unit pitch, 34 / 24.5 / 15 wide. */}
+        <svg className="atmosphere__mark" viewBox="0 0 34 29.4">
+          <rect x="0" y="0" width="34" height="7.4" fill="currentColor" />
+          <rect x="0" y="11" width="24.5" height="7.4" fill="currentColor" />
+          <rect x="0" y="22" width="15" height="7.4" fill="currentColor" />
+        </svg>
       </div>
-      {/* Painted over the drift, not under it: whatever the blooms are doing,
-          the middle of the screen stays clean enough to set type on. */}
+      {/* Over the drift, not under it: whatever the pools are doing, the
+          edges of the screen stay quiet. */}
       <div className="atmosphere__core" />
     </div>
   );

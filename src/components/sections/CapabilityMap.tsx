@@ -12,6 +12,7 @@ import type { Copy } from "@/i18n/dictionary";
 import { useHasPointer } from "@/lib/hooks";
 import { localePath, t, type Locale } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import { workName } from "@/data/labs/titles";
 
 /**
  * What can we build — as a map rather than an icon grid.
@@ -33,7 +34,7 @@ export function CapabilityMap({ locale, copy }: { locale: Locale; copy: Copy }) 
 
   const href =
     active.kind === "shipped"
-      ? localePath(locale, `/work/${active.slug}`)
+      ? localePath(locale, `/projects/${active.slug}`)
       : localePath(locale, `/labs/${active.slug}`);
 
   return (
@@ -111,7 +112,7 @@ export function CapabilityMap({ locale, copy }: { locale: Locale; copy: Copy }) 
         <div className="lg:sticky lg:top-24">
           <div className="mb-5 flex flex-wrap items-center gap-x-4 gap-y-3">
             <Provenance kind={active.kind} copy={copy} />
-            <span className="display text-quote">{active.name}</span>
+            <span className="display text-quote">{workName(active, locale)}</span>
             <Link
               href={href}
               className="mono-label link-rule ml-auto inline-flex items-center gap-3 text-[var(--fg)]"

@@ -86,6 +86,7 @@ export function WorldNavLink({
         onClick?.();
         enter(event);
       }}
+      data-world-trigger=""
       className={className}
     >
       {index ? (
@@ -114,26 +115,52 @@ export function WorldEnterButton({
   const able = useWebGL();
   if (!able) return null;
 
-  /* The old control was a 52px bordered box with a hover fill — the one
-     button-shaped object left on the site. What opens a world is a line and
-     an arrow, at the same eleven pixels as every other thing you can do
-     here; the size of the invitation is not what makes it worth taking. */
+  /* The one control on the site with light of its own — the same raised
+     surface as every other action, with a cyan edge and an eye. */
   return (
     <a
       href={localePath(locale)}
       onClick={enter}
-      className={cn(
-        "mono-label link-rule group/enter inline-flex items-center gap-4 text-[var(--fg)]",
-        className,
-      )}
+      data-world-trigger=""
+      className={cn("btn-raised btn-world mono-label", className)}
     >
+      <span aria-hidden="true" className="btn-world__eye" />
       {label}
-      <span
-        aria-hidden="true"
-        className="relative block h-px w-12 bg-current transition-[width] duration-[700ms] ease-[var(--ease-out-expo)] group-hover/enter:w-20"
-      >
-        <span className="absolute -top-[3px] right-0 block size-[7px] rotate-45 border-t border-r border-current" />
-      </span>
+      <span aria-hidden="true" className="arrow-rule" />
+    </a>
+  );
+}
+
+/**
+ * The way in, at the centre of the header.
+ *
+ * Centred because it is the one thing the header offers that no other site
+ * does, and raised because it is the only control that leaves the document.
+ * On a phone the label shortens to one word and the eye stays.
+ */
+export function WorldHeaderButton({
+  locale,
+  label,
+  shortLabel,
+}: {
+  locale: Locale;
+  label: string;
+  shortLabel: string;
+}) {
+  const enter = useEnterWorld(locale);
+  const able = useWebGL();
+  if (!able) return null;
+  return (
+    <a
+      href={localePath(locale)}
+      onClick={enter}
+      data-world-trigger=""
+      aria-label={label}
+      className="btn-raised btn-world mono-label !min-h-[2.375rem] !gap-2.5 !px-3.5 !py-2 sm:!px-4"
+    >
+      <span aria-hidden="true" className="btn-world__eye" />
+      <span className="hidden sm:inline">{label}</span>
+      <span className="sm:hidden">{shortLabel}</span>
     </a>
   );
 }

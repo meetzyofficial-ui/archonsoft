@@ -21,7 +21,7 @@ for (const [label, viewport] of VIEWS) {
   await page.waitForTimeout(1600);
 
   const info = await page.evaluate(() => {
-    const cta = document.querySelector('main a[href="/en/work"]');
+    const cta = document.querySelector('main a[href="/en/projects"]');
     const rect = cta.getBoundingClientRect();
     const hero = document.querySelector("section[aria-labelledby='hero-heading']");
     return { ctaBottom: Math.round(rect.bottom), heroHeight: Math.round(hero.getBoundingClientRect().height), vh: window.innerHeight };

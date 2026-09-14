@@ -14,6 +14,7 @@ import { LABS, getDomain, getLab, getNextLab } from "@/data/labs";
 import { dict } from "@/i18n/dictionary";
 import { LOCALES, isLocale, localePath, t, tl, type Locale } from "@/lib/i18n";
 import { SITE } from "@/lib/site";
+import { conceptTitle } from "@/data/labs/titles";
 
 type Params = { params: Promise<{ locale: string; slug: string }> };
 
@@ -31,7 +32,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   /* The title says "concept" before it says anything else. A search result is
      a surface like any other, and a prototype must not arrive looking like a
      delivered project. */
-  const title = `${lab.name} — ${copy.labs.chip} · ${t(lab.sector, locale)}`;
+  const title = `${conceptTitle(lab.slug, locale, lab.name)} — ${copy.labs.chip}`;
   const description = `${t(lab.statement, locale)} ${copy.labs.disclaimer}`;
 
   return {
@@ -106,7 +107,7 @@ export default async function LabPage({ params }: Params) {
           </Reveal>
 
           <h1 className="mt-8 text-head md:mt-10">
-            <SplitReveal text={lab.name} immediate lineHeight="0.88em" stagger={38} delay={100} />
+            <SplitReveal text={conceptTitle(lab.slug, locale, lab.name)} immediate lineHeight="0.88em" stagger={38} delay={100} />
           </h1>
 
           <div className="mt-7 grid gap-6 md:mt-9 md:grid-cols-12 md:items-end">
@@ -241,7 +242,7 @@ export default async function LabPage({ params }: Params) {
                 locale={locale}
                 notes={lab.stack}
                 accent={lab.accent}
-                productName={lab.name}
+                productName={conceptTitle(lab.slug, locale, lab.name)}
                 label={copy.stack.layers}
                 openLabel={copy.stack.open}
                 closeLabel={copy.stack.close}
@@ -270,7 +271,7 @@ export default async function LabPage({ params }: Params) {
               {lab.relations.map((relation) => (
                 <Reveal as="li" key={relation.slug} className="hairline-t pt-6">
                   <Link
-                    href={localePath(locale, `/work/${relation.slug}`)}
+                    href={localePath(locale, `/projects/${relation.slug}`)}
                     className="group/rel block"
                   >
                     <span className="mono-label block text-[var(--fg-mute)]">
@@ -314,7 +315,7 @@ export default async function LabPage({ params }: Params) {
               <span className="mono-label reveal-fade text-[var(--fg-mute)]">{copy.labs.next}</span>
               <span className="reveal-fade mt-4 flex flex-wrap items-baseline gap-x-6 gap-y-2">
                 <span className="display text-sub transition-transform duration-[700ms] ease-[var(--ease-out-expo)] group-hover/next:translate-x-2">
-                  {next.name}
+                  {conceptTitle(next.slug, locale, next.name)}
                 </span>
                 <span className="mono-label text-[var(--accent)]">{t(next.sector, locale)}</span>
                 <span

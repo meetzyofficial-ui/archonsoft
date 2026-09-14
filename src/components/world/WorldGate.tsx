@@ -7,6 +7,7 @@ import type { Copy } from "@/i18n/dictionary";
 import type { Locale } from "@/lib/i18n";
 import { OPEN_WORLD_EVENT, WORLD_DISMISSED_KEY } from "@/components/world/openWorld";
 import type { WorldPayload } from "@/lib/worldPayload";
+import { WORLD_OPEN_ATTRIBUTE } from "@/lib/worldOpen";
 
 export type WorldCopy = Copy["world"];
 
@@ -61,7 +62,6 @@ export function WorldGate({
   copies: Record<Locale, WorldCopy>;
   payloads: Record<Locale, WorldPayload>;
 }) {
-  const copy = copies[locale];
   const pathname = usePathname();
   /* The world belongs to the home page. Mounting from the layout is what makes
      it fixed from the first frame; this is what keeps it off every other
@@ -69,12 +69,10 @@ export function WorldGate({
   const isHome = pathname === `/${locale}` || pathname === `/${locale}/`;
 
   const [open, setOpen] = useState(true);
-  const [available, setAvailable] = useState(true);
   const [input, setInput] = useState<{ touch: boolean; compact: boolean }>({ touch: true, compact: true });
 
   useEffect(() => {
     const capable = hasWebGL();
-    setAvailable(capable);
     setInput(pickInput());
 
     /* `/world` redirects here asking for the world. Somebody who typed that
@@ -105,8 +103,6 @@ export function WorldGate({
     setOpen(false);
   }, []);
 
-  const reopen = useCallback(() => setOpen(true), []);
-
   /* Anywhere on the site can ask for the world back — the invitation band, the
      navigation, the control this leaves behind. They all end up here, because
      the visitor may already be standing on the home page and there is then no
@@ -117,6 +113,16 @@ export function WorldGate({
     return () => window.removeEventListener(OPEN_WORLD_EVENT, onAsk);
   }, []);
 
+  /* Tells the rest of the site the world is up, so the cursor and the live
+     mark behind the page step aside while it is (see lib/worldOpen). */
+  const showing = isHome && open;
+  useEffect(() => {
+    const root = document.documentElement;
+    if (showing) root.setAttribute(WORLD_OPEN_ATTRIBUTE, "true");
+    else root.removeAttribute(WORLD_OPEN_ATTRIBUTE);
+    return () => root.removeAttribute(WORLD_OPEN_ATTRIBUTE);
+  }, [showing]);
+
   if (!isHome) return null;
 
   if (open) {
@@ -125,16 +131,7 @@ export function WorldGate({
     );
   }
 
-  if (!available) return null;
-
-  return (
-    <button
-      type="button"
-      onClick={reopen}
-      className="mono-micro fixed right-[var(--spacing-gutter)] bottom-5 z-[110] hidden cursor-pointer items-center gap-3 text-[var(--fg-mute)] transition-colors duration-500 hover:text-[var(--fg)] sm:inline-flex"
-    >
-      {copy.enterShort}
-      <span aria-hidden="true" className="block h-px w-6 bg-current" />
-    </button>
-  );
+  /* The re-entry control that used to sit in the bottom corner is the
+     raised button at the centre of the header now (WorldHeaderButton). */
+  return null;
 }

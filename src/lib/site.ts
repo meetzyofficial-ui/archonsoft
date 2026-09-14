@@ -35,7 +35,7 @@ export type NavItem = {
 };
 
 export const NAV: readonly NavItem[] = [
-  { label: "Work", href: "/work", index: "01" },
+  { label: "Work", href: "/projects", index: "01" },
   { label: "Capabilities", href: "/capabilities", index: "02" },
   { label: "Lab", href: "/lab", index: "03" },
   { label: "About", href: "/about", index: "04" },

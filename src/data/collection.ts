@@ -2,6 +2,8 @@ import { DOMAINS, LABS } from "@/data/labs";
 import type { IconName } from "@/components/labs/Icon";
 import { PROJECTS } from "@/data/projects";
 import type { Screen } from "@/data/screens";
+import { CONCEPT_TITLES } from "@/data/labs/titles";
+import { getShowcase, projectPath } from "@/data/showcase";
 import type { Localized } from "@/lib/i18n";
 
 /**
@@ -14,7 +16,7 @@ import type { Localized } from "@/lib/i18n";
  * same eight domains the capability pages use — and the one thing that is
  * never merged is the provenance.
  *
- * That distinction is the whole reason this file can exist at all. Two of
+ * That distinction is the whole reason this file can exist at all. Four of
  * these shipped and ten did not, every entry carries which it is, and the
  * index prints it on the row rather than in a footnote. Blur that and the
  * range stops being an argument and becomes a claim.
@@ -24,7 +26,8 @@ export type Provenance = "shipped" | "concept";
 
 export type Piece = {
   slug: string;
-  name: string;
+  /** What a visitor reads: a shipped product's name, a concept's title. */
+  name: Localized;
   index: string;
   provenance: Provenance;
   /** What kind of thing it is, in its own words. */
@@ -52,21 +55,38 @@ export type Piece = {
 
 const SHIPPED: Piece[] = PROJECTS.map((project) => ({
   slug: project.slug,
-  name: project.name,
+  name: { en: project.name, tr: project.name },
   index: "",
   provenance: "shipped" as const,
   sector: project.category,
   statement: project.summary,
   accent: project.accent,
   domains: project.domains,
-  path: `/work/${project.slug}`,
+  path: projectPath(project.slug),
   screens: project.screens.slice(0, 3),
   facts: project.facts.slice(0, 3),
 }));
 
+/* Archon Soft World is shipped work too, and its captures are frames it
+   rendered itself. */
+const world = getShowcase("archon-soft-world")!;
+const WORLD: Piece = {
+  slug: world.slug,
+  name: { en: world.title, tr: world.title },
+  index: "",
+  provenance: "shipped",
+  sector: world.category,
+  statement: world.tagline,
+  accent: world.accent,
+  domains: ["products"],
+  path: projectPath(world.slug),
+  screens: world.gallery.slice(0, 1).map((media) => ({ image: media.image, caption: media.alt })),
+  facts: world.facts.slice(0, 3),
+};
+
 const CONCEPTS: Piece[] = LABS.map((lab) => ({
   slug: lab.slug,
-  name: lab.name,
+  name: CONCEPT_TITLES[lab.slug] ?? { en: lab.name, tr: lab.name },
   index: "",
   provenance: "concept" as const,
   sector: lab.sector,
@@ -80,7 +100,7 @@ const CONCEPTS: Piece[] = LABS.map((lab) => ({
 }));
 
 /** Shipped first. What is live outranks what is possible, always. */
-export const COLLECTION: Piece[] = [...SHIPPED, ...CONCEPTS].map((piece, i) => ({
+export const COLLECTION: Piece[] = [...SHIPPED, WORLD, ...CONCEPTS].map((piece, i) => ({
   ...piece,
   index: String(i + 1).padStart(2, "0"),
 }));

@@ -4,6 +4,7 @@ import { MATRIX } from "@/data/matrix";
 import type { Copy } from "@/i18n/dictionary";
 import { localePath, t, tl, type Locale } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import { workName } from "@/data/labs/titles";
 
 /**
  * The matrix, read straight down.
@@ -23,7 +24,7 @@ export function CapabilityMatrix({ locale, copy }: { locale: Locale; copy: Copy 
     row,
     href:
       row.proof.kind === "shipped"
-        ? localePath(locale, `/work/${row.proof.slug}`)
+        ? localePath(locale, `/projects/${row.proof.slug}`)
         : localePath(locale, `/labs/${row.proof.slug}`),
   }));
 
@@ -74,7 +75,7 @@ export function CapabilityMatrix({ locale, copy }: { locale: Locale; copy: Copy 
                 <Link href={href} className="group/cell block">
                   <span className="flex items-baseline gap-3">
                     <span className="display text-[1.125rem] tracking-[-0.02em] transition-transform duration-500 ease-[var(--ease-out-expo)] group-hover/cell:translate-x-1">
-                      {row.proof.name}
+                      {workName(row.proof, locale)}
                     </span>
                     <span
                       className={cn(
@@ -128,7 +129,7 @@ export function CapabilityMatrix({ locale, copy }: { locale: Locale; copy: Copy 
             </dl>
             <Link href={href} className="mt-5 block">
               <span className="flex items-baseline gap-3">
-                <span className="display text-[1.25rem] tracking-[-0.02em]">{row.proof.name}</span>
+                <span className="display text-[1.25rem] tracking-[-0.02em]">{workName(row.proof, locale)}</span>
                 <span
                   className={cn(
                     "mono-label",

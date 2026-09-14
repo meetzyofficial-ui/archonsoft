@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { Wordmark } from "@/components/chrome/Wordmark";
 import { LanguageSwitch } from "@/components/chrome/LanguageSwitch";
 import { SiteMenu, MenuTrigger } from "@/components/site/SiteMenu";
-import { WorldNavLink } from "@/components/world/WorldInvite";
+import { WorldHeaderButton } from "@/components/world/WorldInvite";
 import type { Copy } from "@/i18n/dictionary";
 import { localePath, type Locale } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -60,16 +60,15 @@ function useBandScheme(): "paper" | "ink" {
 /**
  * The header.
  *
- * A mark, four words and a way in — set at eleven pixels, floating on the
- * atmosphere with nothing behind it. There is no bar: no border, no fill, no
- * blur panel, no pill, no button. Once the page has moved past the opening a
- * very faint wash of the paper colour comes up behind it so the words stay
- * readable over a photograph, and that is the entire scroll behaviour.
+ * Three places on one line: the mark on the left, the way into Archon World
+ * at the exact centre, and the index on the right — projects, about, contact,
+ * the language and MENU. The world is centred and raised because it is the
+ * one thing this header offers that no other studio's does; everything else
+ * stays eleven-pixel type.
  *
- * Four destinations are named because those are the four questions a visitor
- * to a studio actually has — what have you made, what is this world thing,
- * who are you, how do I reach you. Everything else is in the index behind
- * MENU, which opens as a page of its own rather than a dropdown.
+ * There is still no bar. Once the page has moved past the opening a wash of
+ * the night comes up behind it so the type stays readable over a picture,
+ * and that is the entire scroll behaviour.
  */
 export function SiteHeader({ locale, copy }: { locale: Locale; copy: Copy }) {
   const pathname = usePathname();
@@ -79,7 +78,7 @@ export function SiteHeader({ locale, copy }: { locale: Locale; copy: Copy }) {
 
   /* The full index, for the menu. */
   const items = [
-    { label: copy.nav.work, href: "/work", index: "01" },
+    { label: copy.nav.work, href: "/projects", index: "01" },
     { label: copy.nav.labs, href: "/labs", index: "02" },
     { label: copy.nav.capabilities, href: "/capabilities", index: "03" },
     { label: copy.nav.process, href: "/process", index: "04" },
@@ -87,11 +86,10 @@ export function SiteHeader({ locale, copy }: { locale: Locale; copy: Copy }) {
     { label: copy.nav.contact, href: "/contact", index: "06" },
   ];
 
-  /* The header itself: work, about, contact. The world sits between them as
-     a control rather than a route — it forgets the dismissal and asks the
-     gate to open. */
+  /* The header's own three. The world is not among them: it sits at the
+     centre as a control rather than a route. */
   const named = [
-    { label: copy.nav.work, href: "/work" },
+    { label: copy.nav.work, href: "/projects" },
     { label: copy.nav.about, href: "/about" },
     { label: copy.nav.contact, href: "/contact" },
   ];
@@ -119,7 +117,7 @@ export function SiteHeader({ locale, copy }: { locale: Locale; copy: Copy }) {
     <>
       <a
         href="#main"
-        className="sr-only mono-label focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:bg-[var(--color-ink)] focus:px-4 focus:py-3 focus:text-[var(--color-paper)]"
+        className="sr-only mono-label focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:bg-[var(--color-frost)] focus:px-4 focus:py-3 focus:text-[var(--color-night)]"
       >
         {copy.nav.skip}
       </a>
@@ -147,18 +145,22 @@ export function SiteHeader({ locale, copy }: { locale: Locale; copy: Copy }) {
 
         <nav
           aria-label={copy.nav.primary}
-          className="frame pointer-events-auto relative flex h-16 items-center justify-between gap-6"
+          className="frame pointer-events-auto relative grid h-16 grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-6"
         >
           <Link
             href={localePath(locale)}
             aria-label={`Archon Soft — ${copy.nav.home}`}
-            className="shrink-0 text-[var(--fg)]"
+            className="justify-self-start text-[var(--fg)]"
           >
             <Wordmark compact={scrolled} />
           </Link>
 
-          <div className="flex items-center gap-5 sm:gap-7">
-            <ul className="hidden items-center gap-7 md:flex">
+          <div className="justify-self-center">
+            <WorldHeaderButton locale={locale} label={copy.chrome.world} shortLabel={copy.chrome.worldShort} />
+          </div>
+
+          <div className="flex items-center justify-self-end gap-4 sm:gap-7">
+            <ul className="hidden items-center gap-7 lg:flex">
               {named.map((item) => {
                 const href = localePath(locale, item.href);
                 const active = pathname.startsWith(href);
@@ -177,13 +179,6 @@ export function SiteHeader({ locale, copy }: { locale: Locale; copy: Copy }) {
                   </li>
                 );
               })}
-              <li>
-                <WorldNavLink
-                  locale={locale}
-                  label={copy.world.nav}
-                  className="mono-label link-rule text-[var(--fg-mute)] transition-colors duration-[200ms] hover:text-[var(--fg)]"
-                />
-              </li>
             </ul>
 
             <LanguageSwitch locale={locale} label={copy.nav.language} />

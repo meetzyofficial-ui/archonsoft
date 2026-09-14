@@ -564,8 +564,8 @@ export const RELATIONS: Record<string, Relation[]> = {
       name: "Erden Davetiye",
       kind: "capability",
       note: {
-        en: "Catalogue, orders and an operator admin are already shipped there. Kervan asks what changes when a second side is added.",
-        tr: "Katalog, sipariş ve işletmeci paneli orada zaten yayında. Kervan, ikinci bir taraf eklendiğinde neyin değiştiğini soruyor.",
+        en: "Catalogue, orders and an operator admin are already shipped there. This concept asks what changes when a second side is added.",
+        tr: "Katalog, sipariş ve işletmeci paneli orada zaten yayında. Bu konsept, ikinci bir taraf eklendiğinde neyin değiştiğini soruyor.",
       },
     },
   ],
@@ -597,8 +597,8 @@ export const RELATIONS: Record<string, Relation[]> = {
       name: "Erden Davetiye",
       kind: "problem-space",
       note: {
-        en: "Explores a similar problem space. Erden deliberately puts a person on WhatsApp instead; Vardiya asks what a machine may answer first.",
-        tr: "Benzer bir problem alanını araştırıyor. Erden bilerek WhatsApp'a bir insan koyuyor; Vardiya ise bir makinenin önce neyi cevaplayabileceğini soruyor.",
+        en: "Explores a similar problem space. Erden deliberately puts a person on WhatsApp instead; this concept asks what a machine may answer first.",
+        tr: "Benzer bir problem alanını araştırıyor. Erden bilerek WhatsApp'a bir insan koyuyor; bu konsept ise bir makinenin önce neyi cevaplayabileceğini soruyor.",
       },
     },
   ],
@@ -641,8 +641,8 @@ export const RELATIONS: Record<string, Relation[]> = {
       name: "Erden Davetiye",
       kind: "capability",
       note: {
-        en: "Customer records, orders and reviews are already shipped there. Eşik asks what happens when the customer gets a key.",
-        tr: "Müşteri kayıtları, siparişler ve yorumlar orada zaten yayında. Eşik, müşteriye bir anahtar verildiğinde ne olduğunu soruyor.",
+        en: "Customer records, orders and reviews are already shipped there. This concept asks what happens when the customer gets a key.",
+        tr: "Müşteri kayıtları, siparişler ve yorumlar orada zaten yayında. Bu konsept, müşteriye bir anahtar verildiğinde ne olduğunu soruyor.",
       },
     },
   ],

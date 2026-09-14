@@ -27,7 +27,7 @@ export type MatrixRow = {
   capability: Localized;
   proof: {
     kind: "shipped" | "concept";
-    /** Route segment: /work/<slug> for shipped, /labs/<slug> for a concept. */
+    /** Route segment: /projects/<slug> for shipped, /labs/<slug> for a concept. */
     slug: string;
     name: string;
     note: Localized;

@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { ProjectShowcase } from "@/components/projects/ProjectShowcase";
 import { ContactCta } from "@/components/sections/ContactCta";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { SectionRule } from "@/components/ui/primitives";
 import { WorkIndex } from "@/components/work/WorkIndex";
 import { WorkRow } from "@/components/work/WorkRow";
 import { COLLECTION, DOMAIN_FACETS, PROVENANCE_FACETS } from "@/data/collection";
@@ -20,38 +22,35 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     title: copy.meta.work.title,
     description: copy.meta.work.description,
     alternates: {
-      canonical: `/${locale}/work`,
-      languages: { en: "/en/work", tr: "/tr/work" },
+      canonical: `/${locale}/projects`,
+      languages: { en: "/en/projects", tr: "/tr/projects" },
     },
     openGraph: {
       title: `${copy.meta.work.title} — ${SITE.name}`,
       description: copy.meta.work.description,
-      url: `/${locale}/work`,
-      // Declaring `openGraph` here replaces the inherited object, and the
-      // file-based image goes with it — so a shared link would show a card
-      // with no picture. Naming it again is what keeps the card.
+      url: `/${locale}/projects`,
       images: [`/${locale}/opengraph-image`],
     },
   };
 }
 
 /**
- * The work index.
+ * Projects.
  *
- * Everything Archon has built, in one place, filterable by what it is and by
- * whether it went live — which is the question anybody assessing a studio is
- * actually asking. Two products shipped and ten concepts did not, and the
- * index prints that on every row rather than sorting it into two pages the
- * visitor has to find separately.
+ * Two levels, on one page. First the live work, staged the way the home page
+ * stages it — each project a spread you can walk into. Then the whole
+ * archive, filterable by what a piece is and by whether it went live, with the
+ * concept products labelled on every row as what they are.
  *
- * The rows are rendered here, on the server, with their real images and their
- * localised copy. Only the narrowing is client work.
+ * The rows are rendered on the server with their real images and localised
+ * copy; only the narrowing is client work.
  */
-export default async function WorkPage({ params }: Params) {
+export default async function ProjectsPage({ params }: Params) {
   const { locale: raw } = await params;
   if (!isLocale(raw)) notFound();
   const locale = raw as Locale;
   const copy = dict(locale);
+  const c = copy.showcase;
 
   const items = COLLECTION.map((piece) => ({
     slug: piece.slug,
@@ -61,13 +60,15 @@ export default async function WorkPage({ params }: Params) {
 
   return (
     <>
-      <PageHeader
-        title={copy.work.indexLabel}
-        aside={copy.work.indexAside}
-        lead={copy.work.indexStatement}
-        accent={copy.work.indexAccent}
-        standfirst={copy.work.indexBody}
-      />
+      <PageHeader title={copy.nav.work} aside={c.aside} lead={c.indexLead} accent={c.indexAccent} standfirst={c.indexBody} />
+
+      <ProjectShowcase locale={locale} copy={copy} heading={false} id="live" />
+
+      <section id="archive" data-band="paper" className="pt-16 md:pt-24">
+        <div className="frame">
+          <SectionRule label={c.archiveLabel} aside={c.archiveAside} />
+        </div>
+      </section>
 
       <WorkIndex
         items={items}
@@ -92,14 +93,8 @@ export default async function WorkPage({ params }: Params) {
           reset: copy.work.reset,
         }}
       >
-        {COLLECTION.map((piece, index) => (
-          <WorkRow
-            key={piece.slug}
-            piece={piece}
-            locale={locale}
-            copy={copy}
-            priority={index === 0}
-          />
+        {COLLECTION.map((piece) => (
+          <WorkRow key={piece.slug} piece={piece} locale={locale} copy={copy} />
         ))}
       </WorkIndex>
 

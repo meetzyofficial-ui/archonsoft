@@ -31,7 +31,7 @@ export function StudioClosing({ locale, copy }: { locale: Locale; copy: Copy }) 
   const year = new Date().getFullYear();
 
   const items = [
-    { label: copy.nav.work, href: "/work" },
+    { label: copy.nav.work, href: "/projects" },
     { label: copy.nav.capabilities, href: "/capabilities" },
     { label: copy.nav.labs, href: "/labs" },
     { label: copy.nav.about, href: "/about" },
@@ -40,9 +40,9 @@ export function StudioClosing({ locale, copy }: { locale: Locale; copy: Copy }) 
 
   return (
     <footer
-      data-scheme="ink"
-      data-band="ink"
-      className="scheme-surface relative overflow-hidden"
+      data-scheme="paper"
+      data-band="paper"
+      className="relative overflow-hidden"
     >
       {/* The dusk. Suppressed by the rule in globals.css when the section
           above is already ink. */}
@@ -51,7 +51,7 @@ export function StudioClosing({ locale, copy }: { locale: Locale; copy: Copy }) 
         className="site-dusk pointer-events-none absolute inset-x-0 top-0 h-[34svh]"
         style={{
           background:
-            "linear-gradient(to bottom, var(--color-paper) 0%, color-mix(in oklab, var(--color-haze) 68%, var(--color-ink)) 36%, var(--color-ink) 100%)",
+            "linear-gradient(to bottom, transparent 0%, color-mix(in oklab, #000000 45%, transparent) 100%)",
         }}
       />
 

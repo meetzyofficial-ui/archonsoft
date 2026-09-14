@@ -1,14 +1,14 @@
-import { PROJECTS, getProject } from "@/data/projects";
+import { SHOWCASE, getShowcase } from "@/data/showcase";
 import { dict } from "@/i18n/dictionary";
 import { LOCALES, isLocale, t } from "@/lib/i18n";
 import { OG_CONTENT_TYPE, OG_SIZE, renderOgImage } from "@/lib/og";
 
 export const size = OG_SIZE;
 export const contentType = OG_CONTENT_TYPE;
-export const alt = "Archon Soft case study";
+export const alt = "Archon Soft project";
 
 export function generateStaticParams() {
-  return LOCALES.flatMap((locale) => PROJECTS.map((project) => ({ locale, slug: project.slug })));
+  return LOCALES.flatMap((locale) => SHOWCASE.map((project) => ({ locale, slug: project.slug })));
 }
 
 export default async function Image({
@@ -19,11 +19,11 @@ export default async function Image({
   const { locale: raw, slug } = await params;
   const locale = isLocale(raw) ? raw : "en";
   const copy = dict(locale);
-  const project = getProject(slug);
+  const project = getShowcase(slug);
 
   return renderOgImage({
-    eyebrow: copy.work.caseStudy,
-    title: project?.name ?? "Archon Soft",
+    eyebrow: copy.showcase.caseStudy,
+    title: project?.title ?? "Archon Soft",
     meta: project ? t(project.category, locale) : copy.hero.location,
   });
 }

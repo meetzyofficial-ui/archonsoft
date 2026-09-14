@@ -254,7 +254,7 @@ export const LAYERS: Layer[] = [
       en: "The rules of the product expressed once, on the server, where they cannot be argued with by a client.",
       tr: "Ürünün kurallarının, bir istemcinin itiraz edemeyeceği yerde — sunucuda — bir kez ifade edilmesi.",
     },
-    evidence: { kind: "concept", slug: "divan", name: { en: "Divan", tr: "Divan" } },
+    evidence: { kind: "concept", slug: "divan", name: { en: "Business Operating System", tr: "İş Yönetim Sistemi" } },
   },
   {
     id: "database",
@@ -264,7 +264,7 @@ export const LAYERS: Layer[] = [
       en: "The model everything else rests on. Getting this wrong is the only mistake that stays expensive for years.",
       tr: "Geri kalan her şeyin üzerine oturduğu model. Yıllarca pahalıya patlamaya devam eden tek hata bu.",
     },
-    evidence: { kind: "concept", slug: "olcek", name: { en: "Ölçek", tr: "Ölçek" } },
+    evidence: { kind: "concept", slug: "olcek", name: { en: "Product Analytics Platform", tr: "Ürün Analitiği Platformu" } },
   },
   {
     id: "auth",
@@ -274,7 +274,7 @@ export const LAYERS: Layer[] = [
       en: "Accounts, sessions, roles and row-level permissions — including the external users who must see part of a system and no more.",
       tr: "Hesaplar, oturumlar, roller ve satır düzeyinde yetkiler — sistemin yalnızca bir kısmını görmesi gereken dış kullanıcılar dâhil.",
     },
-    evidence: { kind: "concept", slug: "esik", name: { en: "Eşik", tr: "Eşik" } },
+    evidence: { kind: "concept", slug: "esik", name: { en: "Client Portal", tr: "Müşteri Portalı" } },
   },
   {
     id: "admin",
@@ -298,7 +298,7 @@ export const LAYERS: Layer[] = [
       en: "Retrieval over your own records, answers that cite their source, confidence thresholds, approval steps and an audit trail on every run.",
       tr: "Kendi kayıtların üzerinde getirme, kaynağını gösteren cevaplar, güven eşikleri, onay adımları ve her çalışmada denetim izi.",
     },
-    evidence: { kind: "concept", slug: "ulak", name: { en: "Ulak", tr: "Ulak" } },
+    evidence: { kind: "concept", slug: "ulak", name: { en: "AI Operations Platform", tr: "Yapay Zekâ Operasyon Platformu" } },
   },
   {
     id: "automation",
@@ -308,7 +308,7 @@ export const LAYERS: Layer[] = [
       en: "Triggers, conditions and actions that a person in the business can change without opening a ticket with me.",
       tr: "İşin içindeki birinin bana talep açmadan değiştirebildiği tetikleyiciler, koşullar ve eylemler.",
     },
-    evidence: { kind: "concept", slug: "vardiya", name: { en: "Vardiya", tr: "Vardiya" } },
+    evidence: { kind: "concept", slug: "vardiya", name: { en: "AI Customer Support", tr: "Yapay Zekâ Müşteri Desteği" } },
   },
   {
     id: "data",
@@ -318,7 +318,7 @@ export const LAYERS: Layer[] = [
       en: "Events modelled at the start so questions asked later are queries, plus the dashboards and exports around them.",
       tr: "Sonradan sorulan soruların birer sorgu olması için en baştan modellenmiş olaylar; ve etraflarındaki panolar ve dışa aktarmalar.",
     },
-    evidence: { kind: "concept", slug: "olcek", name: { en: "Ölçek", tr: "Ölçek" } },
+    evidence: { kind: "concept", slug: "olcek", name: { en: "Product Analytics Platform", tr: "Ürün Analitiği Platformu" } },
   },
   {
     id: "payments",
@@ -328,7 +328,7 @@ export const LAYERS: Layer[] = [
       en: "Checkout, payment states, refunds, commission and payouts — designed so the money is reconcilable at any moment, not just at the end.",
       tr: "Ödeme akışı, ödeme durumları, iadeler, komisyon ve hakedişler — paranın yalnızca sonda değil her an mutabık olabileceği şekilde tasarlanmış.",
     },
-    evidence: { kind: "concept", slug: "kervan", name: { en: "Kervan", tr: "Kervan" } },
+    evidence: { kind: "concept", slug: "kervan", name: { en: "Multi-vendor Marketplace", tr: "Çok Satıcılı Pazar Yeri" } },
   },
   {
     id: "integrations",
@@ -338,7 +338,7 @@ export const LAYERS: Layer[] = [
       en: "Mail, messaging, accounting, shipping, and internal systems with an endpoint — with the timeouts and duplicates handled, which is the part that matters.",
       tr: "E-posta, mesajlaşma, muhasebe, kargo ve ucu olan iç sistemler — zaman aşımları ve mükerrer kayıtlar ele alınmış hâlde; asıl önemli kısım orası.",
     },
-    evidence: { kind: "concept", slug: "ulak", name: { en: "Ulak", tr: "Ulak" } },
+    evidence: { kind: "concept", slug: "ulak", name: { en: "AI Operations Platform", tr: "Yapay Zekâ Operasyon Platformu" } },
   },
   {
     id: "infrastructure",
