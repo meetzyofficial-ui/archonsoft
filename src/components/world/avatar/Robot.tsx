@@ -588,17 +588,22 @@ export function Robot() {
       vents.current = found;
     }
     const moving = Math.min(1, body.pace * 2.2);
+    /* At a run the tail was too long and too thick behind the body: a third
+       less of both from a walk up to a full run, a walk left as it was. Only
+       what the cloud is handed changes — the heat, the light and the body's
+       own speed do not. */
+    const calm = 1 - THREE.MathUtils.clamp((body.pace - 0.55) / 0.45, 0, 1) * 0.3;
     for (const vent of vents.current) {
       vent.getWorldPosition(ventAt.current);
       node.worldToLocal(ventAt.current);
       const data = vent.userData as { strength: number; span: number; trail: boolean };
-      const strength = data.trail ? data.strength * moving : data.strength;
+      const strength = (data.trail ? data.strength * moving : data.strength) * calm;
       if (strength <= 0.02) continue;
       out.push({ at: ventAt.current.clone(), strength, span: data.span });
     }
     state.heat = heat.current;
     inverse.current.copy(node.quaternion).invert();
-    state.velocity.copy(worldVelocity.current).applyQuaternion(inverse.current);
+    state.velocity.copy(worldVelocity.current).applyQuaternion(inverse.current).multiplyScalar(calm);
   };
 
   /* The core: three left-aligned bars of cyan light let into the chest,
