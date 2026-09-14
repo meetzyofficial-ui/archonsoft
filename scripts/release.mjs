@@ -180,13 +180,20 @@ for (const locale of ["en", "tr"]) {
   // that string once left every prefix-less URL answering 404. Nothing about
   // it is visible in a screenshot, so it is asserted here instead.
   for (const path of ["/work", "/labs", "/contact", "/about", "/process", "/capabilities"]) {
-    const res = await page.request.get(`${BASE}${path}`, { maxRedirects: 0 });
-    if (res.status() < 300 || res.status() >= 400) {
-      note("CRIT", `${path} does not redirect to a locale (status ${res.status()})`);
-    } else {
-      const location = res.headers()["location"] ?? "";
-      if (!location.includes(`/en${path}`)) {
-        note("CRIT", `${path} redirects to "${location}" rather than /en${path}`);
+    /* The language comes from Accept-Language: none (a link-preview crawler)
+       is Turkish, a browser asking for English is English. */
+    for (const [language, expected] of [["", "tr"], ["en-US,en;q=0.9", "en"], ["tr-TR,tr;q=0.9", "tr"]]) {
+      const res = await page.request.get(`${BASE}${path}`, {
+        maxRedirects: 0,
+        headers: { "accept-language": language },
+      });
+      if (res.status() < 300 || res.status() >= 400) {
+        note("CRIT", `${path} does not redirect to a locale (status ${res.status()})`);
+      } else {
+        const location = res.headers()["location"] ?? "";
+        if (!location.includes(`/${expected}${path}`)) {
+          note("CRIT", `${path} [${language || "no language"}] redirects to "${location}" rather than /${expected}${path}`);
+        }
       }
     }
   }

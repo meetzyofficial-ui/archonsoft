@@ -655,6 +655,8 @@ const newContext = async (options) => {
   const context = await newContext({
     viewport: { width: 1280, height: 900 },
     javaScriptEnabled: false,
+    /* The bare domain goes by the browser's language; this reads the English home. */
+    locale: "en-US",
   });
   const page = await context.newPage();
   await page.goto(BASE, { waitUntil: "domcontentloaded" });

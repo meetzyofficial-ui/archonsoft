@@ -661,8 +661,8 @@ const tr: Dictionary = {
   meta: {
     tagline: "Sıradakini biz kuruyoruz.",
     description:
-      "Archon Soft, Ankara'da tek kişilik bir ürün ve teknoloji stüdyosu. Canlı bir sosyal uygulama olan Meetzy ve canlı bir ticaret sistemi olan Erden Davetiye — ürün, tasarım, frontend, backend ve yönetim paneli, uçtan uca.",
-    home: { title: "Archon Soft — Sistemin tamamını kuruyoruz." },
+      "Web, mobil uygulama, yapay zekâ ve özel yazılım çözümleri geliştiriyoruz. Fikrinizi tasarımdan çalışan ürüne kadar uçtan uca hayata geçiriyoruz.",
+    home: { title: "Archon Soft — Fikri ürüne, ürünü sisteme dönüştürüyoruz." },
     work: {
       title: "İşler",
       description:
