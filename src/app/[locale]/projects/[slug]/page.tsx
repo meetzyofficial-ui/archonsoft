@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { AracimGoStory } from "@/components/projects/AracimGoStory";
 import { CaseStudy } from "@/components/projects/CaseStudy";
 import { SHOWCASE, getNextShowcase, getShowcase, projectPath } from "@/data/showcase";
 import { dict } from "@/i18n/dictionary";
@@ -53,13 +54,20 @@ export default async function ProjectPage({ params }: Params) {
     url: `${SITE.url}/${locale}${projectPath(project.slug)}`,
     inLanguage: locale,
     creator: { "@type": "Organization", name: SITE.name, url: SITE.url },
-    ...(project.link ? { sameAs: [project.link.href] } : {}),
+    /* `new URL` writes an IDN host (aracımgo.com) as punycode, which is what
+       a crawler expects in structured data. */
+    ...(project.link ? { sameAs: [new URL(project.link.href).href] } : {}),
   };
 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
-      <CaseStudy project={project} next={getNextShowcase(project.slug)} locale={locale} copy={copy} />
+      {/* AracımGo is Archon Soft's own live product and is told as one. */}
+      {project.slug === "aracimgo" ? (
+        <AracimGoStory project={project} next={getNextShowcase(project.slug)} locale={locale} copy={copy} />
+      ) : (
+        <CaseStudy project={project} next={getNextShowcase(project.slug)} locale={locale} copy={copy} />
+      )}
     </>
   );
 }

@@ -20,7 +20,7 @@ const en = {
     work: {
       title: "Work",
       description:
-        "Three live products, written up from what is actually true: Meetzy, a social app for finding someone to go with; DP Pano, a school board system run from one panel; and Erden Davetiye, a storefront and the admin system behind it.",
+        "Live products, written up from what is actually true: AracımGo, Archon Soft's own service-management product for car workshops; Meetzy, a social app for finding someone to go with; DP Pano, a school board system run from one panel; and Erden Davetiye, a storefront and the admin system behind it.",
     },
     capabilities: {
       title: "Capabilities",
@@ -239,10 +239,23 @@ const en = {
     indexLead: "Products that are",
     indexAccent: "running.",
     indexBody:
-      "Four live pieces of work, from a social app people use every week to a world you can walk through in the browser. Below them, the whole archive, including ten concept products built in the open.",
+      "Five live pieces of work, from AracımGo — our own service-management product — and a social app people use every week to a world you can walk through in the browser. Below them, the whole archive, including ten concept products built in the open.",
     archiveLabel: "The whole archive",
     archiveAside: "Filter by domain and status",
     worldNote: "Opens Archon World, on this site",
+  },
+
+  products: {
+    label: "Our products",
+    aside: "Built by Archon Soft, in use",
+    statement: "We don’t only write software.",
+    statementAccent: "We build real products for real problems.",
+    body: "Archon Soft turns an idea into a product — and runs it. AracımGo is the newest: a service-management system for workshops, live today.",
+    live: "Live",
+    featured: "Newest live product",
+    inspect: "See the product",
+    open: "Open AracımGo",
+    more: "Case study",
   },
 
   chrome: {
@@ -661,6 +674,15 @@ const en = {
         tour: "Walk the world with me",
         gallery: "The gallery",
         systems: "Look at the systems",
+        aracimgo: "What is AracımGo?",
+      },
+      /* Asked "What is AracımGo?": one sentence, then the product itself. */
+      aracimgo: {
+        answer:
+          "AracımGo is an Archon Soft product that lets car workshops run their customers, vehicles and service work from one place.",
+        live: "It is live — you can open it now.",
+        open: "Open AracımGo",
+        visit: "Take me to its hub",
       },
       follow: "Come with me",
       stay: "Stay here",
@@ -675,6 +697,7 @@ const en = {
         systems: "Systems — what runs behind an interface.",
         archive: "The archive: everything we have built, in one place.",
         between: "The bridges run over the sea; every island is a different part of what we do.",
+        aracimgo: "AracımGo — our live service-management product for car workshops.",
       },
     },
   },
@@ -728,7 +751,7 @@ const tr: Dictionary = {
     work: {
       title: "İşler",
       description:
-        "Üç canlı ürün, yalnızca doğrulanmış olan üzerinden anlatıldı: birlikte gidecek birini bulmak için bir sosyal uygulama olan Meetzy; okulun ekranlarını tek panelden yöneten DP Pano; ve bir vitrin ile arkasındaki yönetim sistemi olan Erden Davetiye.",
+        "Canlı ürünler, yalnızca doğrulanmış olan üzerinden anlatıldı: oto servisler için ArchonSoft'un kendi servis yönetimi ürünü AracımGo; birlikte gidecek birini bulmak için bir sosyal uygulama olan Meetzy; okulun ekranlarını tek panelden yöneten DP Pano; ve bir vitrin ile arkasındaki yönetim sistemi olan Erden Davetiye.",
     },
     capabilities: {
       title: "Yetkinlikler",
@@ -934,10 +957,23 @@ const tr: Dictionary = {
     indexLead: "Çalışan",
     indexAccent: "ürünler.",
     indexBody:
-      "Her hafta kullanılan bir sosyal uygulamadan tarayıcıda içinde yürüyebildiğin bir dünyaya, dört canlı iş. Altında tüm arşiv — açıkça inşa edilmiş on konsept ürün dahil.",
+      "Kendi servis yönetimi ürünümüz AracımGo'dan ve her hafta kullanılan bir sosyal uygulamadan tarayıcıda içinde yürüyebildiğin bir dünyaya, beş canlı iş. Altında tüm arşiv — açıkça inşa edilmiş on konsept ürün dahil.",
     archiveLabel: "Tüm arşiv",
     archiveAside: "Alana ve duruma göre filtrele",
     worldNote: "Archon Dünyası'nı bu sitede açar",
+  },
+
+  products: {
+    label: "Ürünlerimiz",
+    aside: "ArchonSoft'un geliştirdiği, kullanımda",
+    statement: "ArchonSoft olarak yalnızca yazılım geliştirmiyoruz.",
+    statementAccent: "Gerçek problemlere gerçek ürünler geliştiriyoruz.",
+    body: "ArchonSoft fikri ürüne dönüştürür — ve onu yürütür. En yenisi AracımGo: servisler için bir servis yönetimi sistemi, bugün canlıda.",
+    live: "Canlı",
+    featured: "En yeni canlı ürün",
+    inspect: "Ürünü incele",
+    open: "AracımGo'yu Aç",
+    more: "Vaka çalışması",
   },
 
   chrome: {
@@ -1349,6 +1385,14 @@ const tr: Dictionary = {
         tour: "Dünyayı gez",
         gallery: "Galeri",
         systems: "Sistemleri incele",
+        aracimgo: "AracımGo nedir?",
+      },
+      aracimgo: {
+        answer:
+          "AracımGo, oto servislerin müşteri, araç ve servis süreçlerini tek yerden yönetmesini sağlayan ArchonSoft ürünüdür.",
+        live: "Canlıda — hemen açabilirsin.",
+        open: "AracımGo'yu aç",
+        visit: "Beni oraya götür",
       },
       follow: "Benimle gel",
       stay: "Burada kal",
@@ -1363,6 +1407,7 @@ const tr: Dictionary = {
         systems: "Sistemler — bir arayüzün arkasında ne çalışır.",
         archive: "Arşiv: bugüne kadar yaptığımız her şey, tek yerde.",
         between: "Köprüler denizin üzerinden geçer; her ada yaptığımız işin farklı bir parçası.",
+        aracimgo: "AracımGo — oto servisler için canlıdaki servis yönetimi ürünümüz.",
       },
     },
   },

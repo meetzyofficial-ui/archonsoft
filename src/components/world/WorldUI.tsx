@@ -7,6 +7,7 @@ import { hostStore } from "@/components/world/npc/Host";
 import { teleportStore } from "@/components/world/systems/teleport";
 import { touchInput } from "@/components/world/systems/touch";
 import { interactables } from "@/components/world/systems/focus";
+import { ARACIMGO_URL } from "@/data/aracimgo-url";
 import { WORLD_DESTINATIONS } from "@/data/world-destinations";
 import { discovery } from "@/components/world/systems/discovery";
 import { focusStore, poseStore, zoneStore } from "@/components/world/systems/focus";
@@ -594,7 +595,19 @@ export function Detail({
           ) : null}
 
           <div className="mt-7 flex flex-wrap items-center gap-x-8 gap-y-3">
-            {display.href ? (
+            {display.href && display.external ? (
+              /* A live product's own address: a new tab, so the world is
+                 still here when the visitor comes back. */
+              <a
+                href={display.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-display-cta={display.id}
+                className="mono-label link-rule inline-flex items-center gap-3 text-[var(--fg)]"
+              >
+                {display.action}
+              </a>
+            ) : display.href ? (
               <Link
                 href={display.href}
                 className="mono-label link-rule inline-flex items-center gap-3 text-[var(--fg)]"
@@ -806,8 +819,17 @@ export function HostCard({
   const [returning] = useState(() => hostStore.seen());
   const lines = useMemo(() => (returning ? [world.host.back] : world.host.intro), [returning, world.host.back, world.host.intro]);
   const text = `${lines.join(" ")} ${world.host.question}`;
+  /* "What is AracımGo?" is answered in the card itself: one sentence, the
+     live product, and the way to its hub. */
+  const [asked, setAsked] = useState(false);
+  const answer = `${world.host.aracimgo.answer} ${world.host.aracimgo.live}`;
   /* What she can do for the visitor: take them somewhere, or come along. */
-  const choose = (option: "projects" | "tour" | "gallery" | "systems") => {
+  const choose = (option: "projects" | "tour" | "gallery" | "systems" | "aracimgo") => {
+    if (option === "aracimgo") {
+      setAsked(true);
+      if (voiceStore.get().enabled) voiceStore.speak("host", answer, locale);
+      return;
+    }
     if (option === "tour") hostStore.set({ following: true });
     else {
       teleportStore.request(option === "projects" ? "meetzy" : option);
@@ -861,10 +883,40 @@ export function HostCard({
             <p className="text-[0.9375rem] leading-relaxed text-[var(--fg)]">{world.host.question}</p>
           </div>
 
-          {/* Her offer: four ways in. */}
+          {asked ? (
+            <div className="mt-4 border-l-2 border-[#3ddc97] pl-4" data-host-answer="aracimgo">
+              <p className="text-[0.9375rem] leading-relaxed text-[var(--fg)]">{world.host.aracimgo.answer}</p>
+              <p className="mt-2 text-[0.875rem] text-[var(--fg-dim)]">{world.host.aracimgo.live}</p>
+              <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
+                <a
+                  href={ARACIMGO_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-host-cta="aracimgo"
+                  className="mono-label link-rule text-[var(--fg)]"
+                >
+                  {world.host.aracimgo.open} →
+                </a>
+                <button
+                  type="button"
+                  data-host-visit="aracimgo"
+                  onClick={() => {
+                    teleportStore.request("aracimgo");
+                    hostStore.set({ following: true });
+                    onClose();
+                  }}
+                  className="mono-micro link-rule text-[var(--fg-dim)] hover:text-[var(--fg)]"
+                >
+                  {world.host.aracimgo.visit}
+                </button>
+              </div>
+            </div>
+          ) : null}
+
+          {/* Her offer: five ways in — the last is a question. */}
           <ul className="mt-4 grid grid-cols-2 gap-2" data-host-options>
-            {(["projects", "tour", "gallery", "systems"] as const).map((option) => (
-              <li key={option}>
+            {(["projects", "tour", "gallery", "systems", "aracimgo"] as const).map((option) => (
+              <li key={option} className={option === "aracimgo" ? "col-span-2" : undefined}>
                 <button
                   type="button"
                   data-host-option={option}

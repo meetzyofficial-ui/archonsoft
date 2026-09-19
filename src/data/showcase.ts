@@ -1,7 +1,7 @@
 import type { StaticImageData } from "next/image";
 import type { Localized, LocalizedList } from "@/lib/i18n";
 import { PROJECTS, type CaseSection, type Fact, type Project } from "@/data/projects";
-import { DPPANO, ERDEN, MEETZY, type Screen } from "@/data/screens";
+import { ARACIMGO, DPPANO, ERDEN, MEETZY, type Screen } from "@/data/screens";
 
 import worldGate from "@/assets/work/world/01-gate.jpg";
 import worldMeetzy from "@/assets/work/world/02-meetzy-station.jpg";
@@ -148,6 +148,37 @@ function fromProject(
 }
 
 const byslug = (slug: string) => PROJECTS.find((one) => one.slug === slug)!;
+
+/**
+ * AracımGo — Archon Soft's own product, live. Its case study is the one page
+ * told as a product story rather than a write-up (`AracimGoStory`), in the
+ * product's own cream-and-emerald language; this entry is what every other
+ * surface — the home spread, the index, the next-project link — reads.
+ */
+const aracimgo = fromProject(byslug("aracimgo"), {
+  category: { en: "SaaS · Automotive · Service management", tr: "SaaS · Otomotiv · Servis Yönetimi" },
+  tagline: {
+    en: "Car service management. In one place.",
+    tr: "Oto servis yönetimi. Tek yerde.",
+  },
+  shortDescription: {
+    en: "Manage customers, vehicles, work orders and a digital history for every car in one system.",
+    tr: "Müşteri, araç, iş emri ve dijital araç geçmişini tek bir sistemde yönetin.",
+  },
+  services: [
+    { en: "Product", tr: "Ürün" },
+    { en: "Interface design", tr: "Arayüz tasarımı" },
+    { en: "Mobile app", tr: "Mobil uygulama" },
+    { en: "Web panel", tr: "Web paneli" },
+    { en: "Server & data", tr: "Sunucu ve veri" },
+  ],
+  tags: [
+    { en: "SaaS", tr: "SaaS" },
+    { en: "Automotive", tr: "Otomotiv" },
+    { en: "Live product", tr: "Canlı ürün" },
+  ],
+  hero: [ARACIMGO.overview!, ARACIMGO.customers!, ARACIMGO.history!].map(media),
+});
 
 const meetzy = fromProject(byslug("meetzy"), {
   category: { en: "Mobile · Social product", tr: "Mobil · Sosyal ürün" },
@@ -306,10 +337,10 @@ const world: ShowcaseProject = {
       title: { en: "The place", tr: "Mekân" },
       body: {
         en: [
-          "Islands joined by bridges, each one a part of the studio: a station for every shipped product with its real screens hung in the air, the gallery, the systems island, and department offices along the paths. Six destinations are one key — or one tap — away.",
+          "Islands joined by bridges, each one a part of the studio: a station for every shipped product with its real screens hung in the air, the gallery, the systems island, and department offices along the paths. Seven destinations are one key — or one tap — away.",
         ],
         tr: [
-          "Köprülerle bağlanan adalar; her biri stüdyonun bir parçası: gerçek ekranları havada asılı duran her canlı ürün için bir istasyon, galeri, sistemler adası ve yollar boyunca departman ofisleri. Altı hedef tek tuş — ya da tek dokunuş — uzakta.",
+          "Köprülerle bağlanan adalar; her biri stüdyonun bir parçası: gerçek ekranları havada asılı duran her canlı ürün için bir istasyon, galeri, sistemler adası ve yollar boyunca departman ofisleri. Yedi hedef tek tuş — ya da tek dokunuş — uzakta.",
         ],
       },
     },
@@ -342,7 +373,7 @@ const world: ShowcaseProject = {
     title: { en: "What is in it", tr: "İçinde neler var" },
     areas: [
       { en: "Robot explorer, walk and run", tr: "Robot kâşif, yürüme ve koşma" },
-      { en: "Teleport to six destinations", tr: "Altı hedefe ışınlanma" },
+      { en: "Teleport to seven destinations", tr: "Yedi hedefe ışınlanma" },
       { en: "Product stations with real screens", tr: "Gerçek ekranlı ürün istasyonları" },
       { en: "Guides and the lobby team", tr: "Rehberler ve lobi ekibi" },
       { en: "Department offices and brief form", tr: "Departman ofisleri ve brief formu" },
@@ -364,8 +395,9 @@ const world: ShowcaseProject = {
   accent: "#62D8FF",
 };
 
-/** The order is editorial: the product people use, then the place, then the rest. */
-export const SHOWCASE: ShowcaseProject[] = [meetzy, world, dppano, erden];
+/** The order is editorial: Archon Soft's newest live product, the product
+    people use every week, then the place, then the rest. */
+export const SHOWCASE: ShowcaseProject[] = [aracimgo, meetzy, world, dppano, erden];
 
 export const getShowcase = (slug: string): ShowcaseProject | undefined =>
   SHOWCASE.find((project) => project.slug === slug);

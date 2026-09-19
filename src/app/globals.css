@@ -2105,3 +2105,193 @@ html.robot-cursor-on
     transition: none !important;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/*  AracımGo.                                                          */
+/*                                                                     */
+/*  Archon Soft's own live product, and the one page on the site that  */
+/*  borrows a product's language: AracımGo's cream, its deep green and  */
+/*  its emerald, taken from its plates and its mark. The sheets are     */
+/*  the product; the night round them is still the studio.             */
+/* ------------------------------------------------------------------ */
+.aracimgo {
+  --ag-cream: #f3efe7;
+  --ag-cream-raise: #fbf9f4;
+  --ag-ink: #123b32;
+  --ag-deep: #002724;
+  --ag-emerald: #10b395;
+  --ag-emerald-soft: #5fe0c2;
+}
+.ag-emerald {
+  color: var(--ag-emerald-soft);
+}
+.ag-hero__glow {
+  position: absolute;
+  inset: -10% -20% auto;
+  height: 90%;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 45% 55% at 72% 38%, color-mix(in oklab, var(--ag-emerald) 22%, transparent), transparent 70%),
+    radial-gradient(ellipse 35% 40% at 20% 10%, color-mix(in oklab, #62d8ff 7%, transparent), transparent 70%);
+}
+.ag-hero__glow--low {
+  inset: auto -20% -20%;
+  height: 80%;
+  background: radial-gradient(ellipse 50% 60% at 60% 80%, color-mix(in oklab, var(--ag-emerald) 18%, transparent), transparent 70%);
+}
+.ag-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.8rem 0.46rem;
+  border-radius: 999px;
+  color: #d8f7ee;
+  background: color-mix(in oklab, var(--ag-emerald) 14%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--ag-emerald) 45%, transparent);
+}
+.ag-logo {
+  display: block;
+  width: clamp(3.25rem, 7vw, 6rem);
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 22%;
+  background: #fefefe;
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, #ffffff 30%, transparent),
+    0 18px 40px -18px color-mix(in oklab, var(--ag-emerald) 60%, transparent);
+}
+.btn-aracimgo {
+  --btn-face-top: #17614f;
+  --btn-face-bottom: #0b3a30;
+  --btn-edge: color-mix(in oklab, var(--ag-emerald-soft) 42%, transparent);
+  --btn-lip: color-mix(in oklab, #d8fff3 26%, transparent);
+  --btn-glow: color-mix(in oklab, var(--ag-emerald) 12%, transparent);
+  --btn-drop: 0 14px 32px -14px color-mix(in oklab, var(--ag-emerald) 55%, transparent);
+  color: #f2fffb;
+}
+
+/* The product's own surface: cream, deep green type, emerald marks. The
+   scheme tokens are re-set inside it so every utility that reads them —
+   dimmed copy, hairlines, the index colour — reads the product's. */
+.ag-sheet {
+  --fg: var(--ag-ink);
+  --fg-dim: #3f5d55;
+  --fg-mute: #6d817a;
+  --line: color-mix(in oklab, var(--ag-ink) 13%, transparent);
+  --line-strong: color-mix(in oklab, var(--ag-ink) 24%, transparent);
+  --accent: #0b8f77;
+  color: var(--fg);
+  background: var(--ag-cream);
+  border-radius: clamp(1.25rem, 2.4vw, 2rem);
+  box-shadow:
+    0 1px 0 color-mix(in oklab, #ffffff 60%, transparent) inset,
+    0 40px 90px -50px rgba(0, 0, 0, 0.9);
+}
+.ag-sheet ::selection {
+  background: var(--ag-emerald);
+  color: #ffffff;
+}
+.ag-card {
+  padding: 1.5rem;
+  border-radius: 1.1rem;
+  background: var(--ag-cream-raise);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--ag-ink) 7%, transparent),
+    0 14px 30px -22px color-mix(in oklab, var(--ag-ink) 45%, transparent);
+}
+.ag-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.55rem;
+  font-size: 0.85rem;
+  color: #0b6f5c;
+  background: color-mix(in oklab, var(--ag-emerald) 16%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--ag-emerald) 30%, transparent);
+}
+.ag-check--dark {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--ag-emerald-soft);
+  background: color-mix(in oklab, var(--ag-emerald) 14%, transparent);
+}
+.ag-chapter + .ag-chapter {
+  border-top: 1px solid var(--line);
+}
+.ag-scene {
+  padding: 1.1rem 1.25rem;
+  border-radius: 0.9rem;
+  background: var(--ag-cream-raise);
+  border-left: 3px solid var(--ag-emerald);
+}
+.ag-plate {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border-radius: clamp(1rem, 1.6vw, 1.5rem);
+  background: var(--ag-cream);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--ag-ink) 8%, transparent),
+    0 34px 70px -34px rgba(0, 20, 16, 0.75);
+}
+
+/* The home page's product line-up. */
+.product-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1.5rem;
+  border-radius: 1.25rem;
+  background: linear-gradient(180deg, color-mix(in oklab, #ffffff 4%, transparent), color-mix(in oklab, #ffffff 1.5%, transparent));
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, #ffffff 9%, transparent),
+    inset 0 1px 0 color-mix(in oklab, #ffffff 7%, transparent);
+  transition: box-shadow 600ms var(--ease-out-expo), transform 600ms var(--ease-out-expo);
+}
+@media (hover: hover) {
+  a.product-card:hover {
+    transform: translate3d(0, -2px, 0);
+    box-shadow:
+      inset 0 0 0 1px color-mix(in oklab, var(--product-accent, #62d8ff) 40%, transparent),
+      inset 0 1px 0 color-mix(in oklab, #ffffff 9%, transparent),
+      0 24px 50px -30px color-mix(in oklab, var(--product-accent, #62d8ff) 50%, transparent);
+  }
+}
+.product-feature {
+  --fg: #123b32;
+  --fg-dim: #3f5d55;
+  --fg-mute: #6d817a;
+  --line: color-mix(in oklab, #123b32 13%, transparent);
+  --accent: #0b8f77;
+  position: relative;
+  overflow: hidden;
+  border-radius: clamp(1.25rem, 2.4vw, 2rem);
+  color: var(--fg);
+  background:
+    radial-gradient(ellipse 60% 70% at 85% 100%, color-mix(in oklab, #10b395 16%, transparent), transparent 70%),
+    #f3efe7;
+  box-shadow: 0 40px 90px -50px rgba(0, 0, 0, 0.9);
+}
+.product-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.36rem 0.62rem 0.32rem;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+/* A raised control on AracımGo's cream: the same object, lit the product's way. */
+.btn-cream {
+  --btn-face-top: #fdfcf8;
+  --btn-face-bottom: #ece6d9;
+  --btn-edge: color-mix(in oklab, #123b32 18%, transparent);
+  --btn-lip: #ffffff;
+  --btn-drop: 0 10px 22px -14px rgba(18, 59, 50, 0.5);
+  color: #123b32;
+}
+.btn-cream:focus-visible {
+  outline-color: #10b395;
+}

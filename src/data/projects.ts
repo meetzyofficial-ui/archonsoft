@@ -1,5 +1,6 @@
 import type { Localized, LocalizedList } from "@/lib/i18n";
-import { DPPANO, ERDEN, MEETZY, type Screen } from "@/data/screens";
+import { ARACIMGO, DPPANO, ERDEN, MEETZY, type Screen } from "@/data/screens";
+import { ARACIMGO_URL } from "@/data/aracimgo-url";
 
 /**
  * Case-study data.
@@ -109,6 +110,87 @@ export type Project = {
 };
 
 export const PROJECTS: Project[] = [
+  {
+    slug: "aracimgo",
+    name: "AracımGo",
+    domains: ["products", "systems"],
+    category: { en: "Automotive · Service management", tr: "Otomotiv · Servis Yönetimi" },
+    summary: {
+      en: "Car service management, in one place: customers, vehicles, work orders and a digital history for every car.",
+      tr: "Oto servis yönetimi, tek yerde: müşteriler, araçlar, iş emirleri ve her araç için dijital geçmiş.",
+    },
+    standfirst: {
+      en: "AracımGo is a service-management product for car and motorcycle workshops, built and run by Archon Soft. Customers, vehicles, work orders and every job ever done on a car live in one system instead of in a notebook and the mechanic's memory. It is live, on the web and on the phone.",
+      tr: "AracımGo, oto ve motosiklet servisleri için Archon Soft'un geliştirip yürüttüğü bir servis yönetimi ürünü. Müşteriler, araçlar, iş emirleri ve bir araçta yapılmış her işlem; defterde ve ustanın hafızasında değil, tek bir sistemde duruyor. Canlıda — web'de ve telefonda.",
+    },
+    statement: {
+      en: "The notebook forgets. AracımGo remembers.",
+      tr: "Defter unutur. AracımGo aklında tutar.",
+    },
+    facts: [
+      { label: { en: "Status", tr: "Durum" }, value: { en: "Live", tr: "Canlı" } },
+      { label: { en: "For", tr: "Kullanıcı" }, value: { en: "Car and motorcycle workshops", tr: "Oto ve motosiklet servisleri" } },
+      { label: { en: "Interface", tr: "Arayüz dili" }, value: { en: "Turkish", tr: "Türkçe" } },
+    ],
+    role: {
+      en: "Product, design, engineering and operation",
+      tr: "Ürün, tasarım, geliştirme ve işletim",
+    },
+    system: {
+      en: "Customers, vehicles, work orders, vehicle history",
+      tr: "Müşteriler, araçlar, iş emirleri, araç geçmişi",
+    },
+    platform: {
+      en: "Mobile app and web panel",
+      tr: "Mobil uygulama ve web paneli",
+    },
+    accent: "#10B395",
+    /* The product's own plates are tall; they stand as handsets. */
+    layout: "stack",
+    lead: ARACIMGO.overview!,
+    /* The four jobs first: the world hangs the first four over the station. */
+    screens: [ARACIMGO.customers!, ARACIMGO.history!, ARACIMGO.workOrders!, ARACIMGO.plateSearch!, ARACIMGO.overview!, ARACIMGO.why!],
+    detail: [],
+    sections: [
+      {
+        index: "01",
+        title: { en: "What happens in a workshop", tr: "Serviste ne oluyor?" },
+        body: {
+          en: [
+            "A car comes back after a year and nobody remembers what was done to it. The customer's number is in one notebook, the job in another, and which car is waiting for a part lives in the head of whoever took it in.",
+          ],
+          tr: [
+            "Bir araç bir yıl sonra geri geliyor ve üzerinde ne yapıldığını kimse hatırlamıyor. Müşterinin numarası bir defterde, yapılan iş başka birinde; hangi aracın parça beklediği ise aracı kabul eden kişinin aklında.",
+          ],
+        },
+      },
+      {
+        index: "02",
+        title: { en: "One system for the service", tr: "Servis için tek sistem" },
+        body: {
+          en: [
+            "AracımGo keeps the customer, the vehicle and every job done on it together. Work orders show which car is in progress, waiting or finished; typing a plate brings back the customer and the vehicle's whole history in seconds.",
+          ],
+          tr: [
+            "AracımGo müşteriyi, aracı ve araçta yapılan her işi bir arada tutar. İş emirleri hangi aracın devam ettiğini, beklediğini ya da bittiğini gösterir; plakayı yazmak, müşteriyi ve aracın tüm geçmişini saniyeler içinde getirir.",
+          ],
+        },
+      },
+      {
+        index: "03",
+        title: { en: "Live", tr: "Canlıda" },
+        body: {
+          en: [
+            "AracımGo is live at aracımgo.com — a product Archon Soft designed, built and runs, not a commission.",
+          ],
+          tr: [
+            "AracımGo aracımgo.com adresinde canlıda — Archon Soft'un tasarlayıp geliştirdiği ve yürüttüğü bir ürün, sipariş üzerine yapılmış bir iş değil.",
+          ],
+        },
+      },
+    ],
+    link: { label: "aracımgo.com", href: ARACIMGO_URL },
+  },
   {
     slug: "dppano",
     name: "DP Pano",

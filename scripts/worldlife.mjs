@@ -23,7 +23,7 @@ await page.mouse.click(720, 450);
 await page.waitForTimeout(400);
 
 /* The host. */
-check("the rail lists every destination", (await page.locator("[data-rail] [data-destination]").count()) === 6);
+check("the rail lists every destination", (await page.locator("[data-rail] [data-destination]").count()) === 7);
 await page.keyboard.press("6");
 await page.waitForTimeout(1600);
 const p0 = await pose();
@@ -45,7 +45,7 @@ await page.waitForTimeout(900);
 check("the host card opens with the Turkish introduction", /Merhaba, Archon Soft dünyasına hoş geldiniz/.test(await text()));
 await page.screenshot({ path: ".qa/world/life-host.png" });
 check("she asks what the visitor would like", /Ne ile ilgilenmek/.test(await text()));
-check("and offers four ways in", (await page.locator("[data-host-option]").count()) === 4);
+check("and offers five ways in — the last is AracımGo", (await page.locator("[data-host-option]").count()) === 5);
 await page.locator("[data-host-follow]").click();
 await page.waitForTimeout(400);
 check("she agrees to come along", /S[İi]Z[İi]NLE Y[ÜÜ]R[ÜÜ]YOR|Sizinle yürüyor/i.test(await text()));

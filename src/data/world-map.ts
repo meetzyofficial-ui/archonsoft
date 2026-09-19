@@ -67,7 +67,8 @@ export type ZoneId =
   | "boards"
   | "labs"
   | "systems"
-  | "archive";
+  | "archive"
+  | "aracimgo";
 
 /* ------------------------------------------------------------------ zones */
 
@@ -114,6 +115,24 @@ export const ZONES: Zone[] = [
     bounds: [34, -78, 84, -54],
     accent: "#4f8dff",
     light: 0.85,
+  },
+  {
+    /**
+     * AracımGo's service hub, the west wing of Shipped.
+     *
+     * The mirror of the hall of screens: reached through a passage in the
+     * shipped hall's west wall at the same point DP Pano's is in the east, so
+     * the two live products off that hall balance each other and neither is
+     * on the axis from the gate — the arrival still reads planet, mark,
+     * studio, districts, and this is found by walking or by key 7. Lit in
+     * deep emerald and dark teal with brushed metal: a workshop, not a lab.
+     */
+    id: "aracimgo",
+    label: { en: "AracımGo", tr: "AracımGo" },
+    at: [-59, 0, -67],
+    bounds: [-84, -78, -34, -56],
+    accent: "#3ddc97",
+    light: 0.9,
   },
   {
     id: "labs",
@@ -186,6 +205,8 @@ export type DisplayKind =
 
 export type DisplaySubject =
   | { kind: "project"; slug: string }
+  /** A live product itself: its panel opens the product, not its page. */
+  | { kind: "product"; slug: string }
   | { kind: "lab"; slug: string }
   | { kind: "system"; layer: string }
   | { kind: "note"; title: Localized; body: Localized }
@@ -234,6 +255,7 @@ export type Display = {
    building should not quietly point at different work when it does. */
 const MEETZY = PROJECTS.find((one) => one.slug === "meetzy")!;
 const ERDEN = PROJECTS.find((one) => one.slug === "erden")!;
+const ARACIMGO = PROJECTS.find((one) => one.slug === "aracimgo")!;
 
 /**
  * The shipped district.
@@ -255,8 +277,8 @@ const SHIPPED_DISPLAYS: Display[] = [
     turn: 0,
     size: [16, 7],
     subject: { kind: "note", title: { en: "Shipped", tr: "Yayında" }, body: {
-      en: "Three products, live. Two of them here, and one through the east wall.",
-      tr: "Üç ürün, canlı. İkisi burada, biri doğu duvarının ardında.",
+      en: "Four products, live. Two of them here, one through the east wall and one through the west.",
+      tr: "Dört ürün, canlı. İkisi burada, biri doğu duvarının, biri batı duvarının ardında.",
     } },
   },
   {
@@ -373,6 +395,39 @@ const BOARDS_DISPLAYS: Display[] = [
       en: "A board goes live with names, photographs and sensitive fields hidden. Screen PIN, school-network restriction, consent records and access logs are part of the product, not a layer added afterwards.",
       tr: "Pano; isim, fotoğraf ve hassas alanlar gizli hâlde yayına girer. Ekran PIN'i, okul ağı kısıtı, rıza kayıtları ve erişim logları sonradan eklenen bir katman değil, ürünün kendisidir.",
     } },
+  },
+];
+
+/* -------------------------------------------------------------- aracimgo */
+
+/**
+ * AracımGo's service hub.
+ *
+ * Two things to walk up to. At the door, the product itself on one tall
+ * screen — what it is and what it does, four lines — and the way to open it,
+ * the live product, not a page about it. At the far end, the project wall.
+ * The product's own plates hang over the station between them.
+ */
+const ARACIMGO_DISPLAYS: Display[] = [
+  {
+    id: "aracimgo-entrance",
+    zone: "aracimgo",
+    form: "vertical",
+    at: [-42.5, 3.1, -58.9],
+    turn: Math.PI,
+    size: [4.6, 3.2],
+    subject: { kind: "product", slug: ARACIMGO.slug },
+    approach: [-42.5, EYE, -63],
+  },
+  {
+    id: "aracimgo-hall",
+    zone: "aracimgo",
+    form: "immersive",
+    at: [-82.4, 5.2, -67],
+    turn: Math.PI / 2,
+    size: [12, 6.4],
+    subject: { kind: "project", slug: ARACIMGO.slug },
+    approach: [-70, EYE, -67],
   },
 ];
 
@@ -542,8 +597,8 @@ const HUB_DISPLAYS: Display[] = [
     turn: -Math.PI / 2 - 0.22,
     size: [5.4, 2.6],
     subject: { kind: "note", title: { en: "Shipped", tr: "Yayında" }, body: {
-      en: "Two live products. Through the gate.",
-      tr: "İki canlı ürün. Kapıdan geç.",
+      en: "Live products. Through the gate.",
+      tr: "Canlı ürünler. Kapıdan geç.",
     } },
   },
   {
@@ -636,6 +691,7 @@ export const DISPLAYS: Display[] = [
   ...HUB_DISPLAYS,
   ...GALLERY_DISPLAYS,
   ...BOARDS_DISPLAYS,
+  ...ARACIMGO_DISPLAYS,
   ...SHIPPED_DISPLAYS,
   ...LABS_DISPLAYS,
   ...SYSTEMS_DISPLAYS,
@@ -670,7 +726,7 @@ export const WALLS: Box[] = [
 
   /* Shipped. The tallest room in the world, because what is in it is the
      argument the whole building makes. */
-  ...room(-30, -74, 30, -22, CORRIDOR, 17, { south: true, east: true }, { east: -66 }),
+  ...room(-30, -74, 30, -22, CORRIDOR, 17, { south: true, east: true, west: true }, { east: -66, west: -66 }),
   { at: [-25.5, 5.5, -44], size: [7, 11, 30] },
   { at: [25.5, 5.5, -44], size: [7, 11, 30] },
 
@@ -682,6 +738,12 @@ export const WALLS: Box[] = [
      `corridor()`, which only ever builds one on an axis through the origin. */
   { at: [32, 4, -71.8], size: [5.6, 8, 1.6] },
   { at: [32, 4, -60.2], size: [5.6, 8, 1.6] },
+
+  /* AracımGo's service hub, the hall of screens' mirror on the west. A
+     little lower and shallower: a workshop floor, not a gallery. */
+  ...room(-84, -78, -34, -56, CORRIDOR, 10, { east: true }, { east: -66 }),
+  { at: [-32, 4, -71.8], size: [5.6, 8, 1.6] },
+  { at: [-32, 4, -60.2], size: [5.6, 8, 1.6] },
 
   /* Labs — a long low gallery, deliberately tighter than Shipped. */
   ...room(34, -26, 84, 26, CORRIDOR, 9, { west: true }),
@@ -994,6 +1056,8 @@ export const VIEWPOINTS: Record<ZoneId, { at: [number, number, number]; look: [n
   boards: { at: [39, EYE + 1.6, -66], look: [82, 4.6, -66] },
   labs: { at: [58, 3.8, -23], look: [58, 4.2, 24] },
   systems: { at: [-46, 5, 0], look: [-73, 7, 0] },
+  /* From the passage, down the service hub to the project wall. */
+  aracimgo: { at: [-39, EYE + 1.6, -66], look: [-82, 4.6, -67] },
   archive: { at: [0, 2.6, 49], look: [0, 2.6, 82] },
 };
 

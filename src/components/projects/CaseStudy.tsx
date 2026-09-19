@@ -319,45 +319,52 @@ export function CaseStudy({
         </section>
       ) : null}
 
-      {/* ------------------------------------------------------------- next */}
-      <section data-band="paper" className="relative py-24 md:py-36">
-        <div className="frame">
-          <Link
-            href={localePath(locale, projectPath(next.slug))}
-            data-cursor-label={c.exploreShort}
-            aria-label={`${c.next}: ${next.title}`}
-            className="group hairline-t grid gap-8 pt-6 md:grid-cols-12 md:items-end"
-          >
-            <div className="md:col-span-7">
-              <span className="mono-micro text-[var(--fg-mute)]">{c.next}</span>
-              <p className="text-project project-title mt-6">{next.title}</p>
-              <p className="mt-6 max-w-[40ch] text-lead text-[var(--fg-dim)]">{t(next.tagline, locale)}</p>
-              <span className="btn-raised mono-label mt-8 w-fit">
-                {c.explore}
-                <span aria-hidden="true" className="arrow-rule" />
-              </span>
-            </div>
-            <div className="md:col-span-5">
-              <div className="next-thumb relative overflow-hidden rounded-[1rem]">
-                <Image
-                  src={next.hero[0]!.image}
-                  alt={t(next.hero[0]!.alt, locale)}
-                  fill
-                  placeholder="blur"
-                  sizes="(min-width: 768px) 36vw, 92vw"
-                  className={cn(
-                    "object-cover transition-transform duration-[1400ms] ease-[var(--ease-out-expo)] group-hover:scale-[1.04]",
-                    next.hero[0]!.kind === "scene" ? null : "object-top",
-                  )}
-                />
-              </div>
-            </div>
-          </Link>
-        </div>
-      </section>
+      <NextProject next={next} locale={locale} copy={copy} />
 
       <ContactCta locale={locale} copy={copy} />
     </div>
+  );
+}
+
+/** The way on: the next project, its name at full size and its lead picture. */
+export function NextProject({ next, locale, copy }: { next: ShowcaseProject; locale: Locale; copy: Copy }) {
+  const c = copy.showcase;
+  return (
+    <section data-band="paper" className="relative py-24 md:py-36">
+      <div className="frame">
+        <Link
+          href={localePath(locale, projectPath(next.slug))}
+          data-cursor-label={c.exploreShort}
+          aria-label={`${c.next}: ${next.title}`}
+          className="group hairline-t grid gap-8 pt-6 md:grid-cols-12 md:items-end"
+        >
+          <div className="md:col-span-7">
+            <span className="mono-micro text-[var(--fg-mute)]">{c.next}</span>
+            <p className="text-project project-title mt-6">{next.title}</p>
+            <p className="mt-6 max-w-[40ch] text-lead text-[var(--fg-dim)]">{t(next.tagline, locale)}</p>
+            <span className="btn-raised mono-label mt-8 w-fit">
+              {c.explore}
+              <span aria-hidden="true" className="arrow-rule" />
+            </span>
+          </div>
+          <div className="md:col-span-5">
+            <div className="next-thumb relative overflow-hidden rounded-[1rem]">
+              <Image
+                src={next.hero[0]!.image}
+                alt={t(next.hero[0]!.alt, locale)}
+                fill
+                placeholder="blur"
+                sizes="(min-width: 768px) 36vw, 92vw"
+                className={cn(
+                  "object-cover transition-transform duration-[1400ms] ease-[var(--ease-out-expo)] group-hover:scale-[1.04]",
+                  next.hero[0]!.kind === "scene" ? null : "object-top",
+                )}
+              />
+            </div>
+          </div>
+        </Link>
+      </div>
+    </section>
   );
 }
 

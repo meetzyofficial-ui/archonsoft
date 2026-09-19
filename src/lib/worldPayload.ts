@@ -1,3 +1,4 @@
+import { ARACIMGO_DOMAIN, ARACIMGO_URL } from "@/data/aracimgo-url";
 import { DEPARTMENTS } from "@/data/departments";
 import { LABS } from "@/data/labs";
 import { PROJECTS } from "@/data/projects";
@@ -25,6 +26,8 @@ export type PreparedDisplay = Display & {
   content: PanelContent;
   /** Where activating it goes, already carrying the locale. */
   href?: string;
+  /** The link leaves the site — a live product's own address. */
+  external?: boolean;
   /** What the prompt says. */
   action: string;
 };
@@ -38,6 +41,8 @@ export type PreparedInstallation = {
   eyebrow: string;
   /** What the product is, in the visitor's language: the station's subtitle. */
   category: string;
+  /** The language it is in, so it is set in capitals by that language's rules. */
+  locale: Locale;
 };
 
 /**
@@ -128,6 +133,7 @@ export function buildWorld(locale: Locale): WorldPayload {
     name: project.name,
     eyebrow: locale === "tr" ? "CANLI ÜRÜN" : "LIVE PRODUCT",
     category: t(project.category, locale),
+    locale,
   }));
 
   const guides: PreparedGuide[] = PROJECT_GUIDES.map((guide) => {
@@ -206,6 +212,41 @@ function prepare(display: Display, locale: Locale): PreparedDisplay {
       },
       href: localePath(locale, `/projects/${project.slug}`),
       action: locale === "tr" ? "Projeyi aç" : "Open project",
+    };
+  }
+
+  /* A live product, on its own screen: what it is in one line, what it does
+     in four, and the way to open it — the product itself, at its production
+     address, not the page about it. */
+  if (subject.kind === "product") {
+    const project = PROJECTS.find((one) => one.slug === subject.slug)!;
+    const tr = locale === "tr";
+    return {
+      ...display,
+      content: {
+        eyebrow: tr ? "Canlı ürün · Archon Soft" : "Live product · Archon Soft",
+        title: project.name,
+        body: tr ? "Oto servis yönetimi. Tek yerde." : "Car service management. In one place.",
+        layers: (tr
+          ? [
+              ["✓ Müşteri Yönetimi", "Müşteri, araç ve geçmiş işlemler tek yerde"],
+              ["✓ İş Emirleri", "Hangi araç hangi durumda, tek ekranda"],
+              ["✓ Araç Geçmişi", "Her aracın işlemleri, kronolojik"],
+              ["✓ Plaka ile Arama", "Plakayı yaz, saniyeler içinde bul"],
+            ]
+          : [
+              ["✓ Customer management", "Customers, vehicles and past jobs in one place"],
+              ["✓ Work orders", "Which vehicle is at which stage, on one screen"],
+              ["✓ Vehicle history", "Every job on each vehicle, in order"],
+              ["✓ Plate search", "Type the plate, find it in seconds"],
+            ]
+        ).map(([label, detail]) => ({ label: label!, detail: detail! })),
+        meta: [ARACIMGO_DOMAIN],
+        accent: "#3ddc97",
+      },
+      href: ARACIMGO_URL,
+      external: true,
+      action: tr ? "AracımGo'yu keşfet →" : "Explore AracımGo →",
     };
   }
 

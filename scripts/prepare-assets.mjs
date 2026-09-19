@@ -27,6 +27,11 @@ const OUT_M = path.join(ROOT, "src/assets/work/meetzy");
 const OUT_E = path.join(ROOT, "src/assets/work/erden");
 const RAW_D = path.join(ROOT, "_incoming/dppano-raw");
 const OUT_D = path.join(ROOT, "src/assets/work/dppano");
+const RAW_A = path.join(ROOT, "_incoming/aracimgo-raw");
+const OUT_A = path.join(ROOT, "src/assets/work/aracimgo");
+
+/* `node scripts/prepare-assets.mjs aracimgo` rebuilds one product only. */
+const ONLY = process.argv[2] ?? null;
 
 const W = 942;
 const H = 2048;
@@ -196,11 +201,47 @@ async function run(list, rawDir, outDir, { chrome = false, width = 0, clean = tr
   }
 }
 
-console.log("Meetzy →");
-await run(MEETZY, RAW_M, OUT_M);
-await run(MEETZY_STORE, RAW_MS, OUT_M, { clean: false });
-console.log("Erden Davetiye →");
-await run(ERDEN, RAW_E, OUT_E, { chrome: true });
-console.log("DP Pano →");
-await run(DPPANO, RAW_D, OUT_D, { width: 1800 });
+/**
+ * AracımGo — the product's own designed plates, supplied by its team at
+ * 1080x1920. Not captures and not to be recomposed: no crop, no resize, only
+ * re-encoded like everything else so the type on them stays sharp (4:4:4).
+ * The logo is cut to a square around the mark on its own white ground.
+ */
+const ARACIMGO = [
+  { src: "AracimGo_01_nedir.png", out: "01-overview.jpg" },
+  { src: "AracimGo_02_musteri.png", out: "02-customers.jpg" },
+  { src: "AracimGo_03_arac_gecmisi.png", out: "03-history.jpg" },
+  { src: "AracimGo_04_is_emri.png", out: "04-work-orders.jpg" },
+  { src: "AracimGo_05_plaka_arama.png", out: "05-plate-search.jpg" },
+  { src: "AracimGo_06_neden.png", out: "06-why.jpg" },
+];
+
+async function aracimgoLogo() {
+  const file = path.join(OUT_A, "logo.png");
+  await sharp(path.join(RAW_A, "aracimgo-logo.png"))
+    .extract({ left: 250, top: 250, width: 754, height: 754 })
+    .resize(512, 512)
+    .png()
+    .toFile(file);
+  console.log(`  ${"logo.png".padEnd(30)} 512x512`);
+}
+
+if (!ONLY || ONLY === "meetzy") {
+  console.log("Meetzy →");
+  await run(MEETZY, RAW_M, OUT_M);
+  await run(MEETZY_STORE, RAW_MS, OUT_M, { clean: false });
+}
+if (!ONLY || ONLY === "erden") {
+  console.log("Erden Davetiye →");
+  await run(ERDEN, RAW_E, OUT_E, { chrome: true });
+}
+if (!ONLY || ONLY === "dppano") {
+  console.log("DP Pano →");
+  await run(DPPANO, RAW_D, OUT_D, { width: 1800 });
+}
+if (!ONLY || ONLY === "aracimgo") {
+  console.log("AracımGo →");
+  await run(ARACIMGO, RAW_A, OUT_A);
+  await aracimgoLogo();
+}
 console.log("\nDone.");

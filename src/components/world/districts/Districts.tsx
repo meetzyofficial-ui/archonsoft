@@ -140,6 +140,8 @@ export function Bridges({ texture }: { texture: THREE.Texture }) {
       <Bridge at={[-32, 0]} size={[5, CORRIDOR + 2]} texture={texture} colour={getZone("systems").accent} />
       {/* Shipped to the hall of screens. */}
       <Bridge at={[32, -66]} size={[5, 11.6]} texture={texture} colour={getZone("boards").accent} />
+      {/* Shipped to AracımGo's service hub, the same bridge mirrored. */}
+      <Bridge at={[-32, -66]} size={[5, 11.6]} texture={texture} colour={getZone("aracimgo").accent} />
       {/* Fire at the ends of every bridge. */}
       {TORCHES.map((list, i) => (
         <Torches key={i} list={list} />
@@ -358,13 +360,17 @@ type StationTheme = {
   frame: string;
   wash: string;
   stone: string;
-  shape: "structured" | "orbital" | "arch";
+  shape: "structured" | "orbital" | "arch" | "service";
 };
 
 const STATION_THEMES: Record<string, StationTheme> = {
   dppano: { light: "#6fcbff", frame: "#aeb8c4", wash: "#2d8cff", stone: "#1a2a48", shape: "structured" },
   meetzy: { light: "#f2a889", frame: "#2c3448", wash: "#f2a889", stone: "#1f2440", shape: "orbital" },
   erden: { light: "#e7c7b5", frame: "#f4e9dc", wash: "#c97a65", stone: "#3a3030", shape: "arch" },
+  /* AracımGo: deep emerald light, brushed-metal frames, a dark-teal dais.
+     Its architecture — the canopy and the bays — is its hub's own
+     (`AracimGoHub`), so the station itself stays plain. */
+  aracimgo: { light: "#3ddc97", frame: "#b9c3c7", wash: "#0f7a63", stone: "#0b2b2a", shape: "service" },
 };
 const DEFAULT_THEME: StationTheme = STATION_THEMES.dppano!;
 
@@ -376,7 +382,7 @@ const DEFAULT_THEME: StationTheme = STATION_THEMES.dppano!;
  * and category, and a thin beacon rising from the middle so the station can
  * be found from any island. The guides stand in front of it.
  */
-function Station({
+export function Station({
   installation,
   index,
   at,
@@ -386,6 +392,7 @@ function Station({
   spacing = 4.4,
   photoHeight = 3.6,
   facing,
+  cull,
 }: {
   installation: PreparedInstallation;
   index: number;
@@ -398,6 +405,8 @@ function Station({
   photoHeight?: number;
   /** Where the visitor approaches from, for the tag. */
   facing: number;
+  /** Not drawn beyond this many metres on any tier (phones always use 55). */
+  cull?: number;
 }) {
   const beacon = useRef<THREE.Mesh>(null);
   const holo = useRef<THREE.Group>(null);
@@ -409,8 +418,8 @@ function Station({
     /* On a phone a station beyond fifty-five metres is not drawn — fifty-odd
        draws each, and from that far they are a glow on the horizon the
        beacon alone can carry. */
-    if (stationRoot.current && qualityStore.tier !== "desktop") {
-      const shown = Math.hypot(body.x - at[0], body.z - at[2]) < 55;
+    if (stationRoot.current && (qualityStore.tier !== "desktop" || cull !== undefined)) {
+      const shown = Math.hypot(body.x - at[0], body.z - at[2]) < (qualityStore.tier !== "desktop" ? 55 : cull!);
       if (stationRoot.current.visible !== shown) stationRoot.current.visible = shown;
       if (!shown) return;
     }
@@ -625,7 +634,7 @@ function Station({
 
       {/* The sign: the project's name, large, and what it is, small. */}
       <Label
-        lines={[installation.name, installation.category.toUpperCase()]}
+        lines={[installation.name, installation.category.toLocaleUpperCase(installation.locale)]}
         at={[0, height + photoHeight / 2 + 5.6, 0]}
         turn={facing}
         height={1.3}
@@ -721,8 +730,8 @@ export function Boards({
 /* ------------------------------------------------------------ wayfinding */
 
 /**
- * The totem at the entrance: a slab of dark glass on a brushed post, the
- * five destinations down it, each row with a number, a name and a line of
+ * The totem at the entrance: a slab of dark glass on a brushed post, every
+ * destination down it (seven, since AracımGo), each row with a number, a name and a line of
  * light that brightens in turn — "look here", not an advertisement. It
  * stands to the right of the arrival, beside the section panels, and clear
  * of the walkway.
@@ -741,7 +750,8 @@ function Wayfinding({ locale }: { locale: Locale }) {
       (row.material as THREE.MeshBasicMaterial).opacity = 0.18 + k * k * 0.5;
     });
   });
-  const rowH = 0.56;
+  /* The rows share the slab: seven fit where six once stood at 0.56. */
+  const rowH = Math.min(0.56, 3.3 / WORLD_DESTINATIONS.length);
   const top = 3.6;
   return (
     <group position={TOTEM_AT} rotation={[0, TOTEM_TURN, 0]} name="wayfinding">

@@ -16,6 +16,7 @@ import {
   Systems,
   Walls,
 } from "@/components/world/districts/Districts";
+import { AracimGoHub } from "@/components/world/districts/AracimGo";
 import { Display } from "@/components/world/displays/Display";
 import { Cosmos } from "@/components/world/environment/Cosmos";
 import { Ocean } from "@/components/world/environment/Ocean";
@@ -303,6 +304,7 @@ const STAGE = {
   shipped: 5,
   guides: 6,
   boards: 7,
+  aracimgo: 7,
   labs: 8,
   systems: 9,
   archive: 10,
@@ -420,6 +422,9 @@ const WorldBody = memo(function WorldBody({
       </Staged>
       <Staged frames={STAGE.boards}>
         <Boards texture={texture} installation={payload.installations.find((one) => one.id === "dppano")} />
+      </Staged>
+      <Staged frames={STAGE.aracimgo}>
+        <AracimGoHub texture={texture} installation={payload.installations.find((one) => one.id === "aracimgo")} locale={payload.locale} />
       </Staged>
       <Staged frames={STAGE.labs}>
         <Labs texture={texture} />

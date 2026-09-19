@@ -35,8 +35,11 @@ export const CAMPUS: CampusBuilding[] = [
   /* Headquarters, either side of the arrival, behind the lobby team. */
   { for: "lobby", at: [-44, -3, 36], size: [10, 8], tiers: [13, 6], turn: HALF, light: "#fff1e0" },
   { for: "lobby", at: [44, -3, 36], size: [10, 8], tiers: [10, 5], turn: -HALF },
-  /* Web, and the innovation lab: west of the shipped hall, behind their rooms. */
-  { for: "web", at: [-41, -3, -60], size: [10, 8], tiers: [14, 6], turn: HALF },
+  /* Web, and the innovation lab: west of the shipped hall, behind their rooms.
+     Web's stood at (−41, −60) until AracımGo's service hub took that water;
+     it now stands off the hub's southern rim, still behind its room, and
+     clear of the screen at the hub's door. */
+  { for: "web", at: [-50, -3, -47], size: [10, 8], tiers: [14, 6], turn: HALF },
   { for: "other", at: [-40, -3, -38], size: [9, 8], tiers: [9, 4], turn: HALF },
   /* E-commerce: south of the hall, facing back up it. */
   { for: "commerce", at: [14, -3, -85], size: [12, 9], tiers: [11, 5], turn: 0 },
@@ -79,7 +82,7 @@ const PLANTED: TreeSpot[] = [
   ),
   ...rim(
     [
-      [-32.4, -0.3, -30], [-33, -0.3, -42], [-32.5, -0.3, -54], [-33, -0.3, -64], [32.4, -0.3, -32], [33, -0.3, -46],
+      [-32.4, -0.3, -30], [-33, -0.3, -42], [-32.5, -0.3, -54], [-32.6, -0.3, -76.4], [32.4, -0.3, -32], [33, -0.3, -46],
       [32.5, -0.3, -58], [33, -0.3, -27], [-6, -0.3, -76.6], [6, -0.3, -76.6], [-16, -0.3, -76.8], [16, -0.3, -76.8],
     ],
     "shipped",
@@ -90,6 +93,7 @@ const PLANTED: TreeSpot[] = [
   { at: [-23.5, 0, -31.5], zone: "shipped" },
   { at: [-24, 0, -57], zone: "shipped" },
   ...rim([[40, -0.3, -80.6], [52, -0.3, -80.8], [66, -0.3, -80.6], [78, -0.3, -80.8], [80, -0.3, -51.4], [66, -0.3, -51.2], [52, -0.3, -51.4], [42, -0.3, -51.2]], "boards"),
+  ...rim([[-40, -0.3, -80.6], [-54, -0.3, -80.8], [-68, -0.3, -80.6], [-80, -0.3, -80.8], [-80, -0.3, -53.4], [-66, -0.3, -53.2]], "aracimgo"),
   ...rim([[40, -0.3, -28.6], [80, -0.3, -28.8], [80, -0.3, 28.6], [40, -0.3, 28.8], [52, -0.3, -28.4], [64, -0.3, 28.4], [85.6, -0.3, -12], [85.6, -0.3, 14]], "labs"),
   ...rim([[-40, -0.3, -26.6], [-80, -0.3, -26.8], [-80, -0.3, 26.6], [-40, -0.3, 26.8], [-56, -0.3, -26.4], [-60, -0.3, 26.4], [-85.6, -0.3, -10], [-85.6, -0.3, 12]], "systems"),
 ];

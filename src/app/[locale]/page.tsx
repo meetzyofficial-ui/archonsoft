@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Opening } from "@/components/site/Opening";
 import { ProjectShowcase } from "@/components/projects/ProjectShowcase";
 import { LabsBand } from "@/components/sections/LabsBand";
+import { ProductEcosystem } from "@/components/sections/ProductEcosystem";
 import { ServiceSection } from "@/components/services/ServiceSection";
 import { DesignEngineering } from "@/components/site/DesignEngineering";
 import { WorldEntry } from "@/components/site/WorldEntry";
@@ -24,9 +25,11 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 }
 
 /**
- * The home page, in six movements, each with one job.
+ * The home page, in seven movements, each with one job.
  *
- * What the studio does (the opening), what a visitor can have built — shown,
+ * What the studio does (the opening), what it makes for itself (its own
+ * products, AracımGo first — the studio as a maker of products that run,
+ * not only of software for others), what a visitor can have built — shown,
  * not listed, and ending in the contact form (the service explorer), the proof
  * (selected projects, staged), how it works (design × engineering), what else
  * it can build (Archon Labs, ten running concepts), and the door out of the
@@ -46,6 +49,7 @@ export default async function HomePage({ params }: Params) {
   return (
     <>
       <Opening locale={locale} copy={copy} />
+      <ProductEcosystem locale={locale} copy={copy} />
       <ServiceSection locale={locale} copy={copy} />
       <ProjectShowcase locale={locale} copy={copy} />
       <DesignEngineering copy={copy} />

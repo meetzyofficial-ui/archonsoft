@@ -115,7 +115,7 @@ const hold = async (page, key, ms) => {
   check("pressing E opens it", (await dialog.count()) === 1);
   check(
     "and what opens is the site's own words",
-    /three products, live/i.test(await dialog.innerText()),
+    /four products, live/i.test(await dialog.innerText()),
   );
 
   await page.keyboard.press("Escape");
@@ -215,7 +215,7 @@ const hold = async (page, key, ms) => {
   const text = await overlay.innerText();
   check("a touch device walks with a stick, not WASD", !/W\s?A\s?S\s?D/i.test(text) && (await page.locator("[data-joystick]").count()) === 1);
   check("and has a jump button", (await page.locator("[data-jump]").count()) === 1);
-  check("every destination is a thumb away", (await page.locator("[data-rail-compact] [data-destination]").count()) === 6);
+  check("every destination is a thumb away", (await page.locator("[data-rail-compact] [data-destination]").count()) === 7);
 
   /* The stick walks: drag the knob up and hold. */
   const stick = await page.locator("[data-joystick]").boundingBox();

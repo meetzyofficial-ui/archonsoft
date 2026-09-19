@@ -28,6 +28,19 @@ const CONSOLES: Box[] = [
   { at: [-16.2, 0.5, -44], size: [1.0, 1.0, 2.7] },
   { at: [16.2, 0.5, -44], size: [1.0, 1.0, 2.7] },
   { at: [64.2, 0.5, -66], size: [1.0, 1.0, 2.7] },
+  { at: [-64.2, 0.5, -67], size: [1.0, 1.0, 2.7] },
+];
+
+/* AracımGo's service hub (districts/AracimGo.tsx): the entrance screen's
+   plinth, the lift and car in each service bay either side of the station,
+   each bay's workflow screen, and the four posts carrying the canopy. */
+const ARACIMGO_PIECES: Box[] = [
+  { at: [-42.5, 1.6, -58.4], size: [5.6, 3.2, 1.2] },
+  { at: [-62, 1.3, -59.6], size: [4.6, 2.6, 3.3] },
+  { at: [-62, 1.3, -74.4], size: [4.6, 2.6, 3.3] },
+  { at: [-58.1, 1.2, -59.6], size: [0.5, 2.4, 1.9] },
+  { at: [-58.1, 1.2, -74.4], size: [0.5, 2.4, 1.9] },
+  ...[-70, -54].flatMap((x) => [-76, -58].map((z): Box => ({ at: [x, 4.6, z], size: [0.5, 9.2, 0.5] }))),
 ];
 
 /* The wayfinding totem by the arrival. */
@@ -41,4 +54,4 @@ const PANELS: Box[] = DISPLAYS.filter((d) => d.zone === "hub" && d.form === "ver
 
 /* The offices: every desk with its chair, and the board wall behind each
    team, from the same data the scene builds them from. */
-export const WORLD_OBSTACLES: Box[] = [...PYLONS, ...CONSOLES, ...TOTEM, ...PANELS, ...OFFICE_OBSTACLES, ...TORCH_OBSTACLES];
+export const WORLD_OBSTACLES: Box[] = [...PYLONS, ...CONSOLES, ...TOTEM, ...PANELS, ...ARACIMGO_PIECES, ...OFFICE_OBSTACLES, ...TORCH_OBSTACLES];

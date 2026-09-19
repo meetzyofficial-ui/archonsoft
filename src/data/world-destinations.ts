@@ -117,6 +117,24 @@ export const WORLD_DESTINATIONS: Destination[] = [
     at: [-40, 0, 0],
     yaw: face([-40, 0], [-73, 0]),
   },
+  {
+    /* Set down just inside the service hub's door, clear of the entrance
+       screen to the north and the station's dais to the west, turned down
+       the hall so the plates, the station and the project wall are the
+       first thing in view. */
+    id: "aracimgo",
+    number: 7,
+    key: "7",
+    name: { en: "AracımGo", tr: "AracımGo" },
+    subtitle: category("aracimgo"),
+    description: {
+      en: "AracımGo's service hub, through the west wall of the shipped hall: Archon Soft's live product for car workshops.",
+      tr: "Yayın holünün batı duvarının ardında AracımGo'nun servis merkezi: Archon Soft'un oto servisler için canlıdaki ürünü.",
+    },
+    zone: "aracimgo",
+    at: [-43, 0, -66.5],
+    yaw: face([-43, -66.5], [-62, -67]),
+  },
 ];
 
 export const destinationByKey = (key: string) => WORLD_DESTINATIONS.find((one) => one.key === key);

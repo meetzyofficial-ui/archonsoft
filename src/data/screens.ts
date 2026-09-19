@@ -35,6 +35,13 @@ import dpDutyPrint from "@/assets/work/dppano/09-duty-print.jpg";
 import dpSafeMode from "@/assets/work/dppano/10-safe-mode.jpg";
 import dpPermissions from "@/assets/work/dppano/11-permissions.jpg";
 
+import agOverview from "@/assets/work/aracimgo/01-overview.jpg";
+import agCustomers from "@/assets/work/aracimgo/02-customers.jpg";
+import agHistory from "@/assets/work/aracimgo/03-history.jpg";
+import agWorkOrders from "@/assets/work/aracimgo/04-work-orders.jpg";
+import agPlateSearch from "@/assets/work/aracimgo/05-plate-search.jpg";
+import agWhy from "@/assets/work/aracimgo/06-why.jpg";
+
 
 /**
  * Every real product screen on the site, in one place.
@@ -251,6 +258,60 @@ export const DPPANO: Record<string, Screen> = {
     caption: {
       en: "Staff accounts, with permission granted module by module",
       tr: "Modül bazlı yetki matrisi ile personel hesapları",
+    },
+  },
+};
+
+/**
+ * AracımGo — a live product; these are its own designed plates.
+ *
+ * Six 1080x1920 plates made by the product's team, each pairing a photograph
+ * of a real workshop with the app's screen and one line of its copy. They are
+ * shown whole: the words on them are part of the design and a crop would cut
+ * them. The screens drawn on them carry sample records ("06 ABC 123"), not a
+ * customer's data.
+ */
+export const ARACIMGO: Record<string, Screen> = {
+  overview: {
+    image: agOverview,
+    caption: {
+      en: "AracımGo — run the service from one place: today's work orders, customers and vehicles",
+      tr: "AracımGo — oto servisini tek yerden yönet: günün iş emirleri, müşteriler ve araçlar",
+    },
+  },
+  customers: {
+    image: agCustomers,
+    caption: {
+      en: "Customer management: the customer, their vehicle and the last job on one card",
+      tr: "Müşteri yönetimi: müşteri, aracı ve son işlem tek kartta",
+    },
+  },
+  history: {
+    image: agHistory,
+    caption: {
+      en: "Vehicle history: every job on one car, year by year",
+      tr: "Araç geçmişi: bir araçta yapılan her işlem, yıl yıl",
+    },
+  },
+  workOrders: {
+    image: agWorkOrders,
+    caption: {
+      en: "Work orders: which car is in progress, waiting or done, on one screen",
+      tr: "İş emirleri: hangi araç devam ediyor, bekliyor ya da bitti — tek ekranda",
+    },
+  },
+  plateSearch: {
+    image: agPlateSearch,
+    caption: {
+      en: "Plate search: type the plate, get the customer and the vehicle's history",
+      tr: "Plaka ile arama: plakayı yaz, müşteriye ve araç geçmişine ulaş",
+    },
+  },
+  why: {
+    image: agWhy,
+    caption: {
+      en: "Why AracımGo: customer records, vehicle history and work orders — out of the notebook, into the system",
+      tr: "Neden AracımGo: müşteri kayıtları, araç geçmişi ve iş emirleri — defterden sisteme",
     },
   },
 };

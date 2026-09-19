@@ -54,7 +54,7 @@ export function ProjectShowcase({
 
           {/* The index: every project by name, a jump to each. */}
           <nav aria-label={c.label} className="mt-12 md:mt-16">
-            <ol className="hairline-t grid grid-cols-2 md:grid-cols-4">
+            <ol className="hairline-t grid grid-cols-2 md:grid-cols-5">
               {SHOWCASE.map((project, index) => (
                 <li key={project.slug} className="hairline-b md:border-b-0">
                   <a

@@ -120,6 +120,18 @@ const MOODS: Record<ZoneId | "between", MoodSpec> = {
     light: 0.72,
     key: "#c8d0ff",
   },
+  /* AracımGo: deep emerald water under a dark-teal sky, a clean white key
+     — a workshop under good light. */
+  aracimgo: {
+    oceanDeep: "#05241f",
+    oceanShallow: "#137a64",
+    energy: "#3ddc97",
+    fog: "#071a1a",
+    fogDensity: 0.0042,
+    sky: "#15545a",
+    light: 0.96,
+    key: "#eef8f2",
+  },
   /* The bridges between islands: halfway to nowhere. */
   between: {
     oceanDeep: "#071a36",
