@@ -20,7 +20,9 @@
     "qa:worldentry": "node scripts/worldentry.mjs",
     "qa:states": "node scripts/states.mjs",
     "qa:responsive": "node scripts/responsive.mjs",
-    "world:plate": "node scripts/world-plate.mjs"
+    "world:plate": "node scripts/world-plate.mjs",
+    "test:fleet": "node --no-warnings --import ./scripts/fleet-tests/loader.mjs --test scripts/fleet-tests/fleet.test.mjs",
+    "fleet:password": "node scripts/fleet-password.mjs"
   },
   "dependencies": {
     "@react-three/fiber": "^9.7.0",

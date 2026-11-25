@@ -68,7 +68,10 @@ export const config = {
   // collapses to "." — any character — so `.*\..*` became `.*.*`, the negative
   // lookahead excluded every non-empty path, and the middleware only ever ran
   // on "/". Every locale-less URL, /contact included, answered 404.
+  //
+  // `fleet` is the private fleet panel: one language, its own root layout, no
+  // locale prefix. It is excluded so it is never redirected to /tr/fleet.
   matcher: [
-    "/((?!_next|api|fonts|.*\\..*|robots\\.txt|sitemap\\.xml|icon\\.svg|opengraph-image).*)",
+    "/((?!_next|api|fleet|fonts|.*\\..*|robots\\.txt|sitemap\\.xml|icon\\.svg|opengraph-image).*)",
   ],
 };
