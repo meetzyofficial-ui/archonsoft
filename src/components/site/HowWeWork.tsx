@@ -6,7 +6,7 @@ import { localePath, t, type Locale } from "@/lib/i18n";
 /** The six stages of a job and what the client has in hand after each. */
 export function HowWeWork({ locale, copy }: { locale: Locale; copy: Copy }) {
   return (
-    <section className="steel py-16 md:py-28" data-scheme="haze" aria-labelledby="how-title">
+    <section data-track-section="is-nasil-ilerler" className="steel py-16 md:py-28" data-scheme="haze" aria-labelledby="how-title">
       <div className="frame">
         <h2 id="how-title" className="text-section max-w-[18ch] text-[var(--fg)]">
           {copy.how.title}

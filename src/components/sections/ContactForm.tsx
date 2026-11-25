@@ -13,7 +13,8 @@ import {
   type FieldErrors,
 } from "@/lib/contact";
 import type { Locale } from "@/lib/i18n";
-import { CONTACT_EMAIL } from "@/lib/site";
+import { report } from "@/components/site/Measure";
+import { CONTACT_EMAIL, whatsappLink } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 type Status =
@@ -161,6 +162,7 @@ export function ContactForm({
       });
 
       if (response.ok) {
+        report("form", `gönderildi ${values.projectType}`);
         setStatus({ kind: "sent" });
         return;
       }
@@ -176,10 +178,12 @@ export function ContactForm({
       }
 
       if (data?.code === "NOT_CONFIGURED") {
+        report("form", "WhatsApp'a yönlendirildi");
         setStatus({ kind: "unconfigured" });
         return;
       }
 
+      report("form", "hata");
       setStatus({ kind: "failed", message: data?.message ?? "—" });
     } catch {
       setStatus({ kind: "failed", message: "—" });
@@ -187,6 +191,23 @@ export function ContactForm({
       requestAnimationFrame(() => errorRef.current?.focus());
     }
   }
+
+  /** The same message, opened in WhatsApp, where it is one tap from sent. */
+  const whatsappFallback = whatsappLink(
+    [
+      copy.wa.text,
+      "",
+      `${form.name}: ${values.name}`,
+      `${form.email}: ${values.email}`,
+      values.company ? `${form.company}: ${values.company}` : null,
+      values.projectType ? `${form.type} ${form.types[values.projectType as keyof typeof form.types] ?? ""}` : null,
+      chosen ? `${copy.explorer.selected}: ${chosen.title[locale]}` : null,
+      "",
+      values.message,
+    ]
+      .filter((line) => line !== null)
+      .join("\n"),
+  );
 
   /**
    * Everything the visitor typed, preserved into a mail client, so a failed or
@@ -224,13 +245,12 @@ export function ContactForm({
   if (status.kind === "unconfigured") {
     return (
       <div className="hairline-t pt-10" role="status">
-        <p className="mono-label text-[var(--accent)]">{form.notSent}</p>
-        <p className="mt-6 max-w-[28ch] text-quote">{form.unconfiguredTitle}</p>
-        <p className="mt-5 max-w-[46ch] text-[var(--fg-dim)]">
-          {form.unconfiguredBody}
-          {mailtoFallback ? "" : form.unconfiguredNoAddress}
-        </p>
+        <p className="max-w-[24ch] text-head">{form.waTitle}</p>
+        <p className="mt-5 max-w-[46ch] text-[var(--fg-dim)]">{form.waBody}</p>
         <div className="mt-8 flex flex-wrap items-center gap-4">
+          <a href={whatsappFallback} target="_blank" rel="noopener noreferrer" className="btn-raised">
+            {form.waSend}
+          </a>
           {mailtoFallback ? (
             <a
               href={mailtoFallback}
@@ -406,7 +426,10 @@ export function ContactForm({
       <div ref={errorRef} tabIndex={-1} role="alert" aria-live="assertive" className="mt-10 outline-none">
         {status.kind === "failed" ? (
           <p className="mono-label mb-6 border border-[var(--accent)] px-4 py-3 text-[var(--accent)]">
-            {form.unconfiguredBody}
+            {form.unconfiguredBody}{" "}
+            <a href={whatsappFallback} target="_blank" rel="noopener noreferrer" className="link-rule">
+              {form.waSend}
+            </a>
             {mailtoFallback ? (
               <>
                 {" "}

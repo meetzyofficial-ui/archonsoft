@@ -176,3 +176,19 @@ export async function updateLead(stored: Stored, patch: { status: LeadStatus } &
     }
   }
 }
+
+/** Every kept request, newest first, for the panel. */
+export async function listLeads(): Promise<Record<string, unknown>[]> {
+  const config = firestoreConfig();
+  if (!config) return [];
+  const token = await accessToken(config);
+  const response = await fetch(`${documentUrl(config.projectId)}?pageSize=200&orderBy=${encodeURIComponent("createdAt desc")}`, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: "no-store",
+  });
+  if (!response.ok) return [];
+  const data = (await response.json()) as { documents?: { fields?: Record<string, Record<string, unknown>> }[] };
+  return (data.documents ?? []).map((doc) =>
+    Object.fromEntries(Object.entries(doc.fields ?? {}).map(([key, value]) => [key, Object.values(value)[0]])),
+  );
+}

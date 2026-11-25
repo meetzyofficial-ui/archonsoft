@@ -113,7 +113,7 @@ const LABS = (what: Localized): Localized => ({
   tr: `Konsept · Archon Labs · ${what.tr}`,
 });
 
-export const SERVICES: Service[] = [
+const ALL: Service[] = [
   {
     id: "mobile",
     title: SERVICE_META.mobile.title,
@@ -506,6 +506,13 @@ export const SERVICES: Service[] = [
     ),
   },
 ];
+
+/** Only pictures of shipped work are shown; a service without one shows none. */
+export const SERVICES: Service[] = ALL.map((one) => ({
+  ...one,
+  hero: one.hero.filter((media) => !media.concept),
+  gallery: one.gallery.filter((media) => !media.concept),
+}));
 
 export const getService = (id: string | null | undefined): Service | undefined =>
   SERVICES.find((service) => service.id === id);

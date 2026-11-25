@@ -25,7 +25,7 @@ type PrivacyCopy = {
 
 export const PRIVACY: Record<"en" | "tr", PrivacyCopy> = {
   en: {
-    updated: "Updated September 2026",
+    updated: "Updated November 2026",
     lead: "Your details, and what",
     accent: "happens to them.",
     standfirst:
@@ -66,8 +66,8 @@ export const PRIVACY: Record<"en" | "tr", PrivacyCopy> = {
         items: [
           "Vercel — hosts the site and runs the server that receives the form.",
           "Resend — delivers the request to our inbox by email.",
-          "Google Firebase (Firestore) — keeps a record of briefs from Archon World so that none is lost if an email fails.",
-          "Meta WhatsApp Business — sends us a short notification that a brief arrived.",
+          "Google Firebase (Firestore) — keeps a record of messages and briefs so that none is lost if an email fails, and the anonymous visit statistics.",
+          "Meta WhatsApp Business — sends us a short notification that a brief arrived. If you choose to write to us on WhatsApp, the conversation takes place there under WhatsApp's own terms.",
           "Some of these providers process data outside Türkiye. That transfer rests on your explicit consent, given with the brief.",
         ],
       },
@@ -95,7 +95,7 @@ export const PRIVACY: Record<"en" | "tr", PrivacyCopy> = {
         id: "cookies",
         title: "Cookies and storage",
         body: [
-          "The site sets no tracking cookies and runs no analytics that identify you. Archon World remembers a few preferences in your browser's own storage — your language, whether you have met the host, which panels you have opened — and none of that leaves your device.",
+          "The site sets no cookies for visitors. To see which pages are useful we keep anonymous visit statistics on our own server: the page, time on it, how far it was scrolled, which parts were in view, which buttons were pressed, the site you came from, device type, and city and country as estimated by our host. A random number kept only while the tab is open links the pages of one visit. Your network address is not stored and nothing you type is recorded. Browsers that send Do Not Track or Global Privacy Control are not measured. Archon World remembers a few preferences in your browser's own storage — your language, whether you have met the host, which panels you have opened; those preferences stay on your device. Which places in the world were visited is counted in the same anonymous way.",
         ],
       },
       {
@@ -113,7 +113,7 @@ export const PRIVACY: Record<"en" | "tr", PrivacyCopy> = {
     ],
   },
   tr: {
-    updated: "Eylül 2026'da güncellendi",
+    updated: "Kasım 2026'da güncellendi",
     lead: "Bilgileriniz, ve",
     accent: "onlara ne olduğu.",
     standfirst:
@@ -154,8 +154,8 @@ export const PRIVACY: Record<"en" | "tr", PrivacyCopy> = {
         items: [
           "Vercel — siteyi barındırır ve formu alan sunucuyu çalıştırır.",
           "Resend — talebi e-posta ile gelen kutumuza iletir.",
-          "Google Firebase (Firestore) — bir e-posta başarısız olursa hiçbir talep kaybolmasın diye Archon Dünyası taleplerinin kaydını tutar.",
-          "Meta WhatsApp Business — bir talebin geldiğine dair bize kısa bir bildirim gönderir.",
+          "Google Firebase (Firestore) — bir e-posta başarısız olursa hiçbir talep kaybolmasın diye mesaj ve taleplerin kaydını ve anonim ziyaret istatistiğini tutar.",
+          "Meta WhatsApp Business — bir talebin geldiğine dair bize kısa bir bildirim gönderir. Bize WhatsApp'tan yazmayı seçerseniz yazışma orada, WhatsApp'ın kendi koşullarıyla yürür.",
           "Bu sağlayıcıların bir kısmı veriyi Türkiye dışında işler. Bu aktarım, KVKK m.9 kapsamında talep ile birlikte verdiğiniz açık rızaya dayanır.",
         ],
       },
@@ -184,7 +184,7 @@ export const PRIVACY: Record<"en" | "tr", PrivacyCopy> = {
         id: "cookies",
         title: "Çerezler ve depolama",
         body: [
-          "Site izleme çerezi kullanmaz ve sizi tanımlayan bir analitik çalıştırmaz. Archon Dünyası birkaç tercihi — dilinizi, rehberle tanışmış olduğunuzu, hangi panelleri açtığınızı — tarayıcınızın kendi depolamasında tutar ve bunların hiçbiri cihazınızdan çıkmaz.",
+          "Site ziyaretçiler için çerez kullanmaz. Hangi sayfaların işe yaradığını görmek için kendi sunucumuzda anonim ziyaret istatistiği tutarız: sayfa, sayfada geçen süre, ne kadar kaydırıldığı, hangi bölümlerin ekranda olduğu, hangi düğmelere basıldığı, hangi siteden gelindiği, cihaz türü ve barındırma sağlayıcımızın tahmin ettiği şehir ve ülke. Bir ziyaretin sayfaları, yalnızca sekme açıkken duran rastgele bir sayıyla ilişkilendirilir. Ağ adresiniz kaydedilmez, yazdığınız hiçbir şey ölçülmez. Do Not Track ya da Global Privacy Control gönderen tarayıcılar ölçülmez. Archon Dünyası birkaç tercihi — dilinizi, rehberle tanışmış olduğunuzu, hangi panelleri açtığınızı — tarayıcınızın kendi depolamasında tutar; bu tercihler cihazınızda kalır. Dünyada hangi yerlerin gezildiği aynı anonim yolla sayılır.",
         ],
       },
       {

@@ -76,6 +76,8 @@ export type ShowcaseProject = {
   technologies?: Fact[];
   scale?: { label: Localized; value: string }[];
   link?: { label: string; href: string };
+  /** The product in the app stores. */
+  stores?: { apple: string; google: string };
   demo?: { label: Localized; href: string; note: Localized };
   /** Opens Archon World rather than leaving the site. */
   world?: boolean;
@@ -471,6 +473,11 @@ const world: ShowcaseProject = {
   ],
   world: true,
   accent: "#FF7300",
+};
+
+meetzy.stores = {
+  apple: "https://apps.apple.com/tr/app/meetzy-events-friends/id6759868457",
+  google: "https://play.google.com/store/apps/details?id=com.meetzy.app",
 };
 
 /** The order is editorial: Archon Soft's newest live product, the product

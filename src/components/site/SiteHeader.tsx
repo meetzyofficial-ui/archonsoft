@@ -21,8 +21,7 @@ export function SiteHeader({ locale, copy }: { locale: Locale; copy: Copy }) {
   /* The full index, for the menu. */
   const items = [
     { label: copy.nav.work, href: "/projects" },
-    { label: copy.nav.labs, href: "/labs" },
-    { label: copy.nav.capabilities, href: "/capabilities" },
+    { label: copy.nav.services, href: "/hizmetler" },
     { label: copy.nav.process, href: "/process" },
     { label: copy.nav.about, href: "/about" },
     { label: copy.nav.contact, href: "/contact" },
@@ -30,7 +29,7 @@ export function SiteHeader({ locale, copy }: { locale: Locale; copy: Copy }) {
 
   const named = [
     { label: copy.nav.work, href: "/projects" },
-    { label: copy.nav.capabilities, href: "/capabilities" },
+    { label: copy.nav.services, href: "/hizmetler" },
     { label: copy.nav.about, href: "/about" },
     { label: copy.nav.contact, href: "/contact" },
   ];

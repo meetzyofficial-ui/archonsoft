@@ -6,7 +6,6 @@ import { Experiments } from "@/components/lab/Experiments";
 import { Icon } from "@/components/labs/Icon";
 import { LabsExplorer } from "@/components/labs/LabsExplorer";
 import { Reveal } from "@/components/motion/Reveal";
-import { ContactCta } from "@/components/sections/ContactCta";
 import { LabNotes } from "@/components/sections/LabNotes";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Provenance } from "@/components/ui/Provenance";
@@ -26,6 +25,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const copy = dict(locale);
   return {
     title: copy.meta.labs.title,
+    robots: { index: false, follow: true },
     description: copy.meta.labs.description,
     alternates: {
       canonical: `/${locale}/labs`,
@@ -159,8 +159,6 @@ export default async function LabsPage({ params }: Params) {
           <LabNotes notes={LAB_NOTES} locale={locale} copy={copy} className="mt-12 md:mt-16" />
         </div>
       </Band>
-
-      <ContactCta locale={locale} copy={copy} />
     </>
   );
 }

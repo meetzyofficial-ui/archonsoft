@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Opening } from "@/components/site/Opening";
 import { ProjectShowcase } from "@/components/projects/ProjectShowcase";
 import { ServiceSection } from "@/components/services/ServiceSection";
+import { Numbers } from "@/components/site/Numbers";
 import { HowWeWork } from "@/components/site/HowWeWork";
 import { WorldEntry } from "@/components/site/WorldEntry";
 import { dict } from "@/i18n/dictionary";
@@ -33,6 +34,7 @@ export default async function HomePage({ params }: Params) {
     <>
       <Opening locale={locale} copy={copy} />
       <ProjectShowcase locale={locale} copy={copy} />
+      <Numbers locale={locale} copy={copy} />
       <ServiceSection locale={locale} copy={copy} />
       <HowWeWork locale={locale} copy={copy} />
       <WorldEntry locale={locale} copy={copy} />

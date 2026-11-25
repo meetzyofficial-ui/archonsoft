@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { StoreLinks } from "@/components/projects/StoreLinks";
 import { WorldEnterButton } from "@/components/world/WorldInvite";
 import { panelStyle } from "@/data/panels";
 import { SHOWCASE, projectPath, type ShowcaseProject } from "@/data/showcase";
@@ -84,6 +85,7 @@ function Panel({
               {project.link.label} <span aria-hidden="true">↗</span>
             </a>
           ) : null}
+          {project.stores ? <StoreLinks stores={project.stores} /> : null}
           {project.world ? <WorldEnterButton locale={locale} label={c.enterWorld} /> : null}
         </div>
       </div>

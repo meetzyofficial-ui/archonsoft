@@ -20,8 +20,7 @@ export function NotFoundBody({ locale }: { locale: Locale }) {
 
   const items = [
     { label: copy.nav.work, href: "/projects", index: "01" },
-    { label: copy.nav.labs, href: "/labs", index: "02" },
-    { label: copy.nav.capabilities, href: "/capabilities", index: "03" },
+    { label: copy.nav.services, href: "/hizmetler", index: "02" },
     { label: copy.nav.process, href: "/process", index: "04" },
     { label: copy.nav.about, href: "/about", index: "05" },
     { label: copy.nav.contact, href: "/contact", index: "06" },

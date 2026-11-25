@@ -4,12 +4,14 @@ import localFont from "next/font/local";
 import "../globals.css";
 
 import { SmoothScroll } from "@/components/chrome/SmoothScroll";
+import { Measure } from "@/components/site/Measure";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { StudioClosing } from "@/components/site/StudioClosing";
+import { WhatsAppButton } from "@/components/site/WhatsAppButton";
 import { WorldMount } from "@/components/world/WorldMount";
 import { dict } from "@/i18n/dictionary";
 import { HTML_LANG, isLocale, LOCALES, OG_LOCALE, type Locale } from "@/lib/i18n";
-import { CONTACT_EMAIL, SITE } from "@/lib/site";
+import { CONTACT_EMAIL, PHONE_E164, SITE, SOCIALS } from "@/lib/site";
 
 /**
  * The root layout lives under `[locale]` so `<html lang>` is correct for the
@@ -108,8 +110,14 @@ export default async function LocaleLayout({
 
   const organisation = {
     "@context": "https://schema.org",
-    "@type": "Organization",
+    "@type": "ProfessionalService",
     name: SITE.name,
+    telephone: PHONE_E164,
+    areaServed: "TR",
+    priceRange: "₺₺",
+    logo: `${SITE.url}/icon.png`,
+    image: `${SITE.url}/${locale}/opengraph-image`,
+    sameAs: SOCIALS.map((one) => one.href),
     url: SITE.url,
     ...(CONTACT_EMAIL ? { email: CONTACT_EMAIL } : {}),
     description: copy.meta.description,
@@ -130,6 +138,7 @@ export default async function LocaleLayout({
     >
       <head>
         <link rel="preload" href="/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        {locale === "tr" ? <link rel="preload" href="/fonts/archivo-latin-ext.woff2" as="font" type="font/woff2" crossOrigin="anonymous" /> : null}
         {/* Runs before paint, so the class is gone before the first frame and
             no reveal ever flashes in its resting state. */}
         <script
@@ -149,6 +158,8 @@ export default async function LocaleLayout({
         <SiteHeader locale={locale} copy={copy} />
         <main id="main">{children}</main>
         <StudioClosing locale={locale} copy={copy} />
+        <WhatsAppButton label={copy.wa.label} text={copy.wa.text} />
+        <Measure />
         {/* Archon World sits over the home page rather than replacing it, and
             the gate keeps it off every other route. It is mounted from the
             layout so no route transform can become the containing block for a

@@ -15,7 +15,7 @@
 
 export type WhatsAppResult = "sent" | "skipped" | "failed" | "mocked";
 
-export const WHATSAPP_DEFAULT_TO = "905521920002";
+export const WHATSAPP_DEFAULT_TO = "905521592002";
 
 /** Whether the Cloud API is wired up, without a secret: for the status endpoint. */
 export function whatsappStatus(): "configured" | "mocked" | "missing" {

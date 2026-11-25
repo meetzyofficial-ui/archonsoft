@@ -26,6 +26,9 @@ const nextConfig: NextConfig = {
     // two case studies were renamed to the shape the rest of the site uses —
     // a project's slug is its product's name, not the folder it arrived in.
     return [
+      /* Capabilities became one page per service. */
+      { source: "/:locale(en|tr)/capabilities", destination: "/:locale/hizmetler", permanent: true },
+      { source: "/:locale(en|tr)/services", destination: "/:locale/hizmetler", permanent: true },
       { source: "/:locale(en|tr)/lab", destination: "/:locale/labs", permanent: true },
       { source: "/lab", destination: "/en/labs", permanent: true },
       {

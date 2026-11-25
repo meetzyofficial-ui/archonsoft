@@ -33,7 +33,20 @@
 @font-face {
   font-family: "Archivo Fallback";
   src: local("Arial"), local("Helvetica Neue"), local("Liberation Sans");
-  size-adjust: 101%;
+  size-adjust: 97.8%;
+  ascent-override: 89.8%;
+  descent-override: 21.5%;
+  line-gap-override: 0%;
+}
+/* The expanded heavy cut the headings are set in, measured against Arial Bold:
+   a swap changes the letterforms and not the line breaks. */
+@font-face {
+  font-family: "Archivo Display Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT"), local("Roboto Bold"), local("Roboto-Bold"), local("Liberation Sans Bold");
+  size-adjust: 114.7%;
+  ascent-override: 76.5%;
+  descent-override: 18.3%;
+  line-gap-override: 0%;
 }
 
 @theme {
@@ -51,7 +64,7 @@
   --color-ink-2: #1b1c1e;
   --color-sky: #ffb58a;
 
-  --font-display: "Archivo", "Archivo Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Archivo", "Archivo Display Fallback", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Archivo", "Archivo Fallback", ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, Consolas, monospace;
 
@@ -280,7 +293,7 @@
 }
 .text-sub,
 .text-quote {
-  font-family: var(--font-display);
+  font-family: var(--font-sans);
   font-weight: 600;
 }
 
@@ -1168,4 +1181,40 @@ main [data-band="paper"] + [data-band="paper"]:not(.keep-pad) {
 }
 .service-gallery__tick.is-current {
   background: var(--color-orange);
+}
+
+/* WhatsApp, always in reach. Steps aside for the world and the open menu. */
+.wa-button {
+  position: fixed;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  z-index: 80;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 3.5rem;
+  padding: 0.75rem 1.25rem 0.75rem 1rem;
+  border-radius: 999px;
+  color: #06251a;
+  background: #25d366;
+  font-weight: 700;
+  box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.5);
+}
+.wa-button:hover {
+  background: #1fbf5b;
+}
+@media (max-width: 639px) {
+  .wa-button {
+    padding: 0.85rem;
+  }
+  .wa-button span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+}
+html[data-world-open] .wa-button {
+  display: none;
 }

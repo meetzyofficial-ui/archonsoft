@@ -3,8 +3,6 @@ import { notFound } from "next/navigation";
 
 import { Reveal } from "@/components/motion/Reveal";
 import { ScrollLit } from "@/components/motion/ScrollLit";
-import { ContactCta } from "@/components/sections/ContactCta";
-import { Process } from "@/components/sections/Process";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Band, SectionRule } from "@/components/ui/primitives";
 import { PRINCIPLES, STUDIO_FACTS } from "@/data/practice";
@@ -49,8 +47,6 @@ const ABOUT = {
       "Deciding what the product is. Drawing it. Building the client. Building the server. Modelling the data. Accounts and permissions. The admin the business will live in. Getting it live and keeping it there. Every product on this site went through every one of those steps in the same studio.",
     principles: "Principles",
     principlesAside: "How the work runs",
-    process: "Process",
-    processAside: "Four phases",
     facts: "Facts",
     factsAside: "Verified",
   },
@@ -65,8 +61,6 @@ const ABOUT = {
       "Ürünün ne olduğuna karar vermek. Çizmek. İstemciyi kurmak. Sunucuyu kurmak. Veriyi modellemek. Hesaplar ve izinler. İşletmenin içinde yaşayacağı yönetim paneli. Yayına almak ve orada tutmak. Bu sitedeki ürünlerin hepsi bu adımların hepsinden aynı stüdyoda geçti.",
     principles: "İlkeler",
     principlesAside: "İş nasıl yürüyor",
-    process: "Süreç",
-    processAside: "Dört aşama",
     facts: "Bilgiler",
     factsAside: "Doğrulanmış",
   },
@@ -139,8 +133,6 @@ export default async function AboutPage({ params }: Params) {
         </div>
       </Band>
 
-      <Process locale={locale} title={page.process} aside={page.processAside} />
-      <ContactCta locale={locale} copy={copy} />
     </>
   );
 }

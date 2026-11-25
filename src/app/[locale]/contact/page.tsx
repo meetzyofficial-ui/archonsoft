@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Band } from "@/components/ui/primitives";
 import { dict } from "@/i18n/dictionary";
 import { isLocale, type Locale } from "@/lib/i18n";
-import { CONTACT_EMAIL, SITE } from "@/lib/site";
+import { CONTACT_EMAIL, PHONE, PHONE_E164, SITE, SOCIALS, whatsappLink } from "@/lib/site";
 
 type Params = { params: Promise<{ locale: string }> };
 
@@ -65,6 +65,21 @@ export default async function ContactPage({ params }: Params) {
               ) : (
                 <p className="mt-4 max-w-[34ch] text-[var(--fg-dim)]">{copy.contact.noEmail}</p>
               )}
+              <p className="mt-6">
+                <a href={whatsappLink(copy.wa.text)} target="_blank" rel="noopener noreferrer" className="btn-raised">
+                  WhatsApp {PHONE}
+                </a>
+              </p>
+              <p className="mt-6">
+                <a href={`tel:${PHONE_E164}`} className="link-rule">
+                  {PHONE}
+                </a>
+              </p>
+              <p className="mt-2">
+                <a href={SOCIALS[0]!.href} target="_blank" rel="noopener noreferrer" className="link-rule">
+                  Instagram: archondijital.co
+                </a>
+              </p>
               <p className="mono-label mt-6 text-[var(--fg-mute)]">{copy.hero.location}</p>
             </div>
           </aside>

@@ -496,6 +496,7 @@ export function Explorer({ active }: { active: boolean }) {
         here.settle = 3;
         teleportStore.set({ current: tp.to.id, phase: 0, direction: "in" });
         worldEvents.emit("teleport:in", { to: tp.to.id });
+        window.dispatchEvent(new CustomEvent("archon:olcum", { detail: { k: "world", l: tp.to.name.tr } }));
       }
       if (!tp.moved) {
         const k = tp.t / TELEPORT_OUT;

@@ -16,7 +16,7 @@ const en = {
     tagline: "We build what comes next.",
     description:
       "Archon Soft is a one-person product and technology studio in Ankara. Meetzy, a live social app, and Erden Davetiye, a live commerce system — product, design, frontend, backend and admin, built end to end.",
-    home: { title: "Archon Soft — Apps, websites and custom software" },
+    home: { title: "Archon Soft — Software company in Ankara: apps, websites, custom software" },
     work: {
       title: "Work",
       description:
@@ -55,6 +55,7 @@ const en = {
   nav: {
     privacy: "Privacy",
     work: "Projects",
+    services: "Services",
     capabilities: "Capabilities",
     labs: "Labs",
     process: "Process",
@@ -84,7 +85,7 @@ const en = {
     ctaContact: "Tell us about your project",
     assembling: "Assembling",
     liveProduct: "Live product",
-    proofFacts: "Live for about three months · around 2,000 signups · built in one studio",
+    proofFacts: "Live · around 2,000 signups · built in one studio",
     proofNote: "A real screen from a product people are using, not a mockup.",
     disciplines: ["Products", "Systems", "Commerce", "AI", "Automation", "Data"],
     /* The three lines under the name. Each one is something this site can
@@ -192,7 +193,7 @@ const en = {
     explore: "Explore examples",
     worldCta: "Explore it in the world",
     leadIntro: "Let's shape this around your project.",
-    cta: "Tell us about your project",
+    cta: "Tell us about it",
     back: "Change the service",
     selected: "Chosen service",
     formTitle: "Tell us about it.",
@@ -208,9 +209,9 @@ const en = {
   showcase: {
     label: "Selected projects",
     aside: "Live, and built end to end",
-    statement: "Five jobs you can open and use.",
+    statement: "Five jobs we shipped.",
     statementAccent: "open.",
-    body: "None of them is a mock-up. Follow the links, they all work.",
+    body: "Follow the links and try them yourself.",
     explore: "Explore project",
     exploreShort: "Explore",
     enterWorld: "Enter the world",
@@ -237,7 +238,7 @@ const en = {
     redacted: "App captures: users’ names and faces removed",
     indexLead: "Products that are",
     indexAccent: "running.",
-    indexBody: "Six live projects, from a car-service platform to café games. Below them is the full archive, including the concepts we built to try an idea.",
+    indexBody: "Our own products and the work we did for clients.",
     archiveLabel: "The whole archive",
     archiveAside: "Filter by domain and status",
     worldNote: "Opens Archon World, on this site",
@@ -247,6 +248,32 @@ const en = {
   how: {
     title: "How a job goes, and what you get at each step.",
     more: "The process in detail",
+  },
+
+  wa: { label: "WhatsApp", text: "Hello, I am writing from archonsoft.tr." },
+
+  numbers: [
+    { value: "45", label: "active schools on DP Pano" },
+    { value: "6", label: "active workshops on AracımGo, before any marketing" },
+    { value: "37", label: "games on Oyundal" },
+    { value: "2,000", label: "people signed up to Meetzy, roughly" },
+  ],
+
+  servicePage: {
+    indexTitle: "Software company in Ankara: services and prices",
+    indexDescription: "Websites from 10,000 TL, mobile apps, custom software, e-commerce, AI and automation. A software studio in Ankara working across Türkiye.",
+    indexLead: "What",
+    indexAccent: "we build.",
+    indexBody: "Pick a service to see what it includes and how pricing works. We are in Ankara and work across Türkiye.",
+    from: "From 10,000 TL",
+    quote: "Get a quote",
+    includes: "What is included",
+    forWhom: "Who it is for",
+    work: "Where we have done it",
+    faq: "Questions",
+    others: "Other services",
+    details: "Details and pricing",
+    waText: "Hello, I am writing from archonsoft.tr about:",
   },
 
   chrome: {
@@ -284,9 +311,9 @@ const en = {
     index: "07",
     label: "Start",
     aside: "Open for new work",
-    statement: "Bring the problem.",
-    statementAccent: "We build the system.",
-    body: "Tell us what you are trying to build and what is making it hard. A few lines are enough.",
+    statement: "Let’s talk about",
+    statementAccent: "your project.",
+    body: "Write a few lines, or message us on WhatsApp.",
     expect: [
       { label: "A reply", value: "Usually within two working days, from me." },
       { label: "A conversation", value: "Scope, constraints, timing. No pitch deck." },
@@ -326,6 +353,9 @@ const en = {
       sentBody:
         "We read everything and reply from a real address, usually within two working days.",
       notSent: "Not sent",
+      waTitle: "One last tap: send it on WhatsApp.",
+      waBody: "Your message is ready. WhatsApp opens with everything you wrote; just press send.",
+      waSend: "Send on WhatsApp",
       unconfiguredTitle: "This form is not connected to a mail provider yet.",
       unconfiguredBody:
         "We will not pretend a message went through when it did not. Nothing you typed has been lost — go back and it is all still there.",
@@ -422,13 +452,13 @@ const en = {
   process: {
     index: "06",
     label: "Process",
-    aside: "One studio, six stages",
-    statement: "From a sentence to a",
-    statementAccent: "release.",
-    body: "The reason this is worth writing down is that most of it usually happens at a handover between two companies. Here it does not happen at a handover at all.",
+    aside: "Six steps",
+    statement: "How a job",
+    statementAccent: "goes.",
+    body: "Six steps, what happens in each and what we need from you.",
     happens: "What happens",
     output: "What comes out of it",
-    yours: "What you do",
+    yours: "What we need from you",
     detail: "The full process",
     stage: "Stage",
   },
@@ -729,7 +759,7 @@ const tr: Dictionary = {
     tagline: "Sıradakini biz kuruyoruz.",
     description:
       "Web, mobil uygulama, yapay zekâ ve özel yazılım çözümleri geliştiriyoruz. Fikrinizi tasarımdan çalışan ürüne kadar uçtan uca hayata geçiriyoruz.",
-    home: { title: "Archon Soft — Uygulama, web sitesi ve özel yazılım" },
+    home: { title: "Archon Soft — Ankara Yazılım Şirketi: mobil uygulama, web sitesi, özel yazılım" },
     work: {
       title: "İşler",
       description:
@@ -766,6 +796,7 @@ const tr: Dictionary = {
   },
 
   nav: {
+    services: "Hizmetler",
     privacy: "Gizlilik",
     work: "Projeler",
     capabilities: "Yetkinlikler",
@@ -795,7 +826,7 @@ const tr: Dictionary = {
     ctaContact: "Projenizi anlatın",
     assembling: "Kuruluyor",
     liveProduct: "Canlı ürün",
-    proofFacts: "Yaklaşık üç aydır canlı · 2.000 civarı kayıt · tek stüdyoda kuruldu",
+    proofFacts: "Canlı · 2.000 civarı kayıt · tek stüdyoda kuruldu",
     proofNote: "İnsanların kullandığı bir üründen gerçek bir ekran; maket değil.",
     disciplines: ["Ürünler", "Sistemler", "Ticaret", "Yapay zekâ", "Otomasyon", "Veri"],
     positioning: ["Dijital ürünler.", "Yaratıcı teknoloji.", "Sürükleyici sistemler."],
@@ -892,7 +923,7 @@ const tr: Dictionary = {
     explore: "Örnekleri keşfet",
     worldCta: "Dünyada keşfet",
     leadIntro: "Bunu kendi projeniz için hayata geçirelim.",
-    cta: "Projemi anlat",
+    cta: "Projenizi anlatın",
     back: "Hizmeti değiştir",
     selected: "Seçilen hizmet",
     formTitle: "Projenizi anlatın.",
@@ -908,9 +939,9 @@ const tr: Dictionary = {
   showcase: {
     label: "Seçili projeler",
     aside: "Canlı ve uçtan uca kuruldu",
-    statement: "Açıp kullanabileceğiniz beş iş.",
+    statement: "Yayına aldığımız beş iş.",
     statementAccent: "inceleyebileceğin işler.",
-    body: "Hiçbiri maket değil. Linklere basın, hepsi çalışıyor.",
+    body: "Linklere basın, kendiniz deneyin.",
     explore: "Projeyi incele",
     exploreShort: "İncele",
     enterWorld: "Dünyaya gir",
@@ -937,7 +968,7 @@ const tr: Dictionary = {
     redacted: "Uygulama ekranları: kullanıcı isimleri ve yüzleri kaldırıldı",
     indexLead: "Çalışan",
     indexAccent: "ürünler.",
-    indexBody: "Oto servis platformundan kafe oyunlarına altı canlı iş. Altında, bir fikri denemek için yaptığımız konseptler dahil bütün arşiv.",
+    indexBody: "Kendi ürünlerimiz ve müşterilerimiz için yaptıklarımız.",
     archiveLabel: "Tüm arşiv",
     archiveAside: "Alana ve duruma göre filtrele",
     worldNote: "Archon Dünyası'nı bu sitede açar",
@@ -947,6 +978,32 @@ const tr: Dictionary = {
   how: {
     title: "İş nasıl ilerler, her adımda elinize ne geçer.",
     more: "Sürecin ayrıntısı",
+  },
+
+  wa: { label: "WhatsApp", text: "Merhaba, archonsoft.tr üzerinden yazıyorum." },
+
+  numbers: [
+    { value: "45", label: "aktif okul DP Pano kullanıyor" },
+    { value: "6", label: "aktif servis AracımGo'da, daha pazarlama yapılmadan" },
+    { value: "37", label: "oyun Oyundal'da" },
+    { value: "2.000", label: "civarında kişi Meetzy'ye kaydoldu" },
+  ],
+
+  servicePage: {
+    indexTitle: "Ankara Yazılım Şirketi: hizmetler ve fiyatlar",
+    indexDescription: "10.000 TL'den başlayan web sitesi, mobil uygulama, özel yazılım, e-ticaret, yapay zekâ ve otomasyon. Ankara'da yazılım stüdyosu, tüm Türkiye'ye hizmet.",
+    indexLead: "Neler",
+    indexAccent: "yapıyoruz?",
+    indexBody: "Bir hizmet seçin; neleri kapsadığını ve fiyatın nasıl belirlendiğini görün. Ankara'dayız, tüm Türkiye ile çalışıyoruz.",
+    from: "10.000 TL'den",
+    quote: "Teklif alın",
+    includes: "Neler dahil",
+    forWhom: "Kimler için",
+    work: "Daha önce nerede yaptık",
+    faq: "Sık sorulanlar",
+    others: "Diğer hizmetler",
+    details: "Ayrıntı ve fiyat",
+    waText: "Merhaba, archonsoft.tr üzerinden yazıyorum. Konu:",
   },
 
   chrome: {
@@ -984,9 +1041,9 @@ const tr: Dictionary = {
     index: "07",
     label: "Başla",
     aside: "Yeni işlere açık",
-    statement: "Problemi getirin.",
-    statementAccent: "Sistemi biz kuralım.",
-    body: "Ne yaptırmak istediğinizi ve sizi neyin zorladığını yazın. Birkaç satır yeter.",
+    statement: "Projenizi",
+    statementAccent: "konuşalım.",
+    body: "Birkaç satır yazın ya da WhatsApp’tan mesaj atın.",
     expect: [
       { label: "Bir cevap", value: "Genelde iki iş günü içinde, doğrudan stüdyodan." },
       { label: "Bir konuşma", value: "Kapsam, kısıtlar, zamanlama. Sunum yok." },
@@ -1025,6 +1082,9 @@ const tr: Dictionary = {
       sentBody:
         "Her mesajı okuyor ve gerçek bir adresten cevap veriyoruz, genelde iki iş günü içinde.",
       notSent: "Gönderilemedi",
+      waTitle: "Son bir dokunuş: WhatsApp’tan gönderin.",
+      waBody: "Mesajınız hazır. WhatsApp yazdıklarınızla açılacak, göndermeniz yeterli.",
+      waSend: "WhatsApp’tan gönder",
       unconfiguredTitle: "Bu form henüz bir mail sağlayıcısına bağlı değil.",
       unconfiguredBody:
         "Gitmeyen bir mesajı gitmiş gibi göstermeyiz. Yazdığın hiçbir şey kaybolmadı — geri dön, hepsi duruyor.",
@@ -1035,7 +1095,7 @@ const tr: Dictionary = {
       alsoEmail: "Dilersen",
       alsoEmailLink: "e-posta ile gönderebilirsin",
       orEmail: "Ya da doğrudan",
-      directly: "adresine yaz",
+      directly: "adresine yazın",
       errors: {
         name: "Adınızı yazar mısınız.",
         nameLong: "Bu isim fazla uzun.",
@@ -1121,13 +1181,13 @@ const tr: Dictionary = {
   process: {
     index: "06",
     label: "Süreç",
-    aside: "Tek stüdyo, altı aşama",
-    statement: "Bir cümleden bir",
-    statementAccent: "yayına.",
-    body: "Bunu yazmaya değmesinin sebebi şu: bu işin çoğu genelde iki şirket arasındaki bir devir teslimde olur. Burada hiçbir devir teslimde olmuyor.",
+    aside: "Altı adım",
+    statement: "Bir iş",
+    statementAccent: "nasıl ilerler?",
+    body: "Altı adım; her birinde ne oluyor ve sizden ne istiyoruz.",
     happens: "Ne oluyor",
     output: "Ortaya ne çıkıyor",
-    yours: "Sen ne yapıyorsun",
+    yours: "Sizden ne istiyoruz",
     detail: "Sürecin tamamı",
     stage: "Aşama",
   },

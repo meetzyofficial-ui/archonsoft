@@ -6,7 +6,7 @@ import { MediaStage } from "@/components/projects/ProjectStage";
 import { ContactForm } from "@/components/sections/ContactForm";
 import { ServiceGallery } from "@/components/services/ServiceGallery";
 import { useWebGL } from "@/components/world/WorldInvite";
-import { conceptTitle } from "@/data/labs/titles";
+import { pageForService } from "@/data/servicePages";
 import { SERVICES, getService, type Service } from "@/data/services";
 import type { ServiceId } from "@/data/serviceIds";
 import type { Copy } from "@/i18n/dictionary";
@@ -111,6 +111,7 @@ export function ServiceExplorer({
   return (
     <section
       id="services"
+      data-track-section="hizmet-secici"
       data-band="paper"
       aria-labelledby="services-title"
       className="relative scroll-mt-16 py-16 md:py-28"
@@ -280,20 +281,17 @@ function ServicePanel({
         </div>
 
         {/* The stage only exists for the open service: nothing else loads. */}
-        {open ? (
+        {open && service.hero.length > 0 ? (
           <div className="service-stage mt-10">
             <MediaStage media={service.hero} accent={service.accent} locale={locale} size="hero" />
-            {service.hero.some((media) => media.concept) ? (
-              <p className="mono-micro mt-3 text-[var(--fg-mute)]">
-                <span className="chip mono-micro mr-2">{c.conceptBadge}</span>
-                {t(service.hero.find((media) => media.concept)!.context, locale)}
-              </p>
-            ) : null}
           </div>
         ) : null}
 
         <div className="mt-8 flex flex-wrap items-center gap-3">
-          {open ? (
+          <Link href={localePath(locale, `/hizmetler/${pageForService(service.id).slug}`)} className="btn-raised btn-ghost">
+            {copy.servicePage.details}
+          </Link>
+          {open && service.gallery.length > 1 ? (
             <button
               type="button"
               onClick={() => onExplore(0)}
@@ -318,7 +316,7 @@ function ServicePanel({
           ) : null}
         </div>
 
-        {related.length > 0 || service.concepts.length > 0 || service.technologies ? (
+        {related.length > 0 || service.technologies ? (
           <dl className="service-evidence mt-10">
             {related.length > 0 ? (
               <div className="service-evidence__row">
@@ -334,22 +332,6 @@ function ServicePanel({
                       <span className="font-medium">{project.title}</span>
                       <span className="mono-micro text-[var(--fg-mute)]">{project.category}</span>
                       <span aria-hidden="true" className="arrow-rule" />
-                    </Link>
-                  ))}
-                </dd>
-              </div>
-            ) : null}
-            {service.concepts.length > 0 ? (
-              <div className="service-evidence__row">
-                <dt className="mono-micro text-[var(--fg-mute)]">{c.concepts}</dt>
-                <dd className="flex flex-wrap gap-x-5 gap-y-1">
-                  {service.concepts.map((slug) => (
-                    <Link
-                      key={slug}
-                      href={localePath(locale, `/labs/${slug}`)}
-                      className="link-rule inline-flex min-h-11 items-center text-[var(--fg-dim)] hover:text-[var(--fg)]"
-                    >
-                      {conceptTitle(slug, locale)}
                     </Link>
                   ))}
                 </dd>

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { hasErrors, validateContact, type ContactPayload } from "@/lib/contact";
+import { storeLead, updateLead } from "@/lib/leadStore";
 import { SITE } from "@/lib/site";
 
 export const runtime = "nodejs";
@@ -124,11 +125,22 @@ export async function POST(request: Request) {
     message: body.message!.trim(),
   };
 
+  /* Kept first, where a store is configured, so a mail failure loses nothing.
+     Only then is it enough on its own. */
+  const stored = await storeLead({ ...payload, source: "contact", createdAt: new Date().toISOString(), status: "new" });
+  const kept = stored.where === "firestore";
+
   try {
     await deliver(payload);
+    await updateLead(stored, { status: "notified" });
     return NextResponse.json({ ok: true });
   } catch (error) {
     const reason = error instanceof Error ? error.message : "UNKNOWN";
+
+    if (kept) {
+      await updateLead(stored, { status: "failed" });
+      return NextResponse.json({ ok: true });
+    }
 
     if (reason === "NOT_CONFIGURED") {
       return NextResponse.json(

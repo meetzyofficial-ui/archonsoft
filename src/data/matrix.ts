@@ -114,8 +114,8 @@ export const MATRIX: MatrixRow[] = [
       slug: "meetzy",
       name: "Meetzy",
       note: {
-        en: "Live on phones for about three months. The screens on this site are captures of it.",
-        tr: "Yaklaşık üç aydır telefonlarda canlı. Bu sitedeki ekranlar onun kayıtları.",
+        en: "Live on phones. The screens on this site are captures of it.",
+        tr: "Telefonlarda canlı. Bu sitedeki ekranlar onun kayıtları.",
       },
     },
   },

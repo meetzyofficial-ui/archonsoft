@@ -398,8 +398,8 @@ export const PROJECTS: Project[] = [
       tr: "Bir etkinliğe gitmek kolay. Zor olan, birlikte gidecek doğru kişiyi bulmak.",
     },
     standfirst: {
-      en: "Meetzy is a social app for finding people to go to things with. Not a listings app and not a ticketing app — the event is the excuse, and the product's real job is the match. It has been live for about three months and around 2,000 people have signed up.",
-      tr: "Meetzy, bir şeye birlikte gidecek insanları bulmak için bir sosyal uygulama. Ne bir etkinlik listesi ne de bir biletleme uygulaması — etkinlik bahane, ürünün asıl işi eşleştirme. Yaklaşık üç aydır canlı ve şu ana kadar 2.000 civarında kişi kaydoldu.",
+      en: "Meetzy is a social app for finding people to go to things with. Not a listings app and not a ticketing app — the event is the excuse, and the product's real job is the match. It is live, with around 2,000 signups.",
+      tr: "Meetzy, bir şeye birlikte gidecek insanları bulmak için bir sosyal uygulama. Ne bir etkinlik listesi ne de bir biletleme uygulaması — etkinlik bahane, ürünün asıl işi eşleştirme. Yayında ve 2.000 civarında kişi kaydoldu.000 civarında kişi kaydoldu.",
     },
     statement: {
       en: "The hard part was never the event. It was the company.",
@@ -407,10 +407,6 @@ export const PROJECTS: Project[] = [
     },
     facts: [
       { label: { en: "Status", tr: "Durum" }, value: { en: "Live", tr: "Canlı" } },
-      {
-        label: { en: "Live for", tr: "Yayında" },
-        value: { en: "About three months", tr: "Yaklaşık üç aydır" },
-      },
       {
         label: { en: "Signed up", tr: "Kayıtlı kişi" },
         value: { en: "Around 2,000 people", tr: "Yaklaşık 2.000 kişi" },
@@ -657,7 +653,7 @@ export const PROJECTS: Project[] = [
         },
       },
     ],
-    link: { label: "erdendavetiye.com", href: "https://erdendavetiye.com" },
+    /* erdendavetiye.com answered 500 on 2026-11-26; put the link back when it is up. */
   },
 ];
 

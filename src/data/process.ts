@@ -29,7 +29,7 @@ export const PROCESS: Stage[] = [
     title: { en: "Discover", tr: "Keşif" },
     precis: {
       en: "Deciding what the thing is, and what it refuses to be.",
-      tr: "Şeyin ne olduğuna ve neyi olmayı reddettiğine karar vermek.",
+      tr: "Neyin yapılacağına, neyin yapılmayacağına birlikte karar veriyoruz.",
     },
     happens: {
       en: [
@@ -38,9 +38,9 @@ export const PROCESS: Stage[] = [
         "The hard constraints surface early — the integration nobody mentioned, the data that does not exist yet, the thing legal will ask about.",
       ],
       tr: [
-        "Problemin tek paragrafta, senin kelimelerinle yazılıp mutabık kalınıyor.",
-        "İş kesiliyor: önce ne çıkacak, ne bekleyecek, ne hiç kurulmayacak.",
-        "Sert kısıtlar erken çıkıyor — kimsenin söylemediği entegrasyon, henüz var olmayan veri, hukukun soracağı şey.",
+        "İhtiyacınızı dinleyip sizin kelimelerinizle tek sayfaya yazıyoruz.",
+        "İlk sürümde ne olacağını, neyin sonraya kalacağını netleştiriyoruz.",
+        "Bağlanacak sistemleri, taşınacak verileri ve yasal gereklilikleri baştan çıkarıyoruz.",
       ],
     },
     output: {
@@ -49,7 +49,7 @@ export const PROCESS: Stage[] = [
     },
     yours: {
       en: "An hour or two of your time and honest answers about what already exists.",
-      tr: "Bir iki saatin ve zaten neyin var olduğuna dair dürüst cevaplar.",
+      tr: "Bir iki saatiniz ve elinizde ne olduğunu anlatmanız.",
     },
   },
   {
@@ -59,7 +59,7 @@ export const PROCESS: Stage[] = [
     title: { en: "Design", tr: "Tasarım" },
     precis: {
       en: "The product map first, then the screens it implies.",
-      tr: "Önce ürün haritası, sonra onun gerektirdiği ekranlar.",
+      tr: "Önce işleyiş, sonra ekranlar.",
     },
     happens: {
       en: [
@@ -68,28 +68,28 @@ export const PROCESS: Stage[] = [
         "The main flows are drawn end to end before anything is built.",
       ],
       tr: [
-        "Nesneler adlandırılıyor — bir kaydın ne olduğu, hangi durumlardan geçtiği, kimin dokunabileceği.",
-        "Arayüz tasarımı bunun önünde değil, ardından geliyor; böylece ekranlar verinin karşılayamayacağı bir şeyi vaat edemiyor.",
-        "Ana akışlar, hiçbir şey kurulmadan uçtan uca çiziliyor.",
+        "Kim neyi görecek, neyi değiştirecek; kullanıcı tiplerini ve akışları çıkarıyoruz.",
+        "Ekranları telefon ve bilgisayar için tasarlıyoruz.",
+        "Kod yazılmadan önce tıklanabilir hâlini görüyorsunuz.",
       ],
     },
     output: {
       en: "A data model and the screens, both agreed before code exists.",
-      tr: "Bir veri modeli ve ekranlar; ikisi de kod yazılmadan önce onaylanmış.",
+      tr: "Kod yazılmadan önce onayladığınız ekranlar.",
     },
     yours: {
       en: "Reading it and saying where it is wrong. That is cheapest here.",
-      tr: "Okuyup nerede yanlış olduğunu söylemek. En ucuz olduğu yer burası.",
+      tr: "Bakıp değişmesini istediğiniz yeri söylemeniz. Değişikliğin en ucuz olduğu an bu.",
     },
   },
   {
     index: "03",
     id: "build",
     icon: "grid",
-    title: { en: "Build", tr: "Kurulum" },
+    title: { en: "Build", tr: "Yazılım" },
     precis: {
       en: "Client, server, database and the admin, as one job.",
-      tr: "İstemci, sunucu, veritabanı ve yönetim paneli; tek iş olarak.",
+      tr: "Uygulama, sunucu ve yönetim paneli birlikte yapılıyor.",
     },
     happens: {
       en: [
@@ -98,9 +98,9 @@ export const PROCESS: Stage[] = [
         "The admin is built alongside the product, not bolted on at the end when there is no budget left for it.",
       ],
       tr: [
-        "Dikey dilimler hâlinde kuruluyor — bir seferde uçtan uca çalışan tek bir özellik; backend bekleyen bitmiş bir frontend değil.",
-        "Erkenden çalışan bir adres alıyorsun ve çalışmaya devam ediyor; böylece ilerleme, sana anlatılan değil açabildiğin bir şey oluyor.",
-        "Yönetim paneli ürünle birlikte kuruluyor; bütçe bittiğinde sonuna eklenen bir şey değil.",
+        "Özellikleri tek tek, çalışır hâlde bitiriyoruz.",
+        "Size erkenden bir deneme adresi veriyoruz; ilerlemeyi açıp kendiniz görüyorsunuz.",
+        "Yönetim panelini sona bırakmıyor, ürünle birlikte yapıyoruz.",
       ],
     },
     output: {
@@ -109,17 +109,17 @@ export const PROCESS: Stage[] = [
     },
     yours: {
       en: "Looking at it weekly and reacting. Nothing else.",
-      tr: "Haftada bir bakıp tepki vermek. Başka bir şey değil.",
+      tr: "Deneme adresine bakıp görüşünüzü söylemeniz.",
     },
   },
   {
     index: "04",
     id: "connect",
     icon: "plug",
-    title: { en: "Connect", tr: "Bağlantı" },
+    title: { en: "Connect", tr: "Entegrasyon" },
     precis: {
       en: "Payments, mail, messaging, accounting, whatever already exists.",
-      tr: "Ödeme, e-posta, mesajlaşma, muhasebe; zaten ne varsa.",
+      tr: "Ödeme, e-posta, WhatsApp, muhasebe; kullandığınız ne varsa.",
     },
     happens: {
       en: [
@@ -128,9 +128,9 @@ export const PROCESS: Stage[] = [
         "Anything that has to be reconciled later is designed to be reconcilable now.",
       ],
       tr: [
-        "Zaten para verdiğin sistemler değiştirilmiyor, bağlanıyor.",
-        "Hata durumları açıkça ele alınıyor — zaman aşımı, mükerrer kayıt, iki kez gelen webhook — çünkü entegrasyonlar asıl orada kaybediliyor.",
-        "Sonradan mutabık kalınması gereken her şey, şimdi mutabık kalınabilir olacak şekilde tasarlanıyor.",
+        "Kullandığınız sistemleri değiştirmiyor, bağlıyoruz.",
+        "Bağlantı koptuğunda ya da kayıt iki kez geldiğinde ne olacağını da kuruyoruz.",
+        "Ödeme ve kayıtların sonradan kontrol edilebilmesini sağlıyoruz.",
       ],
     },
     output: {
@@ -139,7 +139,7 @@ export const PROCESS: Stage[] = [
     },
     yours: {
       en: "Access, and the name of whoever owns each existing system.",
-      tr: "Erişim ve mevcut her sistemin sahibinin adı.",
+      tr: "Bağlanacak sistemlerin erişim bilgileri.",
     },
   },
   {
@@ -149,18 +149,18 @@ export const PROCESS: Stage[] = [
     title: { en: "Launch", tr: "Yayın" },
     precis: {
       en: "Live, with the boring parts done.",
-      tr: "Canlı; sıkıcı kısımları da yapılmış hâlde.",
+      tr: "Ürün canlıya çıkıyor.",
     },
     happens: {
       en: [
-        "Environments, domains, certificates, backups and the accounts that own them — in your name, not mine.",
+        "Environments, domains, certificates, backups and the accounts that own them — in your name, not ours.",
         "Whoever will operate the admin is walked through it until they are not asking questions.",
         "Analytics goes in before launch, not after, so the first week is measurable.",
       ],
       tr: [
-        "Ortamlar, alan adları, sertifikalar, yedekler ve bunların sahibi olan hesaplar — benim değil, senin adına.",
-        "Yönetim panelini kullanacak kişi, soru sormayı bırakana kadar gezdiriliyor.",
-        "Analitik yayından sonra değil önce konuyor; böylece ilk hafta ölçülebilir oluyor.",
+        "Alan adı, sertifika, yedek ve hesaplar sizin adınıza kuruluyor.",
+        "Paneli kullanacak kişilere ekran ekran anlatıyoruz.",
+        "Ziyaretçi ölçümünü yayından önce kuruyoruz ki ilk günden görebilesiniz.",
       ],
     },
     output: {
@@ -169,28 +169,28 @@ export const PROCESS: Stage[] = [
     },
     yours: {
       en: "Deciding when. The technical readiness is our problem.",
-      tr: "Ne zaman olacağına karar vermek. Teknik hazırlık benim işim.",
+      tr: "Ne zaman yayına çıkacağına karar vermeniz. Teknik hazırlık bizde.",
     },
   },
   {
     index: "06",
     id: "iterate",
     icon: "flow",
-    title: { en: "Iterate", tr: "İterasyon" },
+    title: { en: "Iterate", tr: "İyileştirme" },
     precis: {
       en: "What the first weeks show, acted on.",
-      tr: "İlk haftaların gösterdiğini uygulamak.",
+      tr: "Kullanımı görüp iyileştiriyoruz.",
     },
     happens: {
       en: [
         "The measurement that went in before launch starts answering questions, and the answers are usually not the ones anyone expected.",
-        "Changes are made against evidence rather than against opinion, including mine.",
+        "Changes are made against evidence rather than against opinion, including ours.",
         "If the right answer is that nothing more should be built yet, that is said out loud.",
       ],
       tr: [
-        "Yayından önce konan ölçüm soruları cevaplamaya başlıyor ve cevaplar genelde kimsenin beklediği cevaplar olmuyor.",
-        "Değişiklikler görüşe değil kanıta göre yapılıyor; benim görüşüm de dâhil.",
-        "Doğru cevap henüz bir şey kurulmaması ise, bu açıkça söyleniyor.",
+        "İnsanlar neyi kullanıyor, nerede takılıyor, bakıyoruz.",
+        "Değişiklikleri tahmine değil kullanıma göre yapıyoruz.",
+        "Yeni bir şeye gerek yoksa bunu da söylüyoruz.",
       ],
     },
     output: {
@@ -199,7 +199,7 @@ export const PROCESS: Stage[] = [
     },
     yours: {
       en: "Deciding what is worth the next round.",
-      tr: "Sonraki tura neyin değdiğine karar vermek.",
+      tr: "Sırada ne olacağına karar vermeniz.",
     },
   },
 ];

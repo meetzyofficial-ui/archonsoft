@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { ProcessBand } from "@/components/sections/Approach";
-import { ContactCta } from "@/components/sections/ContactCta";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Band } from "@/components/ui/primitives";
 import { PROCESS } from "@/data/process";
@@ -73,7 +72,6 @@ export default async function ProcessPage({ params }: Params) {
         <ProcessBand locale={locale} copy={copy} detailed withHead={false} />
       </Band>
 
-      <ContactCta locale={locale} copy={copy} />
     </>
   );
 }

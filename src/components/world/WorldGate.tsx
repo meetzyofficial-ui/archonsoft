@@ -7,6 +7,7 @@ import type { Copy } from "@/i18n/dictionary";
 import type { Locale } from "@/lib/i18n";
 import { OPEN_WORLD_EVENT } from "@/components/world/openWorld";
 import type { WorldPayload } from "@/lib/worldPayload";
+import { report } from "@/components/site/Measure";
 import { WORLD_OPEN_ATTRIBUTE } from "@/lib/worldOpen";
 
 export type WorldCopy = Copy["world"];
@@ -105,6 +106,7 @@ export function WorldGate({
     const onAsk = () => {
       setInput(pickInput());
       setOpen(true);
+      report("world", "Dünyaya girdi");
     };
     window.addEventListener(OPEN_WORLD_EVENT, onAsk);
     return () => window.removeEventListener(OPEN_WORLD_EVENT, onAsk);

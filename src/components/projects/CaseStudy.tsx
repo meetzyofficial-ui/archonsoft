@@ -6,8 +6,8 @@ import { Reveal } from "@/components/motion/Reveal";
 import { ScrollFrame } from "@/components/motion/ScrollFrame";
 import { ScrollLit } from "@/components/motion/ScrollLit";
 import { MediaPlate } from "@/components/projects/MediaPlate";
+import { StoreLinks } from "@/components/projects/StoreLinks";
 import { ProjectStage } from "@/components/projects/ProjectStage";
-import { ContactCta } from "@/components/sections/ContactCta";
 import { SectionRule } from "@/components/ui/primitives";
 import { WorldEnterButton } from "@/components/world/WorldInvite";
 import { panelStyle } from "@/data/panels";
@@ -295,7 +295,6 @@ export function CaseStudy({
 
       <NextProject next={next} locale={locale} copy={copy} />
 
-      <ContactCta locale={locale} copy={copy} />
     </div>
   );
 }
@@ -373,6 +372,7 @@ function LiveActions({ project, locale, copy }: { project: ShowcaseProject; loca
           <span aria-hidden="true" className="arrow-rule" />
         </a>
       ) : null}
+      {project.stores ? <StoreLinks stores={project.stores} /> : null}
       {project.demo ? (
         <a
           href={project.demo.href}

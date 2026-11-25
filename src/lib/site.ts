@@ -27,24 +27,16 @@ export const SITE = {
 export const CONTACT_EMAIL: string | null =
   process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || "info@archonsoft.tr";
 
-export type NavItem = {
-  label: string;
-  href: string;
-  /** Index shown alongside the label in the overlay navigation. */
-  index: string;
-};
-
-export const NAV: readonly NavItem[] = [
-  { label: "Work", href: "/projects", index: "01" },
-  { label: "Capabilities", href: "/capabilities", index: "02" },
-  { label: "Lab", href: "/lab", index: "03" },
-  { label: "About", href: "/about", index: "04" },
-  { label: "Contact", href: "/contact", index: "05" },
-];
 
 /**
  * Social profiles are intentionally empty until real accounts exist.
  * The footer renders this list only when it has entries, so no placeholder
  * or dead links are ever shipped.
  */
-export const SOCIALS: readonly { label: string; href: string }[] = [];
+export const SOCIALS: readonly { label: string; href: string }[] = [
+  { label: "Instagram", href: "https://www.instagram.com/archondijital.co/" },
+];
+
+export const PHONE = "0552 159 20 02";
+export const PHONE_E164 = "+905521592002";
+export const whatsappLink = (text: string) => `https://wa.me/905521592002?text=${encodeURIComponent(text)}`;

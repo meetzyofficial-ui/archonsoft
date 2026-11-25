@@ -7,7 +7,6 @@ import { LabSurface } from "@/components/labs/LabSurface";
 import { SystemStack } from "@/components/labs/SystemStack";
 import { Reveal } from "@/components/motion/Reveal";
 import { SplitReveal } from "@/components/motion/SplitReveal";
-import { ContactCta } from "@/components/sections/ContactCta";
 import { Provenance } from "@/components/ui/Provenance";
 import { Band, SectionRule } from "@/components/ui/primitives";
 import { LABS, getDomain, getLab, getNextLab } from "@/data/labs";
@@ -37,6 +36,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
   return {
     title,
+    robots: { index: false, follow: true },
     description,
     alternates: {
       canonical: `/${locale}/labs/${lab.slug}`,
@@ -327,8 +327,6 @@ export default async function LabPage({ params }: Params) {
           </Reveal>
         </div>
       </Band>
-
-      <ContactCta locale={locale} copy={copy} />
     </div>
   );
 }

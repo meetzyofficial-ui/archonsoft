@@ -7,7 +7,7 @@ import type { Locale } from "@/lib/i18n";
 /** The way into Archon World, from the page. */
 export function WorldEntry({ locale, copy }: { locale: Locale; copy: Copy }) {
   return (
-    <section id="world" data-scheme="black" className="bg-[var(--color-black)] text-[var(--fg)]">
+    <section id="world" data-track-section="dunya-tanitim" data-scheme="black" className="bg-[var(--color-black)] text-[var(--fg)]">
       <div className="frame grid gap-8 py-16 md:grid-cols-12 md:items-end md:py-24">
         <div className="md:col-span-7">
           <h2 className="text-section">
