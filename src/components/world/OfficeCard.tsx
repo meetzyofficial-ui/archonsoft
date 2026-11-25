@@ -220,10 +220,10 @@ export function OfficeCard({
     setForm((current) => ({ ...current, [key]: value }));
   };
 
-  const accent = department?.office?.accent ?? "#f2a889";
+  const accent = department?.office?.accent ?? "#ff7a1a";
   const title = department ? t(department.name, locale) : copy.label;
   const inputClass =
-    "w-full border border-[rgba(255,244,232,0.18)] bg-[rgba(6,12,26,0.6)] px-3 py-3 text-[1rem] text-[var(--fg)] outline-none transition-colors placeholder:text-[var(--fg-mute)] focus:border-[var(--accent)]";
+    "w-full border border-[rgba(255,244,232,0.18)] bg-[rgba(16,15,14,0.6)] px-3 py-3 text-[1rem] text-[var(--fg)] outline-none transition-colors placeholder:text-[var(--fg-mute)] focus:border-[var(--accent)]";
   const errorText = (key: keyof LeadErrors) => (errors[key] ? copy.errors[errors[key]!] : null);
 
   return (
@@ -244,7 +244,7 @@ export function OfficeCard({
           )}
           style={{
             ["--accent" as string]: accent,
-            background: "linear-gradient(180deg, rgba(20,34,66,0.8), rgba(8,14,30,0.92))",
+            background: "linear-gradient(180deg, rgba(42,39,37,0.8), rgba(19,17,16,0.92))",
             backdropFilter: "blur(14px)",
             WebkitBackdropFilter: "blur(14px)",
             borderRadius: touch ? undefined : "var(--radius-hair)",

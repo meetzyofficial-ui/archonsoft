@@ -94,12 +94,12 @@ export function paintPanel(content: PanelContent): SurfacePaint {
        backlight is, so white type stands on it at full contrast. */
     ctx.clearRect(0, 0, w, h);
     const plate = ctx.createLinearGradient(0, 0, 0, h);
-    plate.addColorStop(0, "rgba(14,24,46,0.94)");
-    plate.addColorStop(1, "rgba(5,9,20,0.92)");
+    plate.addColorStop(0, "rgba(29,27,26,0.94)");
+    plate.addColorStop(1, "rgba(12,11,11,0.92)");
     ctx.fillStyle = plate;
     ctx.fillRect(0, 0, w, h);
     /* Fine scan lines, very faint. */
-    ctx.fillStyle = "rgba(154,214,255,0.03)";
+    ctx.fillStyle = "rgba(253,145,63,0.03)";
     for (let line = 0; line < h; line += Math.max(3, Math.round(6 * scale))) {
       ctx.fillRect(0, line, w, 1);
     }
@@ -135,7 +135,7 @@ export function paintPanel(content: PanelContent): SurfacePaint {
     /* Shadows are measured in canvas pixels, not in the layout's units. */
     const density = ctx.getTransform().a || 1;
     const glow = (on: boolean) => {
-      ctx.shadowColor = on ? "rgba(214,236,255,0.42)" : "rgba(0,0,0,0)";
+      ctx.shadowColor = on ? "rgba(229,227,226,0.42)" : "rgba(0,0,0,0)";
       ctx.shadowBlur = on ? Math.max(8, 18 * scale) * density : 0;
     };
 
@@ -192,9 +192,9 @@ export function paintPanel(content: PanelContent): SurfacePaint {
         if (ly + rowHeight * 0.6 > h - pad) return;
         ctx.fillStyle = content.accent;
         ctx.fillRect(x, ly - size * 0.72, 3 * scale, size * 0.9);
-        ctx.fillStyle = "#f2f6fc";
+        ctx.fillStyle = "#f0f0ef";
         label(ctx, layer.label, x + 16 * scale, ly, Math.round(size * 0.74));
-        ctx.fillStyle = "rgba(220,228,244,0.9)";
+        ctx.fillStyle = "rgba(227,225,224,0.9)";
         ctx.font = font(SANS.replace("600", "500"), Math.round(size * 0.84));
         wrap(ctx, layer.detail, x + 16 * scale, ly + size * 1.05, columnWidth - 16 * scale, size * 1.05, 1);
       });
@@ -204,7 +204,7 @@ export function paintPanel(content: PanelContent): SurfacePaint {
     if (content.meta?.length) {
       let cursor = pad;
       const metaY = h - pad;
-      ctx.fillStyle = "rgba(226,233,246,0.94)";
+      ctx.fillStyle = "rgba(230,229,228,0.94)";
       for (const item of content.meta) {
         const size = Math.round(Math.min(24, w * 0.023));
         const end = label(ctx, item, cursor, metaY, size);

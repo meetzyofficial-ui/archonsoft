@@ -38,34 +38,34 @@ import type { TreeSpot } from "@/data/world-campus";
 export const MATERIAL = {
   /* Deep-space navy for anything you stand on or lean against. The colour
      in the world comes from its edges and its sky, not from its slabs. */
-  deck: "#152139",
-  deckDeep: "#0c1426",
-  structure: "#1b2740",
-  structureLight: "#2a3a5a",
-  recess: "#070b13",
-  bezel: "#182338",
+  deck: "#202124",
+  deckDeep: "#121315",
+  structure: "#2b2d30",
+  structureLight: "#474a4e",
+  recess: "#090808",
+  bezel: "#1e1d1d",
   /* Light metal — the robot, trims, the underside of a hologram. */
-  metal: "#a9bbd3",
-  white: "#e6eef8",
+  metal: "#b4b6b9",
+  white: "#eeeeee",
   /* The light itself. Baby blue is the world's own colour; cyan is energy,
      violet is depth, and the one warm note is kept for people and for the
      things you can act on. */
-  glow: "#9ad6ff",
-  cyan: "#4fd2ff",
-  violet: "#8f82ff",
-  warm: "#e6987a",
+  glow: "#ff8a2a",
+  cyan: "#ff7300",
+  violet: "#a8a29c",
+  warm: "#ff8a3c",
   /* Warm white: the edge light of the walkway and the hub, the colour the
      reference world draws its architecture in at night. */
   warmWhite: "#fff4e8",
-  peach: "#f2a889",
+  peach: "#ff7a1a",
   blush: "#f2a7c7",
   cream: "#f4e9dc",
   terracotta: "#c97a65",
   green: "#496b50",
   greenDeep: "#2f4a38",
   /* Polished dark stone: the material of the decks. */
-  stone: "#0a1327",
-  stoneLight: "#162542",
+  stone: "#131416",
+  stoneLight: "#26282b",
 } as const;
 
 /**
@@ -93,7 +93,7 @@ function usePavingTexture() {
       }
     }
     /* Seams. */
-    ctx.fillStyle = "#9aa4b8";
+    ctx.fillStyle = "#a8a49f";
     for (let k = 0; k <= 4; k += 1) {
       ctx.fillRect(k * 128 - 1, 0, 2, size);
       ctx.fillRect(0, k * 128 - 1, size, 2);
@@ -553,7 +553,7 @@ export function Island({
           <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.004, 0]}>
             <planeGeometry args={runner} />
             <meshPhysicalMaterial
-              color="#081426"
+              color="#161514"
               transparent
               opacity={0.5}
               roughness={0.08}
@@ -583,7 +583,7 @@ export function Island({
           {runner ? (
             <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.006, 0]}>
               <planeGeometry args={runner} />
-              <meshLambertMaterial color="#1a2942" />
+              <meshLambertMaterial color="#2d2a28" />
             </mesh>
           ) : null}
         </>
@@ -628,7 +628,7 @@ export function Island({
       {rock ? (
         <mesh position={[0, -depth - Math.max(w, d) * 0.22, 0]} rotation={[0, Math.PI / 8, 0]}>
           <cylinderGeometry args={[Math.min(w, d) * 0.42, Math.min(w, d) * 0.06, Math.max(w, d) * 0.44, 7, 1]} />
-          <meshLambertMaterial color="#0d162a" flatShading />
+          <meshLambertMaterial color="#1b1918" flatShading />
         </mesh>
       ) : null}
       {/* A ring of light turning slowly beneath the island. */}
@@ -666,7 +666,7 @@ export function FloorPlate({
       {runner ? (
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[at[0], 0.006, at[1]]}>
           <planeGeometry args={runner} />
-          <meshLambertMaterial color="#182338" />
+          <meshLambertMaterial color="#272423" />
         </mesh>
       ) : null}
     </group>
@@ -707,7 +707,7 @@ export function FloorJoints({
   return (
     <instancedMesh ref={mesh} args={[undefined, undefined, count]} frustumCulled={false}>
       <boxGeometry args={axis === "z" ? [across, 0.014, 0.06] : [0.06, 0.014, across]} />
-      <meshBasicMaterial color="#1e2c48" toneMapped={false} />
+      <meshBasicMaterial color="#322e2c" toneMapped={false} />
     </instancedMesh>
   );
 }
@@ -921,7 +921,7 @@ export function Doorway({
   return (
     <group position={at} rotation={[0, turn, 0]}>
       <mesh geometry={jambs}>
-        <meshStandardMaterial color="#aeb8c4" roughness={0.35} metalness={0.85} />
+        <meshStandardMaterial color="#b7b3b0" roughness={0.35} metalness={0.85} />
       </mesh>
       <mesh geometry={lit}>
         <Glow colour={colour} opacity={0.6} />
@@ -1040,7 +1040,7 @@ export function Label({
     <group position={at} rotation={[0, turn, 0]}>
       <mesh position={[0, 0, -0.01]}>
         <planeGeometry args={[w + 0.3, height + 0.2]} />
-        <meshBasicMaterial color="#0a1322" transparent opacity={0.55} toneMapped={false} depthWrite={false} />
+        <meshBasicMaterial color="#151413" transparent opacity={0.55} toneMapped={false} depthWrite={false} />
       </mesh>
       <mesh>
         <planeGeometry args={[w, height]} />
@@ -1222,9 +1222,9 @@ export function useWaterTexture() {
       const w = 2 + Math.random() * 9;
       const g = ctx.createLinearGradient(x - w / 2, 0, x + w / 2, 0);
       const a = 0.12 + Math.random() * 0.2;
-      g.addColorStop(0, "rgba(200,235,255,0)");
-      g.addColorStop(0.5, `rgba(220,242,255,${a})`);
-      g.addColorStop(1, "rgba(200,235,255,0)");
+      g.addColorStop(0, "rgba(222,221,219,0)");
+      g.addColorStop(0.5, `rgba(232,230,229,${a})`);
+      g.addColorStop(1, "rgba(222,221,219,0)");
       ctx.fillStyle = g;
       ctx.fillRect(x - w / 2, 0, w, 512);
     }
@@ -1234,7 +1234,7 @@ export function useWaterTexture() {
       const y0 = Math.random() * 512;
       const len = 60 + Math.random() * 260;
       const a = 0.35 + Math.random() * 0.5;
-      ctx.fillStyle = `rgba(240,250,255,${a})`;
+      ctx.fillStyle = `rgba(241,240,239,${a})`;
       ctx.fillRect(x, y0, 1 + Math.round(Math.random()), len);
       if (y0 + len > 512) ctx.fillRect(x, 0, 1, y0 + len - 512);
     }
@@ -1259,7 +1259,7 @@ export function useWaterTexture() {
 function LightFalls({ width, depth, colour }: { width: number; depth: number; colour: string }) {
   const texture = useWaterTexture();
   /* Water, lit by the island: mostly white, a breath of the island's colour. */
-  const tint = useMemo(() => "#" + new THREE.Color("#d8f0ff").lerp(new THREE.Color(colour), 0.22).getHexString(), [colour]);
+  const tint = useMemo(() => "#" + new THREE.Color("#e6e4e3").lerp(new THREE.Color(colour), 0.22).getHexString(), [colour]);
   const group = useRef<THREE.Group>(null);
   const spots = useMemo(() => {
     const out: { x: number; z: number; turn: number; w: number; h: number }[] = [];
@@ -1774,7 +1774,7 @@ export function Trees({ spots }: { spots: TreeSpot[] }) {
       </instancedMesh>
       <instancedMesh ref={rocks} args={[undefined, undefined, count]} frustumCulled={false}>
         <cylinderGeometry args={[0.5, 0.08, 1, 6, 1]} />
-        <meshStandardMaterial color="#1c2233" roughness={0.95} flatShading />
+        <meshStandardMaterial color="#272422" roughness={0.95} flatShading />
       </instancedMesh>
     </group>
   );

@@ -114,8 +114,8 @@ export const WORLD_DESTINATIONS: Destination[] = [
       tr: "Sistemler adası: bir ürünün katmanları, tek bir panel duvarında.",
     },
     zone: "systems",
-    at: [-40, 0, 0],
-    yaw: face([-40, 0], [-73, 0]),
+    at: [-50, 0, 8],
+    yaw: face([-50, 8], [-73, 0]),
   },
   {
     /* Set down just inside the service hub's door, clear of the entrance
@@ -134,6 +134,20 @@ export const WORLD_DESTINATIONS: Destination[] = [
     zone: "aracimgo",
     at: [-43, 0, -66.5],
     yaw: face([-43, -66.5], [-62, -67]),
+  },
+  {
+    id: "oyundal",
+    number: 8,
+    key: "8",
+    name: { en: "Oyundal", tr: "Oyundal" },
+    subtitle: category("oyundal"),
+    description: {
+      en: "Oyundal's café, through the south wall of Labs: games at the table, from one QR.",
+      tr: "Labs'in güney duvarının ardında Oyundal kafesi: tek QR'dan masada oyun.",
+    },
+    zone: "oyundal",
+    at: [62, 0, 41.5],
+    yaw: face([62, 41.5], [67, 48]),
   },
 ];
 

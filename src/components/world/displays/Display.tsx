@@ -166,15 +166,15 @@ export function Display({
 /** Dark glass: the housings are translucent, so a screen stands in the
  *  world rather than in front of a wall. */
 function GlassBody() {
-  return <meshPhysicalMaterial color="#0c1730" transparent opacity={0.55} roughness={0.18} metalness={0.45} envMapIntensity={1.2} depthWrite={false} />;
+  return <meshPhysicalMaterial color="#1d1b1a" transparent opacity={0.55} roughness={0.18} metalness={0.45} envMapIntensity={1.2} depthWrite={false} />;
 }
 /** Brushed metal, for the frame that carries the glass. */
 function Frame() {
-  return <meshStandardMaterial color="#aeb8c4" roughness={0.35} metalness={0.85} />;
+  return <meshStandardMaterial color="#b7b3b0" roughness={0.35} metalness={0.85} />;
 }
 /** Dark stone, for what stands on the deck. */
 function Stone() {
-  return <meshStandardMaterial color="#141f38" roughness={0.45} metalness={0.4} />;
+  return <meshStandardMaterial color="#252321" roughness={0.45} metalness={0.4} />;
 }
 
 /** A — cut into a wall, with a reveal all the way round. */

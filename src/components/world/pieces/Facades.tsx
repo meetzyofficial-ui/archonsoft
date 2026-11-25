@@ -84,23 +84,23 @@ function useWindowMaps(light: string) {
         const glassH = pane - slab;
         /* The glass: tinted, a touch lighter where it reflects the sky. */
         const grad = g.createLinearGradient(x, y, x, y + glassH);
-        grad.addColorStop(0, "#22324a");
-        grad.addColorStop(0.35, "#121e31");
-        grad.addColorStop(1, "#0b1422");
+        grad.addColorStop(0, "#35312f");
+        grad.addColorStop(0.35, "#211f1d");
+        grad.addColorStop(1, "#161513");
         g.fillStyle = grad;
         g.fillRect(x, y, pane, glassH);
         /* Faint variation pane to pane: glass is never one flat sheet. */
-        g.fillStyle = `rgba(160,190,230,${(rand() * 0.035).toFixed(3)})`;
+        g.fillStyle = `rgba(253,145,63,${(rand() * 0.035).toFixed(3)})`;
         g.fillRect(x, y, pane, glassH);
         /* The slab between storeys, and its lit edge. */
-        g.fillStyle = "#171e2a";
+        g.fillStyle = "#201e1c";
         g.fillRect(x, y + glassH, pane, slab);
-        g.fillStyle = "rgba(210,225,245,0.28)";
+        g.fillStyle = "rgba(222,221,219,0.28)";
         g.fillRect(x, y + glassH, pane, Math.max(1, slab * 0.08));
         /* Mullions, with a hairline of light on one edge. */
-        g.fillStyle = "#2c3747";
+        g.fillStyle = "#383432";
         g.fillRect(x, y, mullion, glassH);
-        g.fillStyle = "rgba(220,232,250,0.35)";
+        g.fillStyle = "rgba(229,228,227,0.35)";
         g.fillRect(x + mullion, y, 1, glassH);
 
         if (rand() > floorLit) continue;
@@ -331,11 +331,11 @@ export function Facades({ list }: { list: Facade[] }) {
       ) : null}
       <instancedMesh ref={bodies} args={[undefined, undefined, counts.tiers]} frustumCulled={false}>
         <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial color="#1c2a48" roughness={0.6} metalness={0.3} />
+        <meshStandardMaterial color="#312e2b" roughness={0.6} metalness={0.3} />
       </instancedMesh>
       <instancedMesh ref={glass} args={[undefined, undefined, counts.bands]} frustumCulled={false}>
         <boxGeometry args={[1, 1, 1]} />
-        <meshPhysicalMaterial color="#06101f" roughness={0.12} metalness={0.6} envMapIntensity={1.2} />
+        <meshPhysicalMaterial color="#121110" roughness={0.12} metalness={0.6} envMapIntensity={1.2} />
       </instancedMesh>
       <instancedMesh ref={trims} args={[undefined, undefined, counts.tiers]} frustumCulled={false}>
         <boxGeometry args={[1, 1, 1]} />
@@ -343,7 +343,7 @@ export function Facades({ list }: { list: Facade[] }) {
       </instancedMesh>
       <instancedMesh ref={crowns} args={[undefined, undefined, list.length]} frustumCulled={false}>
         <cylinderGeometry args={[0.4, 0.5, 1, 6]} />
-        <meshStandardMaterial color="#c9d2de" roughness={0.45} metalness={0.5} flatShading />
+        <meshStandardMaterial color="#d0cdcb" roughness={0.45} metalness={0.5} flatShading />
       </instancedMesh>
       {qualityStore.tier === "desktop" ? (
         <instancedMesh ref={lit} args={[undefined, undefined, counts.lights]} frustumCulled={false}>
@@ -353,7 +353,7 @@ export function Facades({ list }: { list: Facade[] }) {
       ) : null}
       <instancedMesh ref={rocks} args={[undefined, undefined, list.length]} frustumCulled={false}>
         <cylinderGeometry args={[0.5, 0.1, 1, 7, 1]} />
-        <meshStandardMaterial color="#1a2032" roughness={0.95} flatShading />
+        <meshStandardMaterial color="#252321" roughness={0.95} flatShading />
       </instancedMesh>
     </group>
   );

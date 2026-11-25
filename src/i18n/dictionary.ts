@@ -40,7 +40,7 @@ const en = {
     about: {
       title: "About",
       description:
-        "Archon Soft is one person in Ankara who has been building and shipping complete software products for about two years.",
+        "Archon Soft is a studio in Ankara that has been building and shipping complete software products for about two years.",
     },
     privacy: {
       title: "Privacy",
@@ -84,7 +84,7 @@ const en = {
     ctaContact: "Tell us about your project",
     assembling: "Assembling",
     liveProduct: "Live product",
-    proofFacts: "Live for about three months · around 2,000 signups · built by one person",
+    proofFacts: "Live for about three months · around 2,000 signups · built in one studio",
     proofNote: "A real screen from a product people are using, not a mockup.",
     disciplines: ["Products", "Systems", "Commerce", "AI", "Automation", "Data"],
     /* The three lines under the name. Each one is something this site can
@@ -128,7 +128,7 @@ const en = {
     statementAccent: "product.",
     body: [
       "A design studio gives you screens. A dev shop gives you a repository. Somewhere between the two, the thing you actually wanted — a product that works, that you can run yourself — quietly becomes nobody's job.",
-      "Archon is one person who takes the whole span: what the product should be, how it looks, the client, the server, the database, the accounts, the admin your team will actually live in, and the release. Fewer translations, and nothing lost in them.",
+      "Archon takes the whole span: what the product should be, how it looks, the client, the server, the database, the accounts, the admin your team will actually live in, and the release. Fewer translations, and nothing lost in them.",
     ],
     link: "How this works",
   },
@@ -286,21 +286,12 @@ const en = {
     aside: "Open for new work",
     statement: "Bring the problem.",
     statementAccent: "We build the system.",
-    body: "Tell me what you are trying to build and what is making it hard. If there is a fit I will say so quickly; if there is not, I will say that too.",
+    body: "Tell us what you are trying to build and what is making it hard. A few lines are enough.",
     expect: [
       { label: "A reply", value: "Usually within two working days, from me." },
       { label: "A conversation", value: "Scope, constraints, timing. No pitch deck." },
-      { label: "A straight answer", value: "Including when I am the wrong person for it." },
+      { label: "A straight answer", value: "Including when we are not the right studio for it." },
     ],
-    notFor: {
-      title: "Probably not a fit",
-      items: [
-        "Work where design is a rubber stamp on a finished spec.",
-        "A rebuild of something that mostly needs a decision, not a codebase.",
-        "Projects that need to start and finish inside a fortnight.",
-      ],
-      note: "If you are not sure whether that describes you, ask. A short honest answer costs everyone less than a long polite one.",
-    },
     direct: "Direct",
     noEmail:
       "The form is the way in for now. A published address is coming — better none than one that bounces.",
@@ -333,11 +324,11 @@ const en = {
       sent: "Sent",
       sentTitle: "Thank you. It is on its way.",
       sentBody:
-        "I read everything myself and reply from a real address, usually within two working days.",
+        "We read everything and reply from a real address, usually within two working days.",
       notSent: "Not sent",
       unconfiguredTitle: "This form is not connected to a mail provider yet.",
       unconfiguredBody:
-        "I will not pretend a message went through when it did not. Nothing you typed has been lost — go back and it is all still there.",
+        "We will not pretend a message went through when it did not. Nothing you typed has been lost — go back and it is all still there.",
       unconfiguredNoAddress:
         " There is no published address to fall back on yet either, so this one is genuinely on me.",
       mailInstead: "Send it by email instead",
@@ -349,7 +340,7 @@ const en = {
       errors: {
         name: "Please tell me your name.",
         nameLong: "That name is too long.",
-        email: "I need an email address to reply to.",
+        email: "We need an email address to reply to.",
         emailInvalid: "That does not look like an email address.",
         company: "That is too long.",
         type: "Pick the closest match.",
@@ -431,7 +422,7 @@ const en = {
   process: {
     index: "06",
     label: "Process",
-    aside: "One person, six stages",
+    aside: "One studio, six stages",
     statement: "From a sentence to a",
     statementAccent: "release.",
     body: "The reason this is worth writing down is that most of it usually happens at a handover between two companies. Here it does not happen at a handover at all.",
@@ -571,7 +562,7 @@ const en = {
     bandAccent: "as a place you can walk.",
     bandBody: "Archon World runs in your browser. Every product has its own station with its real screens, and there is someone at each one to tell you about it.",
     bandFacts: [
-      "Seven islands",
+      "Eight islands",
       "Three project stations, with guides",
       "Walk it, or take the tour",
     ],
@@ -669,7 +660,7 @@ const en = {
       /* Asked "What is AracımGo?": one sentence, then the product itself. */
       aracimgo: {
         answer:
-          "AracımGo is an Archon Soft product that lets car workshops run their customers, vehicles and service work from one place.",
+          "AracımGo is an Archon Soft product that brings drivers and workshops together and writes every service to the car's digital passport.",
         live: "It is live — you can open it now.",
         open: "Open AracımGo",
         visit: "Take me to its hub",
@@ -687,7 +678,8 @@ const en = {
         systems: "Systems — what runs behind an interface.",
         archive: "The archive: everything we have built, in one place.",
         between: "The bridges run over the sea; every island is a different part of what we do.",
-        aracimgo: "AracımGo — our live service-management product for car workshops.",
+        aracimgo: "AracımGo: our live platform for drivers and workshops.",
+        oyundal: "Oyundal: scan the QR on the table, play together.",
       },
     },
   },
@@ -711,7 +703,7 @@ const en = {
     aside: "Wrong turn",
     lead: "Nothing",
     leadAccent: "here.",
-    body: "This page does not exist, or it did and I moved it without leaving a forwarding address. Either way, that one is on me.",
+    body: "This page does not exist, or it did and we moved it without leaving a forwarding address. Either way, that one is on us.",
     home: "Back to the start",
     work: "See the work",
     siteIndex: "Site index",
@@ -719,7 +711,7 @@ const en = {
 
   error: {
     label: "Something broke",
-    aside: "On my side",
+    aside: "On our side",
     title: "That did not",
     titleAccent: "work.",
     body: "An error stopped this page from rendering. Trying again often clears it; if it does not, the rest of the site is still fine.",
@@ -761,7 +753,7 @@ const tr: Dictionary = {
     about: {
       title: "Hakkında",
       description:
-        "Archon Soft, Ankara'da yaklaşık iki yıldır uçtan uca yazılım ürünleri geliştirip yayınlayan tek kişi.",
+        "Archon Soft, Ankara'da yaklaşık iki yıldır uçtan uca yazılım ürünleri geliştirip yayınlayan bir yazılım stüdyosu.",
     },
     privacy: {
       title: "Gizlilik",
@@ -803,7 +795,7 @@ const tr: Dictionary = {
     ctaContact: "Projenizi anlatın",
     assembling: "Kuruluyor",
     liveProduct: "Canlı ürün",
-    proofFacts: "Yaklaşık üç aydır canlı · 2.000 civarı kayıt · tek kişi tarafından kuruldu",
+    proofFacts: "Yaklaşık üç aydır canlı · 2.000 civarı kayıt · tek stüdyoda kuruldu",
     proofNote: "İnsanların kullandığı bir üründen gerçek bir ekran; maket değil.",
     disciplines: ["Ürünler", "Sistemler", "Ticaret", "Yapay zekâ", "Otomasyon", "Veri"],
     positioning: ["Dijital ürünler.", "Yaratıcı teknoloji.", "Sürükleyici sistemler."],
@@ -841,7 +833,7 @@ const tr: Dictionary = {
     statementAccent: "parçasını verir.",
     body: [
       "Tasarım stüdyosu ekran verir. Yazılım şirketi repo verir. İkisinin arasında bir yerde, aslında istediğin şey — çalışan, kendi yönetebildiğin bir ürün — sessizce kimsenin işi olmaktan çıkar.",
-      "Archon, tamamını üstlenen tek kişi: ürünün ne olması gerektiği, nasıl göründüğü, istemci, sunucu, veritabanı, hesaplar, ekibinin gerçekten içinde yaşayacağı yönetim paneli ve yayın. Daha az çeviri, ve hiçbir şey çeviride kaybolmuyor.",
+      "Archon tamamını üstlenir: ürünün ne olması gerektiği, nasıl göründüğü, istemci, sunucu, veritabanı, hesaplar, ekibinin gerçekten içinde yaşayacağı yönetim paneli ve yayın. Daha az çeviri, ve hiçbir şey çeviride kaybolmuyor.",
     ],
     link: "Nasıl çalışıyor",
   },
@@ -992,23 +984,14 @@ const tr: Dictionary = {
     index: "07",
     label: "Başla",
     aside: "Yeni işlere açık",
-    statement: "Problemi getir.",
+    statement: "Problemi getirin.",
     statementAccent: "Sistemi biz kuralım.",
-    body: "Ne kurmaya çalıştığını ve neyin zorlaştırdığını anlat. Uyum varsa hemen söylerim; yoksa onu da söylerim.",
+    body: "Ne yaptırmak istediğinizi ve sizi neyin zorladığını yazın. Birkaç satır yeter.",
     expect: [
-      { label: "Bir cevap", value: "Genelde iki iş günü içinde, doğrudan benden." },
+      { label: "Bir cevap", value: "Genelde iki iş günü içinde, doğrudan stüdyodan." },
       { label: "Bir konuşma", value: "Kapsam, kısıtlar, zamanlama. Sunum yok." },
-      { label: "Dürüst bir cevap", value: "Bunun için yanlış kişi olduğum durumlar dahil." },
+      { label: "Dürüst bir cevap", value: "Doğru stüdyo olmadığımız durumlar dahil." },
     ],
-    notFor: {
-      title: "Muhtemelen uygun değil",
-      items: [
-        "Tasarımın, bitmiş bir şartnameye atılan bir onay damgası olduğu işler.",
-        "Aslında kod değil karar gerektiren bir şeyin baştan yazılması.",
-        "İki hafta içinde başlayıp bitmesi gereken projeler.",
-      ],
-      note: "Bunun seni tarif edip etmediğinden emin değilsen sor. Kısa ve dürüst bir cevap, uzun ve kibar olandan herkese daha ucuza gelir.",
-    },
     direct: "Doğrudan",
     noEmail:
       "Şimdilik giriş kapısı bu form. Yayınlanacak bir adres yolda — hiç olmaması, çalışmayan bir adresten iyidir.",
@@ -1019,10 +1002,10 @@ const tr: Dictionary = {
       optional: "(isteğe bağlı)",
       type: "Nedir?",
       message: "Proje",
-      namePlaceholder: "Adın",
-      emailPlaceholder: "sen@sirket.com",
-      companyPlaceholder: "Nerede çalışıyorsun",
-      messagePlaceholder: "Ne kuruyorsun, neyi zorlaştırıyor ve kabaca ne zaman lazım.",
+      namePlaceholder: "Adınız",
+      emailPlaceholder: "siz@sirket.com",
+      companyPlaceholder: "Nerede çalışıyorsunuz",
+      messagePlaceholder: "Ne istiyorsunuz, sizi ne zorluyor, kabaca ne zaman lazım.",
       types: {
         product: "Sıfırdan bir ürün",
         web: "Web ürünü",
@@ -1040,13 +1023,13 @@ const tr: Dictionary = {
       sent: "Gönderildi",
       sentTitle: "Teşekkürler. Yola çıktı.",
       sentBody:
-        "Her mesajı kendim okuyorum ve gerçek bir adresten cevap veriyorum, genelde iki iş günü içinde.",
+        "Her mesajı okuyor ve gerçek bir adresten cevap veriyoruz, genelde iki iş günü içinde.",
       notSent: "Gönderilemedi",
       unconfiguredTitle: "Bu form henüz bir mail sağlayıcısına bağlı değil.",
       unconfiguredBody:
-        "Gitmeyen bir mesajı gitmiş gibi göstermem. Yazdığın hiçbir şey kaybolmadı — geri dön, hepsi duruyor.",
+        "Gitmeyen bir mesajı gitmiş gibi göstermeyiz. Yazdığın hiçbir şey kaybolmadı — geri dön, hepsi duruyor.",
       unconfiguredNoAddress:
-        " Geri düşecek yayınlanmış bir adres de henüz yok, yani bu tamamen bende.",
+        " Geri düşecek yayınlanmış bir adres de henüz yok, yani bu tamamen bizde.",
       mailInstead: "E-posta ile gönder",
       back: "Forma dön",
       alsoEmail: "Dilersen",
@@ -1054,7 +1037,7 @@ const tr: Dictionary = {
       orEmail: "Ya da doğrudan",
       directly: "adresine yaz",
       errors: {
-        name: "Adını yazar mısın.",
+        name: "Adınızı yazar mısınız.",
         nameLong: "Bu isim fazla uzun.",
         email: "Cevap verebilmek için bir e-posta adresi lazım.",
         emailInvalid: "Bu bir e-posta adresine benzemiyor.",
@@ -1062,7 +1045,7 @@ const tr: Dictionary = {
         type: "En yakın olanı seç.",
         typeInvalid: "Listedeki seçeneklerden birini seç.",
         serviceInvalid: "Bu hizmet listemizde yok.",
-        message: "Proje hakkında birkaç cümle yazar mısın.",
+        message: "Proje hakkında birkaç cümle yazar mısınız.",
         messageLong: "Lütfen 5000 karakterin altında tut.",
       },
     },
@@ -1138,7 +1121,7 @@ const tr: Dictionary = {
   process: {
     index: "06",
     label: "Süreç",
-    aside: "Tek kişi, altı aşama",
+    aside: "Tek stüdyo, altı aşama",
     statement: "Bir cümleden bir",
     statementAccent: "yayına.",
     body: "Bunu yazmaya değmesinin sebebi şu: bu işin çoğu genelde iki şirket arasındaki bir devir teslimde olur. Burada hiçbir devir teslimde olmuyor.",
@@ -1276,7 +1259,7 @@ const tr: Dictionary = {
     bandAccent: "içinde yürüyerek gezin.",
     bandBody: "Archon Dünyası tarayıcınızda çalışıyor. Ürünlerimizin kendi istasyonları, gerçek ekranları ve başlarında anlatan rehberleri var.",
     bandFacts: [
-      "Yedi ada",
+      "Sekiz ada",
       "Üç proje istasyonu, rehberleriyle",
       "Yürü, ya da turu seç",
     ],
@@ -1387,7 +1370,8 @@ const tr: Dictionary = {
         systems: "Sistemler — bir arayüzün arkasında ne çalışır.",
         archive: "Arşiv: bugüne kadar yaptığımız her şey, tek yerde.",
         between: "Köprüler denizin üzerinden geçer; her ada yaptığımız işin farklı bir parçası.",
-        aracimgo: "AracımGo — oto servisler için canlıdaki servis yönetimi ürünümüz.",
+        aracimgo: "AracımGo: araç sahipleri ve servisler için canlıdaki platformumuz.",
+        oyundal: "Oyundal: masadaki QR\'ı okut, birlikte oyna.",
       },
     },
   },
@@ -1410,7 +1394,7 @@ const tr: Dictionary = {
     aside: "Yanlış dönüş",
     lead: "Burada",
     leadAccent: "bir şey yok.",
-    body: "Bu sayfa yok, ya da vardı ve ben adres bırakmadan taşıdım. Her iki durumda da bu bende.",
+    body: "Bu sayfa yok, ya da vardı ve adres bırakmadan taşıdık. Her iki durumda da bu bizde.",
     home: "Başa dön",
     work: "İşlere bak",
     siteIndex: "Site indeksi",

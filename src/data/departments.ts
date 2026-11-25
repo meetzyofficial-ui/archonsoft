@@ -111,7 +111,7 @@ export const DEPARTMENTS: Department[] = [
       arrival: [-4.5, 0, -62],
       roles: ["frontend", "backend", "mobile", "lead"],
       screen: "code",
-      accent: "#6aa8ff",
+      accent: "#fd913f",
     },
   },
   {
@@ -169,7 +169,7 @@ export const DEPARTMENTS: Department[] = [
       arrival: [49.5, 0, -6],
       roles: ["aiEngineer", "mlEngineer", "researcher"],
       screen: "ai",
-      accent: "#56d9ff",
+      accent: "#fd913f",
     },
   },
   {
@@ -198,7 +198,7 @@ export const DEPARTMENTS: Department[] = [
       arrival: [49.5, 0, 6],
       roles: ["gameDev", "artist3d", "techArtist"],
       screen: "viewport",
-      accent: "#9a86ff",
+      accent: "#fd913f",
     },
   },
   {
@@ -285,7 +285,7 @@ export const DEPARTMENTS: Department[] = [
       arrival: [4.5, 0, -62],
       roles: ["commerceDev", "integrations", "productOwner"],
       screen: "commerce",
-      accent: "#f2a889",
+      accent: "#ff7a1a",
     },
   },
   {
@@ -314,7 +314,7 @@ export const DEPARTMENTS: Department[] = [
       arrival: [-53.5, 0, -17],
       roles: ["architect", "backend", "analyst"],
       screen: "enterprise",
-      accent: "#7fb3ff",
+      accent: "#fd913f",
     },
   },
   {
@@ -343,7 +343,7 @@ export const DEPARTMENTS: Department[] = [
       arrival: [-8.5, 0, -8],
       roles: ["strategist", "architect", "productLead"],
       screen: "consulting",
-      accent: "#c9d2de",
+      accent: "#d0cdcb",
       layout: "table",
     },
   },
@@ -364,7 +364,7 @@ export const DEPARTMENTS: Department[] = [
       arrival: [-6.5, 0, -34],
       roles: ["prototyper", "maker"],
       screen: "innovation",
-      accent: "#9a86ff",
+      accent: "#fd913f",
       layout: "lab",
     },
   },
@@ -376,7 +376,7 @@ export const LOBBY_OFFICE: Office = {
   arrival: [-6, 0, 13],
   roles: ["reception", "account", "product", "support", "sales"],
   screen: "lobby",
-  accent: "#f2a889",
+  accent: "#ff7a1a",
 };
 
 /** Which way an office faces: toward its arrival point, about y. */

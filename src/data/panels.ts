@@ -12,7 +12,7 @@ const PANELS: Record<string, Panel> = {
   meetzy: { bg: "#b30d19", fg: "#ffffff", accent: "#ffffff", on: "#7d0710" },
   dppano: { bg: "#12306e", fg: "#ffffff", accent: "#ffffff", on: "#12306e" },
   erden: { bg: "#e9dfcf", fg: "#2b2318", accent: "#2b2318", on: "#fff8ee" },
-  "archon-soft-world": { bg: "#17181a", fg: "#f4f4f3", accent: "#ff5a00", on: "#0c0c0d" },
+  "archon-soft-world": { bg: "#17181a", fg: "#f4f4f3", accent: "#ff7300", on: "#0c0c0d" },
 };
 
 export function panelStyle(slug: string): CSSProperties {

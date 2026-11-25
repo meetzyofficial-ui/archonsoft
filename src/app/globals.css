@@ -37,13 +37,13 @@
 }
 
 @theme {
-  --color-black: #0c0c0d;
+  --color-black: #08080a;
   --color-carbon: #17181a;
   --color-iron: #2a2c2f;
   --color-steel: #c9cccf;
   --color-silver: #e3e5e6;
-  --color-orange: #ff5a00;
-  --color-orange-deep: #b23a00;
+  --color-orange: #ff7300;
+  --color-orange-deep: #a83f00;
 
   /* Read by the world's interface, which is not part of this stylesheet. */
   --color-paper: #f7f7f6;
@@ -134,8 +134,8 @@
     --fg-mute: #484b4f;
     --line: #a1a6aa;
     --line-strong: #74797d;
-    --accent: #943000;
-    --accent-cool: #943000;
+    --accent: #8a3300;
+    --accent-cool: #8a3300;
   }
   [data-scheme="black"] {
     --surface: var(--color-black);
@@ -633,6 +633,7 @@ main [data-band="paper"] + [data-band="paper"]:not(.keep-pad) {
 /* ------------------------------------------------------------------ */
 .site-header {
   height: var(--header-h);
+  border-bottom: 0;
   background: var(--color-black);
 }
 .world-block {
@@ -661,7 +662,6 @@ main [data-band="paper"] + [data-band="paper"]:not(.keep-pad) {
 }
 .world-block__shot {
   display: none;
-  filter: grayscale(1);
   width: 5.25rem;
   height: 2.75rem;
   object-fit: cover;
@@ -680,8 +680,15 @@ main [data-band="paper"] + [data-band="paper"]:not(.keep-pad) {
 /* ------------------------------------------------------------------ */
 /*  Hero.                                                              */
 /* ------------------------------------------------------------------ */
+/* The ground the logo stands on: its orange light from the top left, warm
+   grey coming up from the bottom right. */
+.forge {
+  background:
+    radial-gradient(ellipse 46rem 30rem at 0% 0%, rgba(255, 120, 5, 0.95) 0%, rgba(200, 74, 4, 0.62) 26%, rgba(90, 33, 4, 0.34) 52%, transparent 78%),
+    radial-gradient(ellipse 60rem 34rem at 100% 100%, rgba(192, 173, 156, 0.5) 0%, rgba(120, 106, 95, 0.22) 45%, transparent 75%),
+    var(--color-black);
+}
 .hero {
-  background: var(--color-black);
   color: #f4f4f3;
   padding-top: var(--header-h);
   overflow: hidden;
@@ -726,8 +733,8 @@ main [data-band="paper"] + [data-band="paper"]:not(.keep-pad) {
    smaller than a heading. */
 .steel {
   background:
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.07) 0 1px, rgba(0, 0, 0, 0.025) 1px 2px, transparent 2px 5px),
-    linear-gradient(100deg, #b7bbbe 0%, #dfe1e3 22%, #c3c7ca 44%, #eceded 63%, #bfc3c6 82%, #d5d8da 100%);
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.06) 0 1px, rgba(0, 0, 0, 0.03) 1px 2px, transparent 2px 4px),
+    linear-gradient(100deg, #ff7a05 0%, #f58a35 7%, #c9a88f 17%, #b4b7bb 30%, #dfe1e3 55%, #f0f1f1 68%, #c6c9cc 84%, #a9acb0 100%);
 }
 
 /* ------------------------------------------------------------------ */

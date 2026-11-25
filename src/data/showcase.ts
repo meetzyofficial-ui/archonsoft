@@ -6,6 +6,7 @@ import { ARACIMGO, DPPANO, ERDEN, MEETZY, MEETZY_SITE, OYUNDAL, type Screen } fr
 import worldGate from "@/assets/work/world/01-gate.jpg";
 import worldMeetzy from "@/assets/work/world/02-meetzy-station.jpg";
 import worldDpPano from "@/assets/work/world/03-dppano-hall.jpg";
+import worldOyundal from "@/assets/work/world/05-oyundal.jpg";
 import worldErden from "@/assets/work/world/04-erden-station.jpg";
 
 /**
@@ -387,6 +388,7 @@ const world: ShowcaseProject = {
     scene(worldGate, { en: "The Gate — the robot explorer on the axis", tr: "Kapı — eksendeki robot kâşif" }),
     scene(worldMeetzy, { en: "Meetzy's station and its guide", tr: "Meetzy istasyonu ve rehberi" }),
     scene(worldDpPano, { en: "The DP Pano hall, lit by torches", tr: "Meşalelerle aydınlanan DP Pano salonu" }),
+    scene(worldOyundal, { en: "Oyundal's café in the world", tr: "Dünyadaki Oyundal kafesi" }),
     scene(worldErden, { en: "Erden Davetiye's station", tr: "Erden Davetiye istasyonu" }),
   ],
   interludes: [],
@@ -413,10 +415,10 @@ const world: ShowcaseProject = {
       title: { en: "The place", tr: "Mekân" },
       body: {
         en: [
-          "Islands joined by bridges, each one a part of the studio: a station for every shipped product with its real screens hung in the air, the gallery, the systems island, and department offices along the paths. Seven destinations are one key — or one tap — away.",
+          "Islands joined by bridges, each one a part of the studio: a station for every shipped product with its real screens hung in the air, the gallery, the systems island, and department offices along the paths. Eight destinations are one key — or one tap — away.",
         ],
         tr: [
-          "Köprülerle bağlanan adalar; her biri stüdyonun bir parçası: gerçek ekranları havada asılı duran her canlı ürün için bir istasyon, galeri, sistemler adası ve yollar boyunca departman ofisleri. Yedi hedef tek tuş — ya da tek dokunuş — uzakta.",
+          "Köprülerle bağlanan adalar; her biri stüdyonun bir parçası: gerçek ekranları havada asılı duran her canlı ürün için bir istasyon, galeri, sistemler adası ve yollar boyunca departman ofisleri. Sekiz hedef tek tuş — ya da tek dokunuş — uzakta.",
         ],
       },
     },
@@ -449,7 +451,7 @@ const world: ShowcaseProject = {
     title: { en: "What is in it", tr: "İçinde neler var" },
     areas: [
       { en: "Robot explorer, walk and run", tr: "Robot kâşif, yürüme ve koşma" },
-      { en: "Teleport to seven destinations", tr: "Yedi hedefe ışınlanma" },
+      { en: "Teleport to eight destinations", tr: "Sekiz hedefe ışınlanma" },
       { en: "Product stations with real screens", tr: "Gerçek ekranlı ürün istasyonları" },
       { en: "Guides and the lobby team", tr: "Rehberler ve lobi ekibi" },
       { en: "Department offices and brief form", tr: "Departman ofisleri ve brief formu" },
@@ -468,7 +470,7 @@ const world: ShowcaseProject = {
     { label: { en: "Quality", tr: "Kalite" }, value: { en: "Device tiers, texture caps, context-loss recovery", tr: "Cihaz katmanları, texture sınırları, bağlam kaybı kurtarma" } },
   ],
   world: true,
-  accent: "#62D8FF",
+  accent: "#FF7300",
 };
 
 /** The order is editorial: Archon Soft's newest live product, the product

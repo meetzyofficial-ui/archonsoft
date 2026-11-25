@@ -55,7 +55,7 @@ const SKY_FRAGMENT = /* glsl */ `
 `;
 
 function Sky() {
-  const uniforms = useMemo(() => ({ uHorizon: { value: new THREE.Color("#0a1224") } }), []);
+  const uniforms = useMemo(() => ({ uHorizon: { value: new THREE.Color("#161514") } }), []);
   useFrame(() => {
     /* The district's fog, much darker: the horizon keeps a trace of the
        place without ever becoming a coloured band. */
@@ -260,11 +260,11 @@ function useCometTexture() {
       ctx.fillRect(0, 0, 512, 64);
       /* A cyan edge either side of the green, then soft to nothing. */
       const edge = ctx.createLinearGradient(0, 0, 0, 64);
-      edge.addColorStop(0, "rgba(94,230,255,0)");
-      edge.addColorStop(0.2, "rgba(94,230,255,0.5)");
-      edge.addColorStop(0.5, "rgba(94,230,255,0)");
-      edge.addColorStop(0.8, "rgba(94,230,255,0.5)");
-      edge.addColorStop(1, "rgba(94,230,255,0)");
+      edge.addColorStop(0, "rgba(253,145,63,0)");
+      edge.addColorStop(0.2, "rgba(253,145,63,0.5)");
+      edge.addColorStop(0.5, "rgba(253,145,63,0)");
+      edge.addColorStop(0.8, "rgba(253,145,63,0.5)");
+      edge.addColorStop(1, "rgba(253,145,63,0)");
       ctx.globalCompositeOperation = "lighter";
       ctx.fillStyle = edge;
       ctx.fillRect(0, 0, 512, 64);
@@ -387,15 +387,15 @@ function Comet() {
       </mesh>
       <mesh ref={head}>
         <sphereGeometry args={[1.6, 12, 10]} />
-        <meshBasicMaterial color="#1fd37a" transparent opacity={0} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} fog={false} />
+        <meshBasicMaterial color="#ff7300" transparent opacity={0} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} fog={false} />
       </mesh>
       <mesh>
         <sphereGeometry args={[3.4, 12, 10]} />
-        <meshBasicMaterial color="#3fe39a" transparent opacity={0.4} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} fog={false} />
+        <meshBasicMaterial color="#ff9a3c" transparent opacity={0.4} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} fog={false} />
       </mesh>
       <mesh>
         <sphereGeometry args={[5.2, 12, 10]} />
-        <meshBasicMaterial color="#5ee6ff" transparent opacity={0.1} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} fog={false} />
+        <meshBasicMaterial color="#fd913f" transparent opacity={0.1} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} fog={false} />
       </mesh>
     </group>
   );
@@ -403,7 +403,7 @@ function Comet() {
 
 export function Cosmos({ reduced, compact }: { reduced: boolean; compact: boolean }) {
   const { scene } = useThree();
-  const fog = useMemo(() => new THREE.FogExp2("#070c1a", 0.0042), []);
+  const fog = useMemo(() => new THREE.FogExp2("#100f0e", 0.0042), []);
 
   useEffect(() => {
     scene.fog = fog;

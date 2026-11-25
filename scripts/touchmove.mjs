@@ -82,7 +82,7 @@ const results = {};
   const errors = [];
   page.on("pageerror", (e) => errors.push(String(e)));
   page.on("console", (m) => { if (m.type() === "error") errors.push(m.text().slice(0, 160)); });
-  await page.goto(BASE + "/tr", { waitUntil: "domcontentloaded" });
+  await page.goto(BASE + "/tr?world", { waitUntil: "domcontentloaded" });
   await enterWorld(page, "tr", 4000);
   const cdp = await ctx.newCDPSession(page);
   const stick = await page.locator("[data-joystick]").boundingBox();
@@ -146,7 +146,7 @@ const results = {};
   const browser = await chromium.launch({ headless: false, channel: "chrome", args: ["--window-size=1460,900", "--disable-backgrounding-occluded-windows", "--disable-renderer-backgrounding"] });
   const page = await browser.newPage({ viewport: { width: 1440, height: 860 } });
   await page.bringToFront();
-  await page.goto(BASE + "/tr", { waitUntil: "networkidle" });
+  await page.goto(BASE + "/tr?world", { waitUntil: "networkidle" });
   await enterWorld(page, "tr", 4000);
   for (const [name, shift] of [["walk", false], ["run", true]]) {
     await page.evaluate(() => window.__archonPlace?.(0, 18, 0));

@@ -274,7 +274,7 @@ export function WorldUI({
                 data-touch-act
                 onPointerDown={(event) => event.stopPropagation()}
                 onClick={() => interactables.get(focus.id)?.activate()}
-                className="mono-label pointer-events-auto flex items-center gap-3 border border-[rgba(255,244,232,0.35)] bg-[rgba(10,18,36,0.55)] px-5 py-3 text-[var(--fg)] backdrop-blur"
+                className="mono-label pointer-events-auto flex items-center gap-3 border border-[rgba(255,244,232,0.35)] bg-[rgba(22,21,20,0.55)] px-5 py-3 text-[var(--fg)] backdrop-blur"
               >
                 {focus.action}
               </button>
@@ -321,8 +321,8 @@ export function WorldUI({
               className={cn(
                 "mono-micro flex size-11 items-center justify-center rounded-full border backdrop-blur transition-colors",
                 active
-                  ? "border-[var(--accent)] bg-[rgba(10,18,36,0.6)] text-[var(--fg)] shadow-[0_0_10px_rgba(154,214,255,0.35)]"
-                  : "border-[rgba(255,244,232,0.22)] bg-[rgba(10,18,36,0.42)] text-[var(--fg-dim)]",
+                  ? "border-[var(--accent)] bg-[rgba(22,21,20,0.6)] text-[var(--fg)] shadow-[0_0_10px_rgba(253,145,63,0.35)]"
+                  : "border-[rgba(255,244,232,0.22)] bg-[rgba(22,21,20,0.42)] text-[var(--fg-dim)]",
               )}
               style={{ fontVariantNumeric: "tabular-nums" }}
             >
@@ -344,7 +344,7 @@ export function WorldUI({
         <p className="mono-micro mb-3 text-[var(--fg-mute)] opacity-80">{world.destinations}</p>
         <ol
           className="flex flex-col border-l border-[rgba(255,244,232,0.22)]"
-          style={{ background: "linear-gradient(90deg, rgba(10,18,36,0.42), rgba(10,18,36,0))", backdropFilter: "blur(6px)" }}
+          style={{ background: "linear-gradient(90deg, rgba(22,21,20,0.42), rgba(22,21,20,0))", backdropFilter: "blur(6px)" }}
         >
           {WORLD_DESTINATIONS.map((dest) => {
             const active = mode === "tour" ? dest.zone === tourZone : teleport.current === dest.id;
@@ -387,7 +387,7 @@ export function WorldUI({
         className="pointer-events-none absolute inset-0 transition-opacity duration-150"
         style={{
           opacity: teleport.direction === "out" ? teleport.phase * 0.55 : teleport.direction === "in" ? Math.max(0, 0.55 - teleport.phase * 1.4) : 0,
-          background: "radial-gradient(ellipse at 50% 55%, rgba(200,236,255,0.9), rgba(120,190,255,0.35) 40%, rgba(8,14,30,0) 75%)",
+          background: "radial-gradient(ellipse at 50% 55%, rgba(222,221,219,0.9), rgba(253,145,63,0.35) 40%, rgba(19,17,16,0) 75%)",
         }}
       />
 
@@ -449,7 +449,7 @@ export function WorldUI({
                 <button
                   type="button"
                   onClick={onHost}
-                  className="mono-label -my-1 border border-[#f2a889] px-3 py-2 text-[var(--fg)] transition-colors hover:bg-[#f2a889] hover:text-[var(--bg)]"
+                  className="mono-label -my-1 border border-[#ff7a1a] px-3 py-2 text-[var(--fg)] transition-colors hover:bg-[#ff7a1a] hover:text-[var(--bg)]"
                 >
                   {world.host.label} · {world.host.talk}
                 </button>
@@ -557,10 +557,10 @@ export function Detail({
           className="pointer-events-auto max-w-[36rem] border border-[var(--line)] p-6 [animation:route-enter_420ms_var(--ease-out-expo)_both] md:p-7"
           style={{
             ["--accent" as string]: content.accent,
-            background: "linear-gradient(180deg, rgba(20,34,66,0.78), rgba(8,14,30,0.86))",
+            background: "linear-gradient(180deg, rgba(42,39,37,0.78), rgba(19,17,16,0.86))",
             backdropFilter: "blur(10px)",
             borderRadius: "var(--radius-hair)",
-            boxShadow: "0 0 0 1px rgba(154,214,255,0.08), 0 24px 60px rgba(0,0,0,0.35)",
+            boxShadow: "0 0 0 1px rgba(253,145,63,0.08), 0 24px 60px rgba(0,0,0,0.35)",
           }}
         >
           <p className="mono-micro flex flex-wrap items-center gap-3 text-[var(--accent)]">
@@ -687,10 +687,10 @@ export function Conversation({
           className="pointer-events-auto w-full max-w-[26rem] border border-[var(--line)] p-6 [animation:route-enter_420ms_var(--ease-out-expo)_both]"
           style={{
             ["--accent" as string]: guide.accent,
-            background: "linear-gradient(180deg, rgba(20,34,66,0.8), rgba(8,14,30,0.88))",
+            background: "linear-gradient(180deg, rgba(42,39,37,0.8), rgba(19,17,16,0.88))",
             backdropFilter: "blur(12px)",
             borderRadius: "var(--radius-hair)",
-            boxShadow: "0 0 0 1px rgba(154,214,255,0.08), 0 24px 60px rgba(0,0,0,0.4)",
+            boxShadow: "0 0 0 1px rgba(253,145,63,0.08), 0 24px 60px rgba(0,0,0,0.4)",
           }}
         >
           {/* A hairline of the project's colour across the top: the plate
@@ -862,8 +862,8 @@ export function HostCard({
         <div
           className="pointer-events-auto w-full max-w-[26rem] border border-[rgba(255,244,232,0.18)] p-6 [animation:route-enter_420ms_var(--ease-out-expo)_both]"
           style={{
-            ["--accent" as string]: "#f2a889",
-            background: "linear-gradient(180deg, rgba(20,34,66,0.72), rgba(8,14,30,0.84))",
+            ["--accent" as string]: "#ff7a1a",
+            background: "linear-gradient(180deg, rgba(42,39,37,0.72), rgba(19,17,16,0.84))",
             backdropFilter: "blur(12px)",
             borderRadius: "var(--radius-hair)",
             boxShadow: "0 0 0 1px rgba(242,168,137,0.08), 0 24px 60px rgba(0,0,0,0.4)",
@@ -1081,7 +1081,7 @@ function TouchControls({ jumpLabel }: { jumpLabel: string }) {
       <div
         ref={base}
         data-joystick
-        className="group pointer-events-auto absolute z-10 flex size-[128px] items-center justify-center rounded-full border border-[rgba(255,244,232,0.26)] bg-[radial-gradient(circle_at_50%_40%,rgba(28,44,78,0.55),rgba(8,14,28,0.5))] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05),0_8px_30px_rgba(0,0,0,0.35)] backdrop-blur-md"
+        className="group pointer-events-auto absolute z-10 flex size-[128px] items-center justify-center rounded-full border border-[rgba(255,244,232,0.26)] bg-[radial-gradient(circle_at_50%_40%,rgba(52,48,46,0.55),rgba(18,16,16,0.5))] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05),0_8px_30px_rgba(0,0,0,0.35)] backdrop-blur-md"
         style={{
           left: "calc(env(safe-area-inset-left) + 1.25rem)",
           bottom: "calc(env(safe-area-inset-bottom) + 1.5rem)",
@@ -1119,7 +1119,7 @@ function TouchControls({ jumpLabel }: { jumpLabel: string }) {
         />
         <span
           aria-hidden="true"
-          className="absolute inset-0 rounded-full border-2 border-transparent transition-colors duration-150 group-data-[live=run]:border-[rgba(94,230,255,0.75)] group-data-[live=run]:shadow-[0_0_18px_rgba(94,230,255,0.35)]"
+          className="absolute inset-0 rounded-full border-2 border-transparent transition-colors duration-150 group-data-[live=run]:border-[rgba(253,145,63,0.75)] group-data-[live=run]:shadow-[0_0_18px_rgba(253,145,63,0.35)]"
         />
         <span aria-hidden="true" className="absolute inset-[22px] rounded-full border border-[rgba(255,244,232,0.12)]" />
         {/* Cardinal marks. */}
@@ -1133,9 +1133,9 @@ function TouchControls({ jumpLabel }: { jumpLabel: string }) {
         ))}
         <div
           ref={knob}
-          className="relative size-[52px] rounded-full border border-[rgba(154,214,255,0.7)] bg-[radial-gradient(circle_at_50%_35%,rgba(154,214,255,0.42),rgba(154,214,255,0.12)_70%)] shadow-[0_0_16px_rgba(94,230,255,0.35),inset_0_1px_0_rgba(255,255,255,0.35)] transition-transform duration-75 group-data-[live=run]:border-[rgba(94,230,255,1)] group-data-[live=run]:shadow-[0_0_22px_rgba(94,230,255,0.6),inset_0_1px_0_rgba(255,255,255,0.35)]"
+          className="relative size-[52px] rounded-full border border-[rgba(253,145,63,0.7)] bg-[radial-gradient(circle_at_50%_35%,rgba(253,145,63,0.42),rgba(253,145,63,0.12)_70%)] shadow-[0_0_16px_rgba(253,145,63,0.35),inset_0_1px_0_rgba(255,255,255,0.35)] transition-transform duration-75 group-data-[live=run]:border-[rgba(253,145,63,1)] group-data-[live=run]:shadow-[0_0_22px_rgba(253,145,63,0.6),inset_0_1px_0_rgba(255,255,255,0.35)]"
         >
-          <span aria-hidden="true" className="absolute left-1/2 top-1/2 size-[6px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[rgba(234,252,255,0.9)]" />
+          <span aria-hidden="true" className="absolute left-1/2 top-1/2 size-[6px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[rgba(238,237,236,0.9)]" />
         </div>
       </div>
       {/* The jump button: a glass disc with a chevron and the word. */}
@@ -1143,7 +1143,7 @@ function TouchControls({ jumpLabel }: { jumpLabel: string }) {
         type="button"
         data-jump
         aria-label={jumpLabel}
-        className="group pointer-events-auto absolute z-10 flex size-[80px] flex-col items-center justify-center gap-0.5 rounded-full border border-[rgba(255,244,232,0.3)] bg-[radial-gradient(circle_at_50%_35%,rgba(28,44,78,0.6),rgba(8,14,28,0.55))] shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_8px_30px_rgba(0,0,0,0.35)] backdrop-blur-md transition-[transform,box-shadow] duration-100 active:scale-95 active:border-[rgba(94,230,255,0.9)] active:shadow-[0_0_22px_rgba(94,230,255,0.45)]"
+        className="group pointer-events-auto absolute z-10 flex size-[80px] flex-col items-center justify-center gap-0.5 rounded-full border border-[rgba(255,244,232,0.3)] bg-[radial-gradient(circle_at_50%_35%,rgba(52,48,46,0.6),rgba(18,16,16,0.55))] shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_8px_30px_rgba(0,0,0,0.35)] backdrop-blur-md transition-[transform,box-shadow] duration-100 active:scale-95 active:border-[rgba(253,145,63,0.9)] active:shadow-[0_0_22px_rgba(253,145,63,0.45)]"
         style={{
           right: "calc(env(safe-area-inset-right) + 1.25rem)",
           bottom: "calc(env(safe-area-inset-bottom) + 1.75rem)",

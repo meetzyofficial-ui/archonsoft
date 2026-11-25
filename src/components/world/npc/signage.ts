@@ -64,8 +64,8 @@ function halo(ctx: CanvasRenderingContext2D, w: number, blur: number, colour: st
 
 function glass(ctx: CanvasRenderingContext2D, w: number, h: number, accent: string) {
   const plate = ctx.createLinearGradient(0, 0, 0, h);
-  plate.addColorStop(0, "rgba(16,22,34,0.97)");
-  plate.addColorStop(1, "rgba(6,9,15,0.97)");
+  plate.addColorStop(0, "rgba(24,23,22,0.97)");
+  plate.addColorStop(1, "rgba(10,10,9,0.97)");
   ctx.fillStyle = plate;
   ctx.fillRect(0, 0, w, h);
   /* A faint sheen across the top third: glass, not paint. */
@@ -132,7 +132,7 @@ export function paintSign(name: string, accent: string): Paint & { metrics: { ca
     const top = h * 0.5 - (pitch * (lines.length - 1)) / 2;
     lines.forEach((line, i) => {
       const y = top + i * pitch;
-      halo(ctx, w, size * 0.35, "rgba(232,242,255,0.55)", () => spaced(ctx, line, w / 2, y, tracking(), "center"));
+      halo(ctx, w, size * 0.35, "rgba(237,236,235,0.55)", () => spaced(ctx, line, w / 2, y, tracking(), "center"));
       ctx.fillStyle = "#ffffff";
       spaced(ctx, line, w / 2, y, tracking(), "center");
     });
@@ -159,7 +159,7 @@ export function paintBoard(content: BoardContent): Paint {
       ctx.font = `600 ${titleSize}px ${FACE}`;
     }
     const titleY = pad + h * 0.08 + titleSize;
-    halo(ctx, w, titleSize * 0.3, "rgba(232,242,255,0.5)", () => ctx.fillText(content.title, pad, titleY));
+    halo(ctx, w, titleSize * 0.3, "rgba(237,236,235,0.5)", () => ctx.fillText(content.title, pad, titleY));
     ctx.fillStyle = "#ffffff";
     ctx.fillText(content.title, pad, titleY);
 
@@ -169,7 +169,7 @@ export function paintBoard(content: BoardContent): Paint {
     y += h * 0.075;
 
     if (content.tagline) {
-      ctx.fillStyle = "rgba(226,234,246,0.92)";
+      ctx.fillStyle = "rgba(230,229,228,0.92)";
       ctx.font = `500 ${h * 0.055}px ${FACE}`;
       ctx.fillText(content.tagline, pad, y, w - pad * 2);
       y += h * 0.085;

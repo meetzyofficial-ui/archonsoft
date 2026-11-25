@@ -85,7 +85,7 @@ for (const [tag, viewport, phone] of [
   const ctx = await browser.newContext(phone ? { viewport, deviceScaleFactor: 3, isMobile: true, hasTouch: true, userAgent: ua } : { viewport });
   const page = await ctx.newPage();
   await page.bringToFront();
-  await page.goto(BASE + "/tr", { waitUntil: "domcontentloaded" });
+  await page.goto(BASE + "/tr?world", { waitUntil: "domcontentloaded" });
   await page.waitForFunction(() => document.querySelector(".world-overlay")?.getAttribute("data-stage") === "reveal", null, { timeout: 90000 });
   const atReady = await page.evaluate(measure);
   await page.waitForTimeout(5000);

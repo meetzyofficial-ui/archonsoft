@@ -54,6 +54,7 @@ import oyGames from "@/assets/work/oyundal/games.jpg";
 import oyHome from "@/assets/work/oyundal/app-home.jpg";
 import oyGame from "@/assets/work/oyundal/app-game.jpg";
 import oyTable from "@/assets/work/oyundal/app-table.jpg";
+import oyPlate from "@/assets/work/oyundal/plate-games.jpg";
 import oyPanel from "@/assets/work/oyundal/panel.jpg";
 import mzSite from "@/assets/work/meetzy/site.jpg";
 
@@ -308,6 +309,7 @@ export const OYUNDAL: Record<string, Screen> = {
   home: { image: oyHome, caption: { en: "What a guest sees after scanning the QR", tr: "QR okutulduktan sonra misafirin gördüğü ekran" } },
   game: { image: oyGame, caption: { en: "A game, opened in the browser", tr: "Tarayıcıda açılan bir oyun" } },
   table: { image: oyTable, caption: { en: "Choosing the table", tr: "Masa seçimi" } },
+  plate: { image: oyPlate, caption: { en: "37 games behind one QR", tr: "Tek QR'da 37 oyun" } },
   panel: { image: oyPanel, caption: { en: "Owner panel: report across branches (sample data)", tr: "İşletme paneli: şube raporu (örnek veri)" } },
 };
 

@@ -70,7 +70,7 @@ const waitStage = (page, want, timeout = 60000) =>
     };
     requestAnimationFrame(tick);
   });
-  await page.goto(BASE + "/tr", { waitUntil: "domcontentloaded" });
+  await page.goto(BASE + "/tr?world", { waitUntil: "domcontentloaded" });
   const revealed = await waitStage(page, "reveal", 90000);
   check("throttled phone: loading reaches the reveal", revealed);
   const memory = await page.evaluate(() => {
@@ -106,7 +106,7 @@ const waitStage = (page, want, timeout = 60000) =>
 /* ------------------------------------------------- a start the device killed */
 {
   const { ctx, page, errors } = await phone({ pending: true, failures: 0 });
-  await page.goto(BASE + "/tr", { waitUntil: "domcontentloaded" });
+  await page.goto(BASE + "/tr?world", { waitUntil: "domcontentloaded" });
   const revealed = await waitStage(page, "reveal", 90000);
   const quality = await page.evaluate(() => window.__archonQuality?.());
   check("after one killed start: the world starts in the safe tier", revealed && quality?.tier === "safe" && quality?.safe === true && quality?.dpr <= 1.25, JSON.stringify(quality));
@@ -122,7 +122,7 @@ const waitStage = (page, want, timeout = 60000) =>
 /* ------------------------------------------------------ two, and the fallback */
 {
   const { ctx, page, errors } = await phone({ pending: true, failures: 1 });
-  await page.goto(BASE + "/tr", { waitUntil: "domcontentloaded" });
+  await page.goto(BASE + "/tr?world", { waitUntil: "domcontentloaded" });
   const fallback = page.locator("[data-world-failure]");
   await fallback.waitFor({ state: "visible", timeout: 20000 }).catch(() => {});
   const text = (await fallback.count()) ? await fallback.innerText() : "";
@@ -140,10 +140,10 @@ const waitStage = (page, want, timeout = 60000) =>
 /* ------------------------------------------------ leaving is not failing */
 {
   const { ctx, page } = await phone();
-  await page.goto(BASE + "/tr", { waitUntil: "domcontentloaded" });
+  await page.goto(BASE + "/tr?world", { waitUntil: "domcontentloaded" });
   await page.waitForFunction(() => window.__archonScene?.(), null, { timeout: 30000 });
   await page.goto(BASE + "/tr/about", { waitUntil: "domcontentloaded" });
-  await page.goto(BASE + "/tr", { waitUntil: "domcontentloaded" });
+  await page.goto(BASE + "/tr?world", { waitUntil: "domcontentloaded" });
   await waitStage(page, "reveal", 90000);
   const quality = await page.evaluate(() => window.__archonQuality?.());
   check("a reload mid-start is not counted: full tier again", quality?.tier === "high" && !quality?.safe, JSON.stringify(quality));
@@ -153,7 +153,7 @@ const waitStage = (page, want, timeout = 60000) =>
 /* ------------------------------------ leaving the world is not failing */
 {
   const { ctx, page } = await phone();
-  await page.goto(BASE + "/tr", { waitUntil: "domcontentloaded" });
+  await page.goto(BASE + "/tr?world", { waitUntil: "domcontentloaded" });
   await enterWorld(page, "tr", 7500);
   const leaveButton = page.locator(".world-overlay button", { hasText: /Ana site|Main site/i }).last();
   await leaveButton.tap().catch(() => {});
@@ -167,7 +167,7 @@ const waitStage = (page, want, timeout = 60000) =>
 /* ------------------------------------------------------ a lost context */
 {
   const { ctx, page, errors } = await phone();
-  await page.goto(BASE + "/tr", { waitUntil: "domcontentloaded" });
+  await page.goto(BASE + "/tr?world", { waitUntil: "domcontentloaded" });
   await enterWorld(page, "tr", 2500);
   const before = await page.evaluate(() => {
     window.__firstScene = window.__archonScene();
@@ -186,7 +186,7 @@ const waitStage = (page, want, timeout = 60000) =>
 }
 {
   const { ctx, page } = await phone();
-  await page.goto(BASE + "/tr", { waitUntil: "domcontentloaded" });
+  await page.goto(BASE + "/tr?world", { waitUntil: "domcontentloaded" });
   await enterWorld(page, "tr", 2500);
   await page.evaluate(() => window.__archonContext(true));
   const shown = await page.locator("[data-world-failure]").waitFor({ state: "visible", timeout: 9000 }).then(() => true, () => false);

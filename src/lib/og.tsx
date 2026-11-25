@@ -17,12 +17,14 @@ export const OG_CONTENT_TYPE = "image/png";
 
 const font = (file: string) => readFileSync(join(process.cwd(), "src/assets/og", file));
 
+const MARK = `data:image/png;base64,${readFileSync(join(process.cwd(), "src/assets/brand/archon-mark.png")).toString("base64")}`;
+
 /* The share card is the one place the site is still night: a card has to hold
    its own against whatever timeline it lands in, and a near-white card on a
    near-white feed is invisible. The palette is the site's ink scheme. */
 const INK = "#0c0c0d";
 const PAPER = "#e3e5e6";
-const ACCENT = "#ff5a00";
+const ACCENT = "#ff7300";
 const LINE = "rgba(227,229,230,0.16)";
 const MUTE = "rgba(227,229,230,0.52)";
 
@@ -47,13 +49,13 @@ export function renderOgImage({ eyebrow, title, accent, meta }: OgCard) {
           flexDirection: "column",
           justifyContent: "space-between",
           backgroundColor: INK,
+          backgroundImage: "linear-gradient(135deg, #e86a04 0%, #7a3203 14%, #1c0e06 32%, #08080a 48%, #0c0b0b 74%, #4a413a 100%)",
           color: PAPER,
           padding: 64,
           fontFamily: "Display",
           position: "relative",
         }}
       >
-        <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 24, backgroundColor: ACCENT, display: "flex" }} />
 
         <div
           style={{
@@ -65,13 +67,8 @@ export function renderOgImage({ eyebrow, title, accent, meta }: OgCard) {
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            {/* The supplied mark: three left-aligned bars of decreasing
-                width, measured off the brand file rather than redrawn. */}
-            <svg width="30" height="26" viewBox="0 0 34 29.4">
-              <rect x="0" y="0" width="34" height="7.4" fill={PAPER} />
-              <rect x="0" y="11" width="24.5" height="7.4" fill={PAPER} />
-              <rect x="0" y="22" width="15" height="7.4" fill={ACCENT} />
-            </svg>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={MARK} width="66" height="42" alt="" />
             <span>Archonsoft</span>
           </div>
           <span style={{ color: MUTE }}>{eyebrow}</span>

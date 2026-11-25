@@ -24,7 +24,7 @@ export function WorldEntry({ locale, copy }: { locale: Locale; copy: Copy }) {
         alt={copy.world.plate}
         placeholder="blur"
         sizes="100vw"
-        className="h-[clamp(16rem,46vw,44rem)] w-full object-cover grayscale"
+        className="h-[clamp(16rem,46vw,44rem)] w-full object-cover"
       />
     </section>
   );

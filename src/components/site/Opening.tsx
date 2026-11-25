@@ -16,7 +16,7 @@ export function Opening({ locale, copy }: { locale: Locale; copy: Copy }) {
   ];
 
   return (
-    <section data-hero data-scheme="black" aria-labelledby="hero-heading" className="hero">
+    <section data-hero data-scheme="black" aria-labelledby="hero-heading" className="hero forge">
       <div className="frame pt-[clamp(2.25rem,5vw,5rem)] pb-[clamp(2.25rem,4vw,4rem)]">
         <h1 id="hero-heading" className="text-display max-w-[19ch]">
           {copy.hero.lead} <span className="text-[var(--color-orange)]">{copy.hero.leadAccent}</span>

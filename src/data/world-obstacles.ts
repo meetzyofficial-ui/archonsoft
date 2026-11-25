@@ -1,5 +1,6 @@
 import { OFFICE_OBSTACLES } from "@/data/departments";
 import { DISPLAYS, GALLERY, type Box } from "@/data/world-map";
+import { OYUNDAL_TABLES } from "@/data/world-oyundal";
 import { TORCH_OBSTACLES } from "@/data/world-torches";
 
 /**
@@ -43,6 +44,13 @@ const ARACIMGO_PIECES: Box[] = [
   ...[-70, -54].flatMap((x) => [-76, -58].map((z): Box => ({ at: [x, 4.6, z], size: [0.5, 9.2, 0.5] }))),
 ];
 
+/* Oyundal's café: the tables with their stools, the entrance screen, the console. */
+const OYUNDAL_PIECES: Box[] = [
+  ...OYUNDAL_TABLES.map(([x, z]): Box => ({ at: [x, 0.6, z], size: [2.4, 1.2, 2.4] })),
+  { at: [53.4, 1.6, 41], size: [1.2, 3.2, 5.6] },
+  { at: [67, 0.5, 50.2], size: [2.7, 1, 1] },
+];
+
 /* The wayfinding totem by the arrival. */
 const TOTEM: Box[] = [{ at: [11.6, 2, 34.2], size: [1.6, 4, 1.6] }];
 
@@ -54,4 +62,4 @@ const PANELS: Box[] = DISPLAYS.filter((d) => d.zone === "hub" && d.form === "ver
 
 /* The offices: every desk with its chair, and the board wall behind each
    team, from the same data the scene builds them from. */
-export const WORLD_OBSTACLES: Box[] = [...PYLONS, ...CONSOLES, ...TOTEM, ...PANELS, ...ARACIMGO_PIECES, ...OFFICE_OBSTACLES, ...TORCH_OBSTACLES];
+export const WORLD_OBSTACLES: Box[] = [...PYLONS, ...CONSOLES, ...TOTEM, ...PANELS, ...ARACIMGO_PIECES, ...OYUNDAL_PIECES, ...OFFICE_OBSTACLES, ...TORCH_OBSTACLES];

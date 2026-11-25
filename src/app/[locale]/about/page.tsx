@@ -39,14 +39,14 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
 const ABOUT = {
   en: {
-    lead: "One person, the whole",
+    lead: "One studio, the whole",
     accent: "span.",
     standfirst:
-      "Archon Soft is one person in Ankara who has spent about two years designing, building and shipping complete software products. Not a design studio that hands over screens, and not a dev shop that hands over a repository — the whole thing.",
-    note: "Being one person is the constraint and the argument. It is why scope has to be honest, and why nothing gets lost in a handover.",
+      "Archon Soft is a software studio in Ankara. For about two years we have designed, built and shipped complete products: the screens, the code and everything behind them.",
+    note: "Design and engineering sit at the same table here, so nothing gets lost in a handover.",
     spanTitle: "What that actually covers",
     spanBody:
-      "Deciding what the product is. Drawing it. Building the client. Building the server. Modelling the data. Accounts and permissions. The admin the business will live in. Getting it live and keeping it there. Every product on this site went through every one of those steps with the same pair of hands.",
+      "Deciding what the product is. Drawing it. Building the client. Building the server. Modelling the data. Accounts and permissions. The admin the business will live in. Getting it live and keeping it there. Every product on this site went through every one of those steps in the same studio.",
     principles: "Principles",
     principlesAside: "How the work runs",
     process: "Process",
@@ -55,14 +55,14 @@ const ABOUT = {
     factsAside: "Verified",
   },
   tr: {
-    lead: "Tek kişi, işin",
+    lead: "Tek stüdyo, işin",
     accent: "tamamı.",
     standfirst:
-      "Archon Soft, Ankara'da yaklaşık iki yıldır yazılım ürünlerini uçtan uca tasarlayan, geliştiren ve yayına alan tek kişi. Ekran teslim eden bir tasarım stüdyosu değil, repo teslim eden bir yazılım şirketi de değil — işin tamamı.",
-    note: "Tek kişi olmak hem kısıt hem argüman. Kapsamın dürüst olmak zorunda olmasının ve devir teslimde hiçbir şeyin kaybolmamasının sebebi bu.",
+      "Archon Soft, Ankara'da bir yazılım stüdyosu. Yaklaşık iki yıldır ürünleri uçtan uca tasarlıyor, geliştiriyor ve yayına alıyoruz: ekranı da, kodu da, arkasındaki her şeyi de.",
+    note: "Tasarım ve mühendislik burada aynı masada; devir teslimde hiçbir şey kaybolmuyor.",
     spanTitle: "Bu aslında neyi kapsıyor",
     spanBody:
-      "Ürünün ne olduğuna karar vermek. Çizmek. İstemciyi kurmak. Sunucuyu kurmak. Veriyi modellemek. Hesaplar ve izinler. İşletmenin içinde yaşayacağı yönetim paneli. Yayına almak ve orada tutmak. Bu sitedeki ürünlerin hepsi bu adımların hepsinden aynı ellerle geçti.",
+      "Ürünün ne olduğuna karar vermek. Çizmek. İstemciyi kurmak. Sunucuyu kurmak. Veriyi modellemek. Hesaplar ve izinler. İşletmenin içinde yaşayacağı yönetim paneli. Yayına almak ve orada tutmak. Bu sitedeki ürünlerin hepsi bu adımların hepsinden aynı stüdyoda geçti.",
     principles: "İlkeler",
     principlesAside: "İş nasıl yürüyor",
     process: "Süreç",

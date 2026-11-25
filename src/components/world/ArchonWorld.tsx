@@ -415,7 +415,7 @@ export function ArchonWorld({
       data-scheme="ink"
       data-stage={stage}
       className={cn(
-        "world-overlay fixed inset-0 z-[120] overflow-hidden bg-[#03050b] text-[var(--fg)]",
+        "world-overlay fixed inset-0 z-[120] overflow-hidden bg-[#08080a] text-[var(--fg)]",
         "transition-opacity duration-[420ms] ease-[var(--ease-out-expo)]",
         leaving ? "opacity-0" : "opacity-100",
       )}
@@ -584,7 +584,7 @@ export function ArchonWorld({
       </div>
 
       {failed ? (
-        <div data-world-failure className="absolute inset-0 z-[140] flex items-center justify-center bg-[#03050b] px-6">
+        <div data-world-failure className="absolute inset-0 z-[140] flex items-center justify-center bg-[#08080a] px-6">
           <div role="alertdialog" aria-labelledby="world-failure-title" className="flex max-w-md flex-col items-center text-center">
             <ArchonIcon className="h-12 text-[var(--fg)]" />
             <p id="world-failure-title" className="text-sub mt-8 text-[var(--fg)]">

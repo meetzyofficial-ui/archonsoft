@@ -17,8 +17,8 @@ export const PRINCIPLES: Principle[] = [
     index: "02",
     title: { en: "No handovers", tr: "Devir teslim yok" },
     body: {
-      en: "Design and engineering are the same conversation held in two notations. One person carrying both means nothing gets lost between the file and the build.",
-      tr: "Tasarım ve mühendislik, iki farklı notasyonla yapılan aynı konuşmadır. İkisini tek kişinin taşıması, dosya ile build arasında hiçbir şeyin kaybolmaması demek.",
+      en: "Design and engineering are the same conversation held in two notations. One studio carrying both means nothing gets lost between the file and the build.",
+      tr: "Tasarım ve mühendislik, iki farklı notasyonla yapılan aynı konuşmadır. İkisini tek stüdyonun taşıması, dosya ile build arasında hiçbir şeyin kaybolmaması demek.",
     },
   },
   {
@@ -49,8 +49,8 @@ export const PRINCIPLES: Principle[] = [
     index: "06",
     title: { en: "Hand it over properly", tr: "Düzgün devret" },
     body: {
-      en: "The work is finished when your team can run it without me. Documentation and handover are part of the build, not a line at the end of an invoice.",
-      tr: "İş, ekibin onu bensiz yürütebildiğinde biter. Dokümantasyon ve devir, işin parçasıdır; faturanın sonundaki bir satır değil.",
+      en: "The work is finished when your team can run it without us. Documentation and handover are part of the build, not a line at the end of an invoice.",
+      tr: "İş, ekibin onu bizsiz yürütebildiğinde biter. Dokümantasyon ve devir, işin parçasıdır; faturanın sonundaki bir satır değil.",
     },
   },
 ];
@@ -100,8 +100,8 @@ export const PROCESS: Phase[] = [
  */
 export const STUDIO_FACTS: { label: Localized; value: Localized }[] = [
   {
-    label: { en: "Studio", tr: "Stüdyo" },
-    value: { en: "One person", tr: "Tek kişi" },
+    label: { en: "What we are", tr: "Biz" },
+    value: { en: "Software studio", tr: "Yazılım stüdyosu" },
   },
   {
     label: { en: "Based in", tr: "Konum" },

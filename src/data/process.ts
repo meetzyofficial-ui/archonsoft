@@ -168,7 +168,7 @@ export const PROCESS: Stage[] = [
       tr: "Çalışan bir ürün ve size ait olan her hesap.",
     },
     yours: {
-      en: "Deciding when. The technical readiness is my problem.",
+      en: "Deciding when. The technical readiness is our problem.",
       tr: "Ne zaman olacağına karar vermek. Teknik hazırlık benim işim.",
     },
   },

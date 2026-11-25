@@ -77,8 +77,8 @@ const FRAGMENT = /* glsl */ `
     // broad cool bloom; the nebula to the west lays a violet one.
     float north = clamp(-view.z, 0.0, 1.0);
     float west = clamp(-view.x, 0.0, 1.0);
-    colour += vec3(0.11, 0.46, 0.72) * fresnel * north * 0.55;
-    colour += vec3(0.37, 0.31, 0.66) * fresnel * west * 0.28;
+    colour += vec3(0.42, 0.40, 0.38) * fresnel * north * 0.55;
+    colour += vec3(0.75, 0.27, 0.02) * fresnel * west * 0.28;
 
     // Luminous currents: two slow, wide, wandering bands of energy.
     float wander = sin(vWorld.z * 0.014 + uTime * 0.07) * 3.0;
@@ -102,7 +102,7 @@ const FRAGMENT = /* glsl */ `
     float ev = fract(uTime * 0.05 + seed);
     float r = length(local - (vec2(seed, hash(cell + 7.0)) - 0.5) * 30.0);
     float ring = smoothstep(1.2, 0.0, abs(r - ev * 26.0)) * (1.0 - ev) * step(0.45, seed);
-    colour += vec3(0.6, 0.85, 1.0) * ring * 0.35;
+    colour += vec3(1.0, 0.62, 0.3) * ring * 0.35;
 
     // Reflected stars: a sparse hash over a coarse grid, blinking slowly.
     vec2 scell = floor(vWorld.xz * 0.6);
@@ -111,7 +111,7 @@ const FRAGMENT = /* glsl */ `
     float twinkle = step(0.988, star) * blink;
     vec2 slocal = fract(vWorld.xz * 0.6) - 0.5;
     float dot = smoothstep(0.08, 0.0, length(slocal));
-    colour += vec3(0.85, 0.92, 1.0) * twinkle * dot * 1.1;
+    colour += vec3(1.0, 0.94, 0.88) * twinkle * dot * 1.1;
 
     // Never flat black directly under the visitor.
     colour += uEnergy * 0.05;
@@ -130,10 +130,10 @@ export function Ocean({ level = -2.6, reduced = false }: { level?: number; reduc
   const uniforms = useMemo(
     () => ({
       uTime: { value: 0 },
-      uDeep: { value: new THREE.Color("#050b1a") },
-      uShallow: { value: new THREE.Color("#12305a") },
-      uEnergy: { value: new THREE.Color("#3ec6ff") },
-      uFog: { value: new THREE.Color("#060a16") },
+      uDeep: { value: new THREE.Color("#0a0909") },
+      uShallow: { value: new THREE.Color("#3a3836") },
+      uEnergy: { value: new THREE.Color("#ff7300") },
+      uFog: { value: new THREE.Color("#0a0909") },
       uFogDensity: { value: 0.0065 },
     }),
     [],

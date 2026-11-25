@@ -68,7 +68,8 @@ export type ZoneId =
   | "labs"
   | "systems"
   | "archive"
-  | "aracimgo";
+  | "aracimgo"
+  | "oyundal";
 
 /* ------------------------------------------------------------------ zones */
 
@@ -78,7 +79,7 @@ export const ZONES: Zone[] = [
     label: { en: "The Gate", tr: "Kapı" },
     at: [0, 0, 0],
     bounds: [-30, -30, 30, 34],
-    accent: "#9ad6ff",
+    accent: "#ff7300",
     light: 1,
   },
   {
@@ -87,7 +88,7 @@ export const ZONES: Zone[] = [
     at: [0, 9, -8],
     bounds: [-30, -30, 30, 34],
     level: 9,
-    accent: "#c2e4ff",
+    accent: "#d9dbdd",
     light: 1.05,
   },
   {
@@ -95,7 +96,7 @@ export const ZONES: Zone[] = [
     label: { en: "Shipped", tr: "Yayında" },
     at: [0, 0, -46],
     bounds: [-30, -74, 30, -22],
-    accent: "#6fd8ff",
+    accent: "#ff8a2a",
     light: 0.9,
   },
   {
@@ -135,11 +136,20 @@ export const ZONES: Zone[] = [
     light: 0.9,
   },
   {
+    /* Oyundal's café: through the south wall of Labs, the only room past it. */
+    id: "oyundal",
+    label: { en: "Oyundal", tr: "Oyundal" },
+    at: [68, 0, 45],
+    bounds: [52, 34, 84, 56],
+    accent: "#c8f031",
+    light: 0.95,
+  },
+  {
     id: "labs",
     label: { en: "Archon Labs", tr: "Archon Labs" },
     at: [58, 0, 0],
     bounds: [34, -26, 84, 26],
-    accent: "#9a7dff",
+    accent: "#ff9a3c",
     light: 0.8,
   },
   {
@@ -147,7 +157,7 @@ export const ZONES: Zone[] = [
     label: { en: "Systems", tr: "Sistemler" },
     at: [-58, 0, 0],
     bounds: [-84, -24, -34, 24],
-    accent: "#3ee6d8",
+    accent: "#c9ccd0",
     light: 0.7,
   },
   {
@@ -155,7 +165,7 @@ export const ZONES: Zone[] = [
     label: { en: "The Archive", tr: "Arşiv" },
     at: [0, 0, 60],
     bounds: [-24, 40, 24, 82],
-    accent: "#6a7cff",
+    accent: "#c75a08",
     light: 0.45,
   },
 ];
@@ -277,8 +287,8 @@ const SHIPPED_DISPLAYS: Display[] = [
     turn: 0,
     size: [16, 7],
     subject: { kind: "note", title: { en: "Shipped", tr: "Yayında" }, body: {
-      en: "Four products, live. Two of them here, one through the east wall and one through the west.",
-      tr: "Dört ürün, canlı. İkisi burada, biri doğu duvarının, biri batı duvarının ardında.",
+      en: "Five products, live. Two of them here, one through each side wall, and Oyundal past Labs.",
+      tr: "Beş ürün, canlı. İkisi burada, ikisi yan duvarların ardında; Oyundal ise Labs'in güneyinde.",
     } },
   },
   {
@@ -428,6 +438,31 @@ const ARACIMGO_DISPLAYS: Display[] = [
     size: [12, 6.4],
     subject: { kind: "project", slug: ARACIMGO.slug },
     approach: [-70, EYE, -67],
+  },
+];
+
+/* --------------------------------------------------------------- oyundal */
+
+const OYUNDAL_DISPLAYS: Display[] = [
+  {
+    id: "oyundal-entrance",
+    zone: "oyundal",
+    form: "vertical",
+    at: [54, 3.1, 41],
+    turn: Math.PI / 2,
+    size: [4.6, 3.2],
+    subject: { kind: "product", slug: "oyundal" },
+    approach: [58, EYE, 41],
+  },
+  {
+    id: "oyundal-hall",
+    zone: "oyundal",
+    form: "immersive",
+    at: [82.4, 5.2, 45],
+    turn: -Math.PI / 2,
+    size: [12, 6.4],
+    subject: { kind: "project", slug: "oyundal" },
+    approach: [74, EYE, 45],
   },
 ];
 
@@ -692,6 +727,7 @@ export const DISPLAYS: Display[] = [
   ...GALLERY_DISPLAYS,
   ...BOARDS_DISPLAYS,
   ...ARACIMGO_DISPLAYS,
+  ...OYUNDAL_DISPLAYS,
   ...SHIPPED_DISPLAYS,
   ...LABS_DISPLAYS,
   ...SYSTEMS_DISPLAYS,
@@ -746,10 +782,15 @@ export const WALLS: Box[] = [
   { at: [-32, 4, -60.2], size: [5.6, 8, 1.6] },
 
   /* Labs — a long low gallery, deliberately tighter than Shipped. */
-  ...room(34, -26, 84, 26, CORRIDOR, 9, { west: true }),
+  ...room(34, -26, 84, 26, CORRIDOR, 9, { west: true, south: true }, { south: 61 }),
   { at: [45.4, 4.5, -18], size: [2.4, 9, 16] },
   { at: [45.4, 4.5, 18], size: [2.4, 9, 16] },
   { at: [70.6, 4.5, 0], size: [2.4, 9, 46] },
+
+  /* Oyundal's café, and the passage to it from Labs. */
+  ...room(52, 34, 84, 56, CORRIDOR, 9, { north: true }, { north: 61 }),
+  { at: [55.2, 4, 30], size: [1.6, 8, 8.4] },
+  { at: [66.8, 4, 30], size: [1.6, 8, 8.4] },
 
   /* Systems — one tall chamber facing a single wall of panels. */
   ...room(-84, -24, -34, 24, CORRIDOR, 13, { east: true }),
@@ -1058,6 +1099,7 @@ export const VIEWPOINTS: Record<ZoneId, { at: [number, number, number]; look: [n
   systems: { at: [-46, 5, 0], look: [-73, 7, 0] },
   /* From the passage, down the service hub to the project wall. */
   aracimgo: { at: [-39, EYE + 1.6, -66], look: [-82, 4.6, -67] },
+  oyundal: { at: [61, EYE + 1.6, 36.5], look: [68, 4.4, 52] },
   archive: { at: [0, 2.6, 49], look: [0, 2.6, 82] },
 };
 

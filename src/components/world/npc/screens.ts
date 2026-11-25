@@ -95,63 +95,63 @@ function chart(ctx: Ctx, x: number, y: number, w: number, h: number, colour: str
 
 function paint(kind: ScreenKind, accent: string, ctx: Ctx) {
   const r = rng(kind.length * 977 + accent.charCodeAt(1) * 31);
-  const dark = "#0b1220";
-  const panelDark = "#111a2c";
+  const dark = "#151413";
+  const panelDark = "#1e1c1a";
   const line = "rgba(255,255,255,0.08)";
-  const text = ["rgba(230,238,250,0.85)", "rgba(230,238,250,0.55)"];
+  const text = ["rgba(234,233,232,0.85)", "rgba(234,233,232,0.55)"];
 
   ctx.clearRect(0, 0, W, H);
   panel(ctx, 0, 0, W, H, dark);
 
   switch (kind) {
     case "code": {
-      panel(ctx, 0, 0, W, 22, "#0d1526");
-      for (let i = 0; i < 4; i += 1) panel(ctx, 8 + i * 92, 6, 78, 11, i === 1 ? "#1b2740" : "#121b2e");
-      panel(ctx, 0, 22, 84, H - 22, "#0a1020");
+      panel(ctx, 0, 0, W, 22, "#191716");
+      for (let i = 0; i < 4; i += 1) panel(ctx, 8 + i * 92, 6, 78, 11, i === 1 ? "#2c2927" : "#1f1d1c");
+      panel(ctx, 0, 22, 84, H - 22, "#141312");
       bars(ctx, 10, 34, 64, 16, 15, [text[1]!, text[1]!], r, true);
       for (let i = 0; i < 17; i += 1) {
         ctx.fillStyle = "rgba(255,255,255,0.18)";
         ctx.fillRect(92, 34 + i * 16, 10, 5);
       }
-      bars(ctx, 110, 34, 170, 17, 16, ["#7fb3ff", "#c9a2ff", "#7fd6a8", "#ffd58a", text[0]!], r, true);
+      bars(ctx, 110, 34, 170, 17, 16, ["#fd913f", "#fd913f", "#7fd6a8", "#ffd58a", text[0]!], r, true);
       /* A browser preview beside the code: the page the code makes. */
       panel(ctx, 300, 30, 200, 262, "#f6f7fa", line);
       panel(ctx, 300, 30, 200, 16, "#e6e8ee");
-      ctx.fillStyle = "#c9cdd6";
+      ctx.fillStyle = "#ccc9c7";
       ctx.fillRect(330, 35, 120, 6);
-      panel(ctx, 310, 56, 180, 60, "#111827");
+      panel(ctx, 310, 56, 180, 60, "#1b1a18");
       ctx.fillStyle = "#f6f7fa";
       ctx.fillRect(320, 70, 90, 8);
       ctx.fillStyle = accent;
       ctx.fillRect(320, 88, 50, 14);
       for (let i = 0; i < 3; i += 1) {
-        panel(ctx, 310 + i * 60, 126, 54, 44, "#e9edf5");
-        ctx.fillStyle = "#1c2030";
+        panel(ctx, 310 + i * 60, 126, 54, 44, "#e9e8e7");
+        ctx.fillStyle = "#252321";
         ctx.fillRect(316 + i * 60, 134, 30, 4);
-        ctx.fillStyle = "#8a93a6";
+        ctx.fillStyle = "#99938e";
         ctx.fillRect(316 + i * 60, 144, 40, 3);
         ctx.fillRect(316 + i * 60, 152, 34, 3);
       }
       for (let i = 0; i < 5; i += 1) {
-        ctx.fillStyle = i % 2 ? "#dfe3ec" : "#eef1f6";
+        ctx.fillStyle = i % 2 ? "#e0dfdd" : "#eef1f6";
         ctx.fillRect(310, 182 + i * 20, 180, 14);
       }
-      panel(ctx, 0, H - 18, W, 18, "#152341");
+      panel(ctx, 0, H - 18, W, 18, "#2a2725");
       ctx.fillStyle = accent;
       ctx.fillRect(0, H - 18, 62, 18);
       break;
     }
     case "design": {
-      panel(ctx, 0, 0, W, H, "#1a1d24");
-      panel(ctx, 0, 0, W, 26, "#22262e");
-      panel(ctx, 0, 26, 96, H - 26, "#1e222a", line);
+      panel(ctx, 0, 0, W, H, "#1e1c1b");
+      panel(ctx, 0, 0, W, 26, "#272423");
+      panel(ctx, 0, 26, 96, H - 26, "#23211f", line);
       bars(ctx, 10, 38, 76, 14, 17, [text[1]!], r, false);
-      panel(ctx, W - 118, 26, 118, H - 26, "#1e222a", line);
+      panel(ctx, W - 118, 26, 118, H - 26, "#23211f", line);
       /* Swatches. */
-      ["#f2a7c7", "#6aa8ff", "#ffd58a", "#7fd6a8", "#c9a2ff", "#f2a889"].forEach((c, i) => panel(ctx, W - 106 + (i % 3) * 32, 40 + Math.floor(i / 3) * 28, 24, 20, c));
+      ["#f2a7c7", "#fd913f", "#ffd58a", "#7fd6a8", "#fd913f", "#f2a889"].forEach((c, i) => panel(ctx, W - 106 + (i % 3) * 32, 40 + Math.floor(i / 3) * 28, 24, 20, c));
       bars(ctx, W - 106, 104, 96, 9, 16, [text[1]!], r, false);
       /* The canvas, with artboards. */
-      panel(ctx, 96, 26, W - 214, H - 26, "#2a2e36");
+      panel(ctx, 96, 26, W - 214, H - 26, "#2f2c2a");
       const boards: [number, number, number, number][] = [
         [118, 48, 96, 160],
         [232, 48, 96, 160],
@@ -159,13 +159,13 @@ function paint(kind: ScreenKind, accent: string, ctx: Ctx) {
         [118, 226, 210, 70],
       ];
       boards.forEach(([bx, by, bw, bh], i) => {
-        panel(ctx, bx, by, bw, bh, i % 2 ? "#f6f7fa" : "#0f1524", "rgba(255,255,255,0.15)");
-        ctx.fillStyle = i % 2 ? "#1c2030" : "#e9eef7";
+        panel(ctx, bx, by, bw, bh, i % 2 ? "#f6f7fa" : "#191716", "rgba(255,255,255,0.15)");
+        ctx.fillStyle = i % 2 ? "#252321" : "#eae9e8";
         ctx.fillRect(bx + 8, by + 10, bw * 0.5, 6);
         ctx.fillStyle = accent;
         ctx.fillRect(bx + 8, by + 22, bw * 0.28, 4);
         for (let k = 0; k < 3; k += 1) {
-          ctx.fillStyle = i % 2 ? "rgba(28,32,48,0.12)" : "rgba(233,238,247,0.14)";
+          ctx.fillStyle = i % 2 ? "rgba(37,35,33,0.12)" : "rgba(234,233,232,0.14)";
           ctx.fillRect(bx + 8, by + 36 + k * 18, bw - 16, 12);
         }
         if (bh > 100) {
@@ -176,20 +176,20 @@ function paint(kind: ScreenKind, accent: string, ctx: Ctx) {
       break;
     }
     case "ai": {
-      panel(ctx, 0, 0, 92, H, "#0a1020", line);
+      panel(ctx, 0, 0, 92, H, "#141312", line);
       bars(ctx, 10, 20, 72, 12, 18, [text[1]!], r, false);
       /* Chat pane. */
       panel(ctx, 100, 12, 220, H - 24, panelDark, line);
       for (let i = 0; i < 6; i += 1) {
         const mine = i % 2 === 1;
         const w = 90 + r() * 90;
-        panel(ctx, mine ? 310 - w : 110, 24 + i * 46, w, 30, mine ? "#1c3a5c" : "#182238");
+        panel(ctx, mine ? 310 - w : 110, 24 + i * 46, w, 30, mine ? "#3b3734" : "#272423");
         bars(ctx, (mine ? 310 - w : 110) + 8, 32 + i * 46, w - 16, 2, 10, [text[0]!], r, false);
       }
-      panel(ctx, 110, H - 40, 200, 20, "#0f1a30", accent);
+      panel(ctx, 110, H - 40, 200, 20, "#1f1d1b", accent);
       /* Model cards and a training curve. */
       panel(ctx, 330, 12, 172, 120, panelDark, line);
-      chart(ctx, 340, 30, 152, 90, "rgb(86,217,255)", r);
+      chart(ctx, 340, 30, 152, 90, "rgb(253,145,63)", r);
       for (let i = 0; i < 3; i += 1) {
         panel(ctx, 330, 142 + i * 52, 172, 44, panelDark, line);
         ctx.fillStyle = i === 0 ? accent : "rgba(255,255,255,0.3)";
@@ -201,14 +201,14 @@ function paint(kind: ScreenKind, accent: string, ctx: Ctx) {
       break;
     }
     case "viewport": {
-      panel(ctx, 0, 0, W, H, "#191c22");
-      panel(ctx, 0, 0, W, 22, "#23272e");
-      panel(ctx, 0, 22, 104, H - 22, "#1e2229", line);
+      panel(ctx, 0, 0, W, H, "#1d1b1a");
+      panel(ctx, 0, 0, W, 22, "#272523");
+      panel(ctx, 0, 22, 104, H - 22, "#23201f", line);
       bars(ctx, 10, 34, 84, 15, 17, [text[1]!], r, false);
-      panel(ctx, W - 118, 22, 118, H - 22, "#1e2229", line);
+      panel(ctx, W - 118, 22, 118, H - 22, "#23201f", line);
       bars(ctx, W - 108, 34, 98, 14, 18, [text[1]!, accent], r, false);
       /* The viewport: a grid in perspective, a wire cube, a gizmo. */
-      panel(ctx, 104, 22, W - 222, H - 22, "#2a2f38");
+      panel(ctx, 104, 22, W - 222, H - 22, "#302d2a");
       ctx.strokeStyle = "rgba(255,255,255,0.12)";
       ctx.lineWidth = 1;
       const cx = 104 + (W - 222) / 2;
@@ -247,7 +247,7 @@ function paint(kind: ScreenKind, accent: string, ctx: Ctx) {
         ctx.lineTo(x!, y! + 70);
         ctx.stroke();
       }
-      ["#ff6b6b", "#7fd6a8", "#6aa8ff"].forEach((c, i) => {
+      ["#ff6b6b", "#7fd6a8", "#fd913f"].forEach((c, i) => {
         ctx.strokeStyle = c;
         ctx.beginPath();
         ctx.moveTo(130, H - 30);
@@ -258,22 +258,22 @@ function paint(kind: ScreenKind, accent: string, ctx: Ctx) {
     }
     case "timeline": {
       panel(ctx, 0, 0, W, H, "#15171c");
-      panel(ctx, 0, 0, 150, 150, "#1c1f26", line);
+      panel(ctx, 0, 0, 150, 150, "#201e1d", line);
       bars(ctx, 10, 12, 130, 7, 18, [text[1]!], r, false);
       /* The preview. */
       panel(ctx, 158, 10, W - 168, 140, "#000");
       const g = ctx.createLinearGradient(158, 10, W - 10, 150);
-      g.addColorStop(0, "#2b1a3f");
+      g.addColorStop(0, "#2b2926");
       g.addColorStop(0.5, "#ff9a5a");
-      g.addColorStop(1, "#1d3f6b");
+      g.addColorStop(1, "#423e3b");
       ctx.fillStyle = g;
       ctx.fillRect(170, 22, W - 192, 116);
       /* The tracks. */
       panel(ctx, 0, 158, W, H - 158, "#111318");
-      const clipColours = ["#4f7bd9", "#d97b4f", "#5aa86f", "#8f6fd9", "#d9c25a"];
+      const clipColours = ["#fd862b", "#d97b4f", "#5aa86f", "#fd913f", "#d9c25a"];
       for (let t = 0; t < 5; t += 1) {
         const y = 170 + t * 28;
-        panel(ctx, 0, y, 60, 22, "#1a1d24");
+        panel(ctx, 0, y, 60, 22, "#1e1c1b");
         let x = 66;
         while (x < W - 10) {
           const w = 30 + r() * 90;
@@ -287,7 +287,7 @@ function paint(kind: ScreenKind, accent: string, ctx: Ctx) {
     }
     case "commerce":
     case "analytics": {
-      panel(ctx, 0, 0, 96, H, "#0a1020", line);
+      panel(ctx, 0, 0, 96, H, "#141312", line);
       bars(ctx, 10, 20, 76, 12, 18, [text[1]!], r, false);
       for (let i = 0; i < 4; i += 1) {
         panel(ctx, 108 + i * 98, 12, 90, 56, panelDark, line);
@@ -300,12 +300,12 @@ function paint(kind: ScreenKind, accent: string, ctx: Ctx) {
       chart(ctx, 118, 90, 230, 108, "rgb(242,168,137)", r);
       panel(ctx, 366, 78, 136, 130, panelDark, line);
       for (let i = 0; i < 5; i += 1) {
-        panel(ctx, 376, 90 + i * 22, 16, 16, ["#f2a889", "#6aa8ff", "#ffd58a", "#7fd6a8", "#c9a2ff"][i]!);
+        panel(ctx, 376, 90 + i * 22, 16, 16, ["#f2a889", "#fd913f", "#ffd58a", "#7fd6a8", "#fd913f"][i]!);
         bars(ctx, 400, 92 + i * 22, 94, 1, 12, [text[0]!], r, false);
       }
       /* Order rows. */
       for (let i = 0; i < 5; i += 1) {
-        panel(ctx, 108, 218 + i * 20, 394, 16, i % 2 ? "#0f172a" : panelDark);
+        panel(ctx, 108, 218 + i * 20, 394, 16, i % 2 ? "#1c1a19" : panelDark);
         bars(ctx, 116, 222 + i * 20, 380, 1, 10, [text[0]!, text[1]!], r, false);
         ctx.fillStyle = i % 3 ? "#7fd6a8" : "#ffd58a";
         ctx.fillRect(470, 222 + i * 20, 24, 8);
@@ -313,20 +313,20 @@ function paint(kind: ScreenKind, accent: string, ctx: Ctx) {
       break;
     }
     case "enterprise": {
-      panel(ctx, 0, 0, W, 28, "#0f1a30");
-      panel(ctx, 0, 28, 110, H - 28, "#0a1020", line);
+      panel(ctx, 0, 0, W, 28, "#1f1d1b");
+      panel(ctx, 0, 28, 110, H - 28, "#141312", line);
       bars(ctx, 12, 44, 86, 12, 18, [text[1]!], r, false);
       for (let i = 0; i < 3; i += 1) {
         panel(ctx, 122 + i * 126, 40, 118, 48, panelDark, line);
         ctx.fillStyle = text[1]!;
         ctx.fillRect(130 + i * 126, 48, 50, 5);
-        ctx.fillStyle = "#7fb3ff";
+        ctx.fillStyle = "#fd913f";
         ctx.fillRect(130 + i * 126, 62, 40 + r() * 40, 12);
       }
       /* A table. */
-      panel(ctx, 122, 98, 380, 20, "#152341");
+      panel(ctx, 122, 98, 380, 20, "#2a2725");
       for (let i = 0; i < 9; i += 1) {
-        panel(ctx, 122, 118 + i * 20, 380, 20, i % 2 ? "#0f172a" : "#0c1424");
+        panel(ctx, 122, 118 + i * 20, 380, 20, i % 2 ? "#1c1a19" : "#171615");
         for (let c = 0; c < 5; c += 1) {
           ctx.fillStyle = c === 4 ? (r() > 0.5 ? "#7fd6a8" : "#ffd58a") : text[c === 0 ? 0 : 1]!;
           ctx.fillRect(130 + c * 76, 124 + i * 20, c === 4 ? 26 : 30 + r() * 36, 7);
@@ -337,7 +337,7 @@ function paint(kind: ScreenKind, accent: string, ctx: Ctx) {
       break;
     }
     case "marketing": {
-      panel(ctx, 0, 0, 96, H, "#0a1020", line);
+      panel(ctx, 0, 0, 96, H, "#141312", line);
       bars(ctx, 10, 20, 76, 12, 18, [text[1]!], r, false);
       /* Campaign tiles with a trend each. */
       for (let i = 0; i < 4; i += 1) {
@@ -366,7 +366,7 @@ function paint(kind: ScreenKind, accent: string, ctx: Ctx) {
       });
       /* Channel bars. */
       panel(ctx, 296, 86, 206, 122, panelDark, line);
-      const channels = ["#ffd58a", "#6aa8ff", "#f2a889", "#7fd6a8", "#c9a2ff"];
+      const channels = ["#ffd58a", "#fd913f", "#f2a889", "#7fd6a8", "#fd913f"];
       channels.forEach((c, i) => {
         const h = 30 + r() * 70;
         ctx.fillStyle = c;
@@ -374,34 +374,34 @@ function paint(kind: ScreenKind, accent: string, ctx: Ctx) {
       });
       /* Schedule rows. */
       for (let i = 0; i < 5; i += 1) {
-        panel(ctx, 108, 218 + i * 20, 394, 16, i % 2 ? "#0f172a" : panelDark);
+        panel(ctx, 108, 218 + i * 20, 394, 16, i % 2 ? "#1c1a19" : panelDark);
         ctx.fillStyle = channels[i % channels.length]!;
         ctx.fillRect(114, 222 + i * 20, 6, 8);
         bars(ctx, 128, 222 + i * 20, 300, 1, 10, [text[0]!, text[1]!], r, false);
-        panel(ctx, 400 + r() * 40, 221 + i * 20, 40 + r() * 40, 10, "#1f3a5a");
+        panel(ctx, 400 + r() * 40, 221 + i * 20, 40 + r() * 40, 10, "#3b3734");
       }
       break;
     }
     case "consulting": {
       /* A strategy board: swimlanes with cards, a roadmap along the top. */
-      panel(ctx, 0, 0, W, H, "#141821");
-      panel(ctx, 0, 0, W, 26, "#1c212b");
+      panel(ctx, 0, 0, W, H, "#1a1817");
+      panel(ctx, 0, 0, W, 26, "#23201f");
       for (let q = 0; q < 4; q += 1) {
-        panel(ctx, 24 + q * 118, 36, 110, 14, "#1f2530", line);
+        panel(ctx, 24 + q * 118, 36, 110, 14, "#272422", line);
         ctx.fillStyle = text[1]!;
         ctx.fillRect(30 + q * 118, 41, 40, 4);
-        panel(ctx, 24 + q * 118 + r() * 20, 54, 60 + r() * 50, 8, [accent, "#6aa8ff", "#7fd6a8", "#f2a889"][q]!);
+        panel(ctx, 24 + q * 118 + r() * 20, 54, 60 + r() * 50, 8, [accent, "#fd913f", "#7fd6a8", "#f2a889"][q]!);
       }
-      const lanes = ["#3b2f5a", "#2f4a3a", "#4a3a2a"];
+      const lanes = ["#433e3b", "#2f4a3a", "#4a3a2a"];
       lanes.forEach((lane, li) => {
-        panel(ctx, 24, 76 + li * 76, W - 48, 68, "#181d27", line);
+        panel(ctx, 24, 76 + li * 76, W - 48, 68, "#1f1d1b", line);
         ctx.fillStyle = text[1]!;
         ctx.fillRect(32, 84 + li * 76, 44, 4);
         let x = 90;
         while (x < W - 100) {
           const w = 56 + r() * 40;
-          panel(ctx, x, 84 + li * 76 + r() * 30, w, 26, ["#fff1a8", "#c8f7e0", "#ffd6c4", "#dbe7ff"][Math.floor(r() * 4)]!);
-          ctx.fillStyle = "rgba(20,24,33,0.7)";
+          panel(ctx, x, 84 + li * 76 + r() * 30, w, 26, ["#fff1a8", "#c8f7e0", "#ffd6c4", "#e7e6e5"][Math.floor(r() * 4)]!);
+          ctx.fillStyle = "rgba(26,24,23,0.7)";
           ctx.fillRect(x + 6, 90 + li * 76 + 4, w * 0.6, 3);
           ctx.fillRect(x + 6, 90 + li * 76 + 11, w * 0.4, 3);
           x += w + 10;
@@ -411,10 +411,10 @@ function paint(kind: ScreenKind, accent: string, ctx: Ctx) {
       break;
     }
     case "innovation": {
-      panel(ctx, 0, 0, 110, H, "#0a1020", line);
+      panel(ctx, 0, 0, 110, H, "#141312", line);
       bars(ctx, 12, 20, 86, 12, 18, [text[1]!], r, false);
       /* A concept sketch: wireframe object on a grid, with callouts. */
-      panel(ctx, 120, 12, 262, 200, "#0c1220", line);
+      panel(ctx, 120, 12, 262, 200, "#151413", line);
       ctx.strokeStyle = "rgba(255,255,255,0.07)";
       for (let i = 0; i <= 12; i += 1) {
         ctx.beginPath();
@@ -449,7 +449,7 @@ function paint(kind: ScreenKind, accent: string, ctx: Ctx) {
         ctx.moveTo(cx + (x! - cx) * 0.3, cy + (y! - cy) * 0.3);
         ctx.lineTo(x!, y!);
         ctx.stroke();
-        panel(ctx, x! - 4, y! - 14, 44, 12, "#1a2438");
+        panel(ctx, x! - 4, y! - 14, 44, 12, "#282523");
         ctx.fillStyle = text[0]!;
         ctx.fillRect(x!, y! - 10, 30, 4);
       });
@@ -461,27 +461,27 @@ function paint(kind: ScreenKind, accent: string, ctx: Ctx) {
         bars(ctx, 416, 24 + i * 26, 84, 1, 10, [text[1]!], r, false);
       }
       for (let i = 0; i < 4; i += 1) {
-        panel(ctx, 120, 222 + i * 22, 382, 18, i % 2 ? "#0f172a" : panelDark);
+        panel(ctx, 120, 222 + i * 22, 382, 18, i % 2 ? "#1c1a19" : panelDark);
         bars(ctx, 128, 227 + i * 22, 360, 1, 10, [text[0]!, text[1]!], r, false);
       }
       break;
     }
     case "lobby":
     default: {
-      panel(ctx, 0, 0, W, 26, "#0f1a30");
-      panel(ctx, 0, 26, 120, H - 26, "#0a1020", line);
+      panel(ctx, 0, 0, W, 26, "#1f1d1b");
+      panel(ctx, 0, 26, 120, H - 26, "#141312", line);
       bars(ctx, 12, 40, 96, 12, 18, [text[1]!], r, false);
       /* Calendar week. */
       for (let d = 0; d < 5; d += 1) {
         panel(ctx, 132 + d * 74, 40, 66, 150, panelDark, line);
         const n = 1 + Math.floor(r() * 3);
         for (let k = 0; k < n; k += 1) {
-          panel(ctx, 136 + d * 74, 60 + k * 44 + r() * 10, 58, 28, ["#1c3a5c", "#3a2a4f", "#2a4a3a"][(d + k) % 3]!, accent);
+          panel(ctx, 136 + d * 74, 60 + k * 44 + r() * 10, 58, 28, ["#3b3734", "#3b3734", "#2a4a3a"][(d + k) % 3]!, accent);
         }
       }
       /* Messages. */
       for (let i = 0; i < 5; i += 1) {
-        panel(ctx, 132, 202 + i * 22, 370, 18, i % 2 ? "#0f172a" : panelDark);
+        panel(ctx, 132, 202 + i * 22, 370, 18, i % 2 ? "#1c1a19" : panelDark);
         ctx.fillStyle = i < 2 ? accent : "rgba(255,255,255,0.25)";
         ctx.beginPath();
         ctx.arc(142, 211 + i * 22, 4, 0, Math.PI * 2);

@@ -17,6 +17,7 @@ import {
   Walls,
 } from "@/components/world/districts/Districts";
 import { AracimGoHub } from "@/components/world/districts/AracimGo";
+import { OyundalCafe } from "@/components/world/districts/Oyundal";
 import { Display } from "@/components/world/displays/Display";
 import { Cosmos } from "@/components/world/environment/Cosmos";
 import { Ocean } from "@/components/world/environment/Ocean";
@@ -305,6 +306,7 @@ const STAGE = {
   guides: 6,
   boards: 7,
   aracimgo: 7,
+  oyundal: 8,
   labs: 8,
   systems: 9,
   archive: 10,
@@ -425,6 +427,9 @@ const WorldBody = memo(function WorldBody({
       </Staged>
       <Staged frames={STAGE.aracimgo}>
         <AracimGoHub texture={texture} installation={payload.installations.find((one) => one.id === "aracimgo")} locale={payload.locale} />
+      </Staged>
+      <Staged frames={STAGE.oyundal}>
+        <OyundalCafe texture={texture} installation={payload.installations.find((one) => one.id === "oyundal")} locale={payload.locale} />
       </Staged>
       <Staged frames={STAGE.labs}>
         <Labs texture={texture} />

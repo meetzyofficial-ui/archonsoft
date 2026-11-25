@@ -523,7 +523,7 @@ export function Office({
     <group ref={root} position={office.at} rotation={[0, facing, 0]} name={`office:${id}`}>
       <mesh position={[0, 0.02, backZ + depth / 2 - 0.2]}>
         <boxGeometry args={[span + 1.8, 0.04, depth + 0.4]} />
-        <meshStandardMaterial color="#101a30" roughness={0.55} metalness={0.2} />
+        <meshStandardMaterial color="#1f1d1c" roughness={0.55} metalness={0.2} />
       </mesh>
       <mesh geometry={lightStrips}>
         <Glow colour={office.accent} opacity={0.8} />
@@ -538,10 +538,10 @@ export function Office({
         <meshStandardMaterial color="#d9cdb8" roughness={0.6} metalness={0.05} />
       </mesh>
       <mesh geometry={metal}>
-        <meshStandardMaterial color="#8d97a6" roughness={0.4} metalness={0.8} />
+        <meshStandardMaterial color="#9a9590" roughness={0.4} metalness={0.8} />
       </mesh>
       <mesh geometry={dark}>
-        <meshStandardMaterial color="#161a22" roughness={0.6} metalness={0.3} />
+        <meshStandardMaterial color="#1b1a18" roughness={0.6} metalness={0.3} />
       </mesh>
       <mesh geometry={screens}>
         <meshBasicMaterial map={screen} toneMapped={false} />
@@ -557,7 +557,7 @@ export function Office({
       {!compact ? (
         <>
           <mesh geometry={pots}>
-            <meshStandardMaterial color="#2a2f3a" roughness={0.8} />
+            <meshStandardMaterial color="#312e2b" roughness={0.8} />
           </mesh>
           <mesh geometry={leaves}>
             <meshStandardMaterial color={MATERIAL.green} roughness={0.95} flatShading />
@@ -566,17 +566,17 @@ export function Office({
       ) : null}
 
       <mesh geometry={frame}>
-        <meshStandardMaterial color="#b3bcc8" roughness={0.35} metalness={0.85} />
+        <meshStandardMaterial color="#bbb8b4" roughness={0.35} metalness={0.85} />
       </mesh>
       <mesh position={[0, 1.5, backZ]}>
         <boxGeometry args={[span - 0.12, 2.92, 0.04]} />
-        <meshPhysicalMaterial color="#1a2a48" transparent opacity={0.42} roughness={0.08} metalness={0.3} envMapIntensity={1.4} depthWrite={false} />
+        <meshPhysicalMaterial color="#302d2a" transparent opacity={0.42} roughness={0.08} metalness={0.3} envMapIntensity={1.4} depthWrite={false} />
       </mesh>
       <group position={[0, 1.2 + boardH / 2 + 0.2, backZ + 0.1]}>
         <Backlight size={[boardW, boardH]} strength={0.75} inset={0.06} />
         <mesh position={[0, 0, -0.03]}>
           <boxGeometry args={[boardW + 0.14, boardH + 0.14, 0.05]} />
-          <meshStandardMaterial color="#0e1524" roughness={0.4} metalness={0.6} />
+          <meshStandardMaterial color="#181716" roughness={0.4} metalness={0.6} />
         </mesh>
         <mesh name="office-board" userData={{ title: board.title, items: board.items }}>
           <planeGeometry args={[boardW, boardH]} />
@@ -592,11 +592,11 @@ export function Office({
       {!compact ? (
         <group ref={glassExtras}>
           <mesh geometry={sideGlass}>
-            <meshPhysicalMaterial color="#1a2a48" transparent opacity={0.28} roughness={0.08} metalness={0.3} envMapIntensity={1.4} depthWrite={false} />
+            <meshPhysicalMaterial color="#302d2a" transparent opacity={0.28} roughness={0.08} metalness={0.3} envMapIntensity={1.4} depthWrite={false} />
           </mesh>
           <mesh position={[0, 3.26, backZ + (depth - 0.5) / 2]}>
             <boxGeometry args={[span + 0.1, 0.05, depth - 0.5]} />
-            <meshPhysicalMaterial color="#223a66" transparent opacity={0.22} roughness={0.1} metalness={0.4} envMapIntensity={1.2} depthWrite={false} />
+            <meshPhysicalMaterial color="#423e3b" transparent opacity={0.22} roughness={0.1} metalness={0.4} envMapIntensity={1.2} depthWrite={false} />
           </mesh>
         </group>
       ) : null}
@@ -606,7 +606,7 @@ export function Office({
         <Backlight size={[signW, signH]} strength={0.8} inset={0.05} halo={false} />
         <mesh position={[0, 0, -0.05]}>
           <boxGeometry args={[signW + 0.1, signH + 0.1, 0.08]} />
-          <meshStandardMaterial color="#0d1119" roughness={0.35} metalness={0.7} />
+          <meshStandardMaterial color="#131110" roughness={0.35} metalness={0.7} />
         </mesh>
         <mesh name="office-sign" userData={{ text: signText, office: id, cap: signPaint.metrics.cap }}>
           <planeGeometry args={[signW, signH]} />
@@ -621,7 +621,7 @@ export function Office({
           </mesh>
           <mesh>
             <torusGeometry args={[0.5, 0.012, 6, 40]} />
-            <Glow colour="#5ee6ff" opacity={0.8} />
+            <Glow colour="#fd913f" opacity={0.8} />
           </mesh>
           <mesh>
             <sphereGeometry args={[0.12, 12, 10]} />

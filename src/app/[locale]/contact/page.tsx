@@ -67,18 +67,6 @@ export default async function ContactPage({ params }: Params) {
               )}
               <p className="mono-label mt-6 text-[var(--fg-mute)]">{copy.hero.location}</p>
             </div>
-
-            <div className="hairline-t mt-12 pt-10">
-              <h2 className="mono-label text-[var(--fg-mute)]">{copy.contact.notFor.title}</h2>
-              <ul className="mt-5 space-y-4">
-                {copy.contact.notFor.items.map((item) => (
-                  <li key={item} className="text-[var(--fg-dim)]">
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-6 text-[var(--fg-mute)]">{copy.contact.notFor.note}</p>
-            </div>
           </aside>
         </div>
       </Band>

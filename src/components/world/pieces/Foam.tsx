@@ -115,7 +115,7 @@ export function Foam({
     [],
   );
   useEffect(() => {
-    uniforms.uColour.value.set(colour).lerp(new THREE.Color("#7fe6ff"), 0.45);
+    uniforms.uColour.value.set(colour).lerp(new THREE.Color("#fd913f"), 0.45);
   }, [colour, uniforms]);
 
   /* The waterline is where the sea is, unless the island sits above it —

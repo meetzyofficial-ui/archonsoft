@@ -1,4 +1,3 @@
-import { ARACIMGO_DOMAIN, ARACIMGO_URL } from "@/data/aracimgo-url";
 import { DEPARTMENTS } from "@/data/departments";
 import { LABS } from "@/data/labs";
 import { PROJECTS } from "@/data/projects";
@@ -221,32 +220,47 @@ function prepare(display: Display, locale: Locale): PreparedDisplay {
   if (subject.kind === "product") {
     const project = PROJECTS.find((one) => one.slug === subject.slug)!;
     const tr = locale === "tr";
+    const lines: Record<string, [string, string][]> = {
+      aracimgo: tr
+        ? [
+            ["Araç karnesi", "Yapılan her bakım kayıtta"],
+            ["Servis pazaryeri", "Usta bul, fiyatı gör, randevu al"],
+            ["İş emri", "Parça, işçilik ve ek iş onayı"],
+            ["Plaka tara", "Müşteri ve araç saniyede açılır"],
+          ]
+        : [
+            ["Vehicle passport", "Every service on record"],
+            ["Service marketplace", "Find, compare, book"],
+            ["Work orders", "Parts, labour, approvals"],
+            ["Plate scan", "Customer and car in seconds"],
+          ],
+      oyundal: tr
+        ? [
+            ["Tek QR, 37 oyun", "Okey, tavla, bilgi, parti"],
+            ["İndirme yok", "Tarayıcıda, herkes kendi telefonundan"],
+            ["Kampanya ve ödül", "Kasada tek kullanımlık kod"],
+            ["Tek panel", "Bütün şubeler, canlı"],
+          ]
+        : [
+            ["One QR, 37 games", "Okey, backgammon, trivia, party"],
+            ["No download", "In the browser, on each phone"],
+            ["Rewards", "Single-use codes at the till"],
+            ["One panel", "Every branch, live"],
+          ],
+    };
     return {
       ...display,
       content: {
         eyebrow: tr ? "Canlı ürün · Archon Soft" : "Live product · Archon Soft",
         title: project.name,
-        body: tr ? "Oto servis yönetimi. Tek yerde." : "Car service management. In one place.",
-        layers: (tr
-          ? [
-              ["✓ Müşteri Yönetimi", "Müşteri, araç ve geçmiş işlemler tek yerde"],
-              ["✓ İş Emirleri", "Hangi araç hangi durumda, tek ekranda"],
-              ["✓ Araç Geçmişi", "Her aracın işlemleri, kronolojik"],
-              ["✓ Plaka ile Arama", "Plakayı yaz, saniyeler içinde bul"],
-            ]
-          : [
-              ["✓ Customer management", "Customers, vehicles and past jobs in one place"],
-              ["✓ Work orders", "Which vehicle is at which stage, on one screen"],
-              ["✓ Vehicle history", "Every job on each vehicle, in order"],
-              ["✓ Plate search", "Type the plate, find it in seconds"],
-            ]
-        ).map(([label, detail]) => ({ label: label!, detail: detail! })),
-        meta: [ARACIMGO_DOMAIN],
-        accent: "#3ddc97",
+        body: t(project.summary, locale),
+        layers: lines[project.slug]!.map(([label, detail]) => ({ label, detail })),
+        meta: [project.link!.label],
+        accent: project.slug === "aracimgo" ? "#3ddc97" : "#c8f031",
       },
-      href: ARACIMGO_URL,
+      href: project.link!.href,
       external: true,
-      action: tr ? "AracımGo'yu keşfet →" : "Explore AracımGo →",
+      action: tr ? `${project.name} sitesini aç →` : `Open ${project.name} →`,
     };
   }
 
@@ -286,7 +300,7 @@ function prepare(display: Display, locale: Locale): PreparedDisplay {
         eyebrow: String(index).padStart(2, "0"),
         title: t(layer.label, locale),
         body: t(layer.detail, locale),
-        accent: "#8fa3c4",
+        accent: "#a9a4a0",
       },
       action: locale === "tr" ? "Oku" : "Read",
     };
@@ -303,7 +317,7 @@ function prepare(display: Display, locale: Locale): PreparedDisplay {
             ? "Web ve mobil yazılımdan yapay zekaya, tasarımdan 3D dünyalara: bir ürünün ihtiyaç duyduğu her katman, tek stüdyodan. Lobideki ekibe sorun."
             : "From web and mobile software to AI, from design to 3D worlds: every layer a product needs, from one studio. Ask the team in the lobby.",
         layers: DEPARTMENTS.filter((one) => one.office).map((one) => ({ label: t(one.name, locale), detail: t(one.tagline, locale) })),
-        accent: "#f2a889",
+        accent: "#ff7a1a",
       },
       action: locale === "tr" ? "Oku" : "Read",
     };
@@ -315,7 +329,7 @@ function prepare(display: Display, locale: Locale): PreparedDisplay {
       eyebrow: locale === "tr" ? "Archon" : "Archon",
       title: t(subject.title, locale),
       body: t(subject.body, locale),
-      accent: "#8ea6cc",
+      accent: "#aca8a3",
     },
     action: locale === "tr" ? "Oku" : "Read",
   };

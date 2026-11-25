@@ -22,6 +22,8 @@ export const TORCHES: Torch[][] = [
   [{ at: [29.9, 0, -62.6] }, { at: [34.1, 0, -62.6] }, { at: [29.9, 0, -69.4] }, { at: [34.1, 0, -69.4] }],
   /* Shipped to AracımGo's service hub — the same pairs, mirrored. */
   [{ at: [-29.9, 0, -62.6] }, { at: [-34.1, 0, -62.6] }, { at: [-29.9, 0, -69.4] }, { at: [-34.1, 0, -69.4] }],
+  /* Labs to Oyundal's café. */
+  [{ at: [57.4, 0, 27.6] }, { at: [64.6, 0, 27.6] }, { at: [57.4, 0, 32.6] }, { at: [64.6, 0, 32.6] }],
 ];
 
 export const TORCH_OBSTACLES = TORCHES.flat().map((torch) => ({

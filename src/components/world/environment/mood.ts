@@ -42,107 +42,19 @@ type MoodSpec = {
   key: string;
 };
 
+/* The studio's own ground is the logo's: near-black, brushed steel, and its
+   orange as the only light. Product districts keep a trace of their own. */
 const MOODS: Record<ZoneId | "between", MoodSpec> = {
-  /* The hub: the cosmic ocean proper. */
-  hub: {
-    oceanDeep: "#071a36",
-    oceanShallow: "#1b75b8",
-    energy: "#4cceff",
-    fog: "#0b1634",
-    fogDensity: 0.0036,
-    sky: "#2a4aa0",
-    light: 1,
-    key: "#ffe9d5",
-  },
-  /* Above the hub — the same sea, seen from higher, a little brighter. */
-  gallery: {
-    oceanDeep: "#0a1c3e",
-    oceanShallow: "#2a7cc4",
-    energy: "#8b72ff",
-    fog: "#0d1436",
-    fogDensity: 0.0034,
-    sky: "#2d50a8",
-    light: 1.08,
-    key: "#e6dcff",
-  },
-  /* Shipped: the brightest water, a luminous digital sea. */
-  shipped: {
-    oceanDeep: "#0a2850",
-    oceanShallow: "#2488d0",
-    energy: "#54d9ff",
-    fog: "#0b1834",
-    fogDensity: 0.0036,
-    sky: "#2e5ab0",
-    light: 1.06,
-    key: "#ffd9c4",
-  },
-  /* The hall of screens: DP Pano's own blue. */
-  boards: {
-    oceanDeep: "#081c3e",
-    oceanShallow: "#2470c8",
-    energy: "#6fcbff",
-    fog: "#0a1632",
-    fogDensity: 0.0040,
-    sky: "#2648a6",
-    light: 0.98,
-    key: "#dbe9ff",
-  },
-  /* Labs: energetic, tipping toward violet. */
-  labs: {
-    oceanDeep: "#141238",
-    oceanShallow: "#5a48c8",
-    energy: "#b08cff",
-    fog: "#120f30",
-    fogDensity: 0.0046,
-    sky: "#5a3aa8",
-    light: 0.94,
-    key: "#d9ccff",
-  },
-  /* Systems: cold cyan, precise. */
-  systems: {
-    oceanDeep: "#0a1e30",
-    oceanShallow: "#1e7a96",
-    energy: "#4ff0e0",
-    fog: "#0a1826",
-    fogDensity: 0.0046,
-    sky: "#1e5a78",
-    light: 0.9,
-    key: "#cfeff5",
-  },
-  /* Archive: the void. Water almost gone, stars very close. */
-  archive: {
-    oceanDeep: "#050818",
-    oceanShallow: "#182c60",
-    energy: "#6a7cff",
-    fog: "#06091a",
-    fogDensity: 0.0056,
-    sky: "#1a2860",
-    light: 0.72,
-    key: "#c8d0ff",
-  },
-  /* AracımGo: deep emerald water under a dark-teal sky, a clean white key
-     — a workshop under good light. */
-  aracimgo: {
-    oceanDeep: "#05241f",
-    oceanShallow: "#137a64",
-    energy: "#3ddc97",
-    fog: "#071a1a",
-    fogDensity: 0.0042,
-    sky: "#15545a",
-    light: 0.96,
-    key: "#eef8f2",
-  },
-  /* The bridges between islands: halfway to nowhere. */
-  between: {
-    oceanDeep: "#071a36",
-    oceanShallow: "#1e78bc",
-    energy: "#4cceff",
-    fog: "#0b1634",
-    fogDensity: 0.0038,
-    sky: "#28489c",
-    light: 0.96,
-    key: "#ffe4cc",
-  },
+  hub: { oceanDeep: "#0b0a0a", oceanShallow: "#55504c", energy: "#ff7300", fog: "#120f0d", fogDensity: 0.0036, sky: "#6b625b", light: 1.12, key: "#fff0e2" },
+  gallery: { oceanDeep: "#0d0c0c", oceanShallow: "#625c57", energy: "#ff8a2a", fog: "#141110", fogDensity: 0.0034, sky: "#756b63", light: 1.08, key: "#ffe6d2" },
+  shipped: { oceanDeep: "#0d0b0a", oceanShallow: "#5e5650", energy: "#ff7a10", fog: "#14100d", fogDensity: 0.0036, sky: "#75685d", light: 1.16, key: "#ffe9d6" },
+  boards: { oceanDeep: "#0b0d12", oceanShallow: "#4a5566", energy: "#7fa8e8", fog: "#0f1115", fogDensity: 0.004, sky: "#5a6270", light: 0.98, key: "#e9edf2" },
+  labs: { oceanDeep: "#0d0b0a", oceanShallow: "#54504d", energy: "#ff8a2a", fog: "#12100f", fogDensity: 0.0046, sky: "#67605a", light: 0.96, key: "#ffe3cc" },
+  systems: { oceanDeep: "#0b0b0c", oceanShallow: "#5c5f63", energy: "#d5d8db", fog: "#0f0f10", fogDensity: 0.0046, sky: "#6a6d70", light: 0.92, key: "#f0f0f0" },
+  archive: { oceanDeep: "#070606", oceanShallow: "#2d2926", energy: "#c75a08", fog: "#090807", fogDensity: 0.0056, sky: "#38322d", light: 0.74, key: "#e8d6c6" },
+  aracimgo: { oceanDeep: "#05241f", oceanShallow: "#137a64", energy: "#3ddc97", fog: "#071a1a", fogDensity: 0.0042, sky: "#15545a", light: 0.96, key: "#eef8f2" },
+  oyundal: { oceanDeep: "#0c0a2a", oceanShallow: "#3a30c0", energy: "#c8f031", fog: "#0e0c22", fogDensity: 0.0042, sky: "#4238a8", light: 1.12, key: "#fff4e2" },
+  between: { oceanDeep: "#0b0a0a", oceanShallow: "#544e4a", energy: "#ff7300", fog: "#120f0d", fogDensity: 0.0038, sky: "#665d56", light: 0.96, key: "#fff0e2" },
 };
 
 const toMood = (spec: MoodSpec): Mood => ({

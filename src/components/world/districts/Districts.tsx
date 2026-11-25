@@ -142,6 +142,8 @@ export function Bridges({ texture }: { texture: THREE.Texture }) {
       <Bridge at={[32, -66]} size={[5, 11.6]} texture={texture} colour={getZone("boards").accent} />
       {/* Shipped to AracımGo's service hub, the same bridge mirrored. */}
       <Bridge at={[-32, -66]} size={[5, 11.6]} texture={texture} colour={getZone("aracimgo").accent} />
+      {/* Labs to Oyundal's café. */}
+      <Bridge at={[61, 30]} size={[CORRIDOR + 2, 9]} texture={texture} colour={getZone("oyundal").accent} />
       {/* Fire at the ends of every bridge. */}
       {TORCHES.map((list, i) => (
         <Torches key={i} list={list} />
@@ -371,6 +373,7 @@ const STATION_THEMES: Record<string, StationTheme> = {
      Its architecture — the canopy and the bays — is its hub's own
      (`AracimGoHub`), so the station itself stays plain. */
   aracimgo: { light: "#3ddc97", frame: "#b9c3c7", wash: "#0f7a63", stone: "#0b2b2a", shape: "service" },
+  oyundal: { light: "#c8f031", frame: "#b9bbbe", wash: "#2416c9", stone: "#1b1566", shape: "service" },
 };
 const DEFAULT_THEME: StationTheme = STATION_THEMES.dppano!;
 
@@ -529,7 +532,7 @@ export function Station({
         <group rotation={[0, turn, 0]} name="station:backdrop">
           <mesh position={[0, height, -0.9]}>
             <boxGeometry args={[span + spacing + 1.6, photoHeight + 2.2, 0.12]} />
-            <meshStandardMaterial color="#0b0e15" roughness={0.28} metalness={0.55} envMapIntensity={0.9} />
+            <meshStandardMaterial color="#100f0e" roughness={0.28} metalness={0.55} envMapIntensity={0.9} />
           </mesh>
           <mesh geometry={backdropFrame}>
             <meshStandardMaterial color={theme.frame} roughness={0.4} metalness={0.3} />
@@ -666,7 +669,7 @@ export function Shipped({
 
   return (
     <group name="shipped">
-      <Island at={[0, -48]} size={[60, 52]} runner={[CORRIDOR + 6, 52]} glass texture={texture} colour={accent} depth={3} deck="#0b142c" />
+      <Island at={[0, -48]} size={[60, 52]} runner={[CORRIDOR + 6, 52]} glass texture={texture} colour={accent} depth={3} deck="#1a1b1d" />
       <DistrictLine zone="shipped" at={[0, -48]} length={50} intensity={0.55} />
       {[-1, 1].map((side) => (
         <Service key={side} at={[side * 21, 9.4, -48]} length={44} turn={Math.PI / 2} colour={accent} />
@@ -702,7 +705,7 @@ export function Boards({
   const accent = getZone("boards").accent;
   return (
     <group name="boards">
-      <Island at={[59, -66]} size={[50, 24]} runner={[50, CORRIDOR]} glass texture={texture} colour={accent} depth={2.6} deck="#091629" />
+      <Island at={[59, -66]} size={[50, 24]} runner={[50, CORRIDOR]} glass texture={texture} colour={accent} depth={2.6} deck="#17181b" />
       <DistrictLine zone="boards" at={[59, -66]} length={46} intensity={0.45} />
 
       {[-1, 1].map((side) => (
@@ -758,11 +761,11 @@ function Wayfinding({ locale }: { locale: Locale }) {
       {/* The post and the slab. */}
       <mesh position={[0, 1.95, -0.14]}>
         <boxGeometry args={[0.16, 3.9, 0.16]} />
-        <meshStandardMaterial color="#aeb8c4" roughness={0.35} metalness={0.85} />
+        <meshStandardMaterial color="#b7b3b0" roughness={0.35} metalness={0.85} />
       </mesh>
       <mesh position={[0, 2.35, 0]}>
         <boxGeometry args={[2.1, 3.7, 0.08]} />
-        <meshPhysicalMaterial color="#0a1020" roughness={0.15} metalness={0.5} transparent opacity={0.86} envMapIntensity={1.2} />
+        <meshPhysicalMaterial color="#141312" roughness={0.15} metalness={0.5} transparent opacity={0.86} envMapIntensity={1.2} />
       </mesh>
       <mesh position={[0, 4.22, 0]}>
         <boxGeometry args={[2.14, 0.04, 0.1]} />
@@ -829,7 +832,7 @@ function Screen({ size, accent, frame }: { size: [number, number]; accent: strin
       {/* The glass body. */}
       <mesh position={[0, 0, -0.035]}>
         <boxGeometry args={[w, h, 0.06]} />
-        <meshPhysicalMaterial color="#070d18" roughness={0.12} metalness={0.5} envMapIntensity={1.4} />
+        <meshPhysicalMaterial color="#0f0e0d" roughness={0.12} metalness={0.5} envMapIntensity={1.4} />
       </mesh>
       <mesh geometry={frameGeometry}>
         <meshStandardMaterial color={frame} roughness={0.32} metalness={0.85} />
@@ -884,7 +887,7 @@ function Orbital({ at, colour, scale = 1 }: { at: [number, number, number]; colo
     <group position={at} scale={[scale, scale, scale]}>
       <mesh ref={a}>
         <torusGeometry args={[6, 0.14, 8, 72]} />
-        <meshStandardMaterial color="#d9dee8" roughness={0.4} metalness={0.7} />
+        <meshStandardMaterial color="#dcdad8" roughness={0.4} metalness={0.7} />
       </mesh>
       <mesh ref={b} rotation={[0.6, 0, 0]}>
         <torusGeometry args={[4.4, 0.1, 8, 64]} />
@@ -912,7 +915,7 @@ export function Labs({ texture }: { texture: THREE.Texture }) {
   const accent = getZone("labs").accent;
   return (
     <group name="labs">
-      <Island at={[58, 0]} size={[50, 52]} runner={[24, 52]} texture={texture} colour={accent} depth={2.8} deck="#0e1129" />
+      <Island at={[58, 0]} size={[50, 52]} runner={[24, 52]} texture={texture} colour={accent} depth={2.8} deck="#1a1b1d" />
       <DistrictLine zone="labs" at={[58, 0]} length={48} intensity={0.45} />
       <group position={[58, 0, 0]}>
         <Colonnade from={-16} to={16} step={16} x={-8} height={7} texture={texture} thickness={0.4} colour={accent} />
@@ -931,7 +934,7 @@ export function Systems({ texture }: { texture: THREE.Texture }) {
   const accent = getZone("systems").accent;
   return (
     <group name="systems">
-      <Island at={[-58, 0]} size={[50, 48]} runner={[26, 48]} texture={texture} colour={accent} depth={2.8} deck="#08121f" />
+      <Island at={[-58, 0]} size={[50, 48]} runner={[26, 48]} texture={texture} colour={accent} depth={2.8} deck="#17181a" />
       <DistrictLine zone="systems" at={[-58, 0]} length={44} intensity={0.4} />
       <Plinth at={[-58, 0.24, 0]} size={[1.4, 0.48, 26]} texture={texture} colour={accent} />
       <Service at={[-70, 11.4, 0]} length={38} turn={Math.PI / 2} colour={accent} />
@@ -948,7 +951,7 @@ export function Archive({ texture }: { texture: THREE.Texture }) {
   const accent = getZone("archive").accent;
   return (
     <group name="archive">
-      <Island at={[0, 61]} size={[48, 42]} runner={[16, 42]} texture={texture} colour={accent} depth={2.4} deck="#070b18" />
+      <Island at={[0, 61]} size={[48, 42]} runner={[16, 42]} texture={texture} colour={accent} depth={2.4} deck="#101113" />
       <DistrictLine zone="archive" at={[0, 61]} length={38} intensity={0.28} />
       <Doorway at={[0, 0, 40]} width={CORRIDOR} height={4.4} colour={accent} />
       {/* The stacks: dark monoliths with one lit edge each. */}
@@ -981,7 +984,7 @@ export function Archive({ texture }: { texture: THREE.Texture }) {
  * that looks like a light in the world is an unlit material; these four are
  * the only real ones, and their level follows the district's mood.
  */
-const WHITE = new THREE.Color("#e4ecf8");
+const WHITE = new THREE.Color("#e8e7e6");
 
 export function Lighting() {
   const lamp = useRef<THREE.PointLight>(null);
@@ -1025,13 +1028,13 @@ export function Lighting() {
 
   return (
     <>
-      <hemisphereLight ref={hemi} args={["#3a6fc0", "#101c34", 1.35]} />
+      <hemisphereLight ref={hemi} args={["#b8aea5", "#211f1d", 1.35]} />
       {/* The key is warm and comes from the west, where the sky is lit; the
           fill is cool from the east; the violet comes from behind. */}
       <directionalLight ref={key} position={[-46, 54, 22]} intensity={2.2} color="#ffe9d5" />
-      <directionalLight position={[44, 30, -20]} intensity={0.8} color="#6fcbff" />
-      <directionalLight position={[-20, 24, -60]} intensity={0.7} color="#8c7bff" />
-      <pointLight ref={lamp} intensity={26} distance={34} decay={2} color="#9ad6ff" />
+      <directionalLight position={[44, 30, -20]} intensity={0.8} color="#e2e5e9" />
+      <directionalLight position={[-20, 24, -60]} intensity={0.7} color="#ff8a2a" />
+      <pointLight ref={lamp} intensity={26} distance={34} decay={2} color="#ffe6d0" />
       <pointLight ref={fire} intensity={16} distance={9} decay={2} color="#ff7a2a" />
       <pointLight ref={rim} intensity={5} distance={5} decay={2} color="#ff9a4a" />
     </>

@@ -59,8 +59,8 @@ export const MATRIX: MatrixRow[] = [
       slug: "meetzy",
       name: "Meetzy",
       note: {
-        en: "Went from a single observation to a live app with around 2,000 signups, built by one person.",
-        tr: "Tek bir gözlemden, tek kişinin kurduğu ve 2.000 civarı kaydı olan canlı bir uygulamaya gitti.",
+        en: "Went from a single observation to a live app with around 2,000 signups, built in one studio.",
+        tr: "Tek bir gözlemden, tek stüdyoda kurulan ve 2.000 civarı kaydı olan canlı bir uygulamaya gitti.",
       },
     },
   },

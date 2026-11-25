@@ -1,5 +1,5 @@
 import type { Localized, LocalizedList } from "@/lib/i18n";
-import { ARACIMGO, DPPANO, ERDEN, MEETZY, type Screen } from "@/data/screens";
+import { ARACIMGO, DPPANO, ERDEN, MEETZY, OYUNDAL, type Screen } from "@/data/screens";
 import { ARACIMGO_URL } from "@/data/aracimgo-url";
 
 /**
@@ -181,6 +181,37 @@ export const PROJECTS: Project[] = [
       { label: { en: "Data", tr: "Veri" }, value: { en: "PostgreSQL", tr: "PostgreSQL" } },
     ],
     link: { label: "aracımgo.com", href: ARACIMGO_URL },
+  },
+  {
+    slug: "oyundal",
+    name: "Oyundal",
+    domains: ["products", "systems"],
+    category: { en: "Games for cafés", tr: "Kafeler için masa oyunu" },
+    summary: {
+      en: "Guests scan the QR on the table and play together. No app to download.",
+      tr: "Misafir masadaki QR'ı okutuyor, uygulama indirmeden birlikte oynuyor.",
+    },
+    standfirst: {
+      en: "One QR per branch, 37 games in the browser, rewards the owner controls and one panel for every branch.",
+      tr: "Her şubeye tek QR, tarayıcıda 37 oyun, tavanını işletmenin belirlediği ödüller ve bütün şubeler için tek panel.",
+    },
+    statement: { en: "Coffee lasts an hour. The game lasts one more.", tr: "Kahve bir saat sürer. Oyun bir saat daha." },
+    facts: [
+      { label: { en: "Status", tr: "Durum" }, value: { en: "Live", tr: "Canlı" } },
+      { label: { en: "Games", tr: "Oyun" }, value: { en: "37 games", tr: "37 oyun" } },
+      { label: { en: "To play", tr: "Oynamak için" }, value: { en: "No download, no sign-up", tr: "İndirme yok, üyelik yok" } },
+    ],
+    role: { en: "Product, brand, design, engineering and operation", tr: "Ürün, marka, tasarım, geliştirme ve işletim" },
+    system: { en: "Games, rewards, owner panel", tr: "Oyunlar, ödüller, işletme paneli" },
+    platform: { en: "Browser, phone and desktop", tr: "Tarayıcı; telefon ve masaüstü" },
+    accent: "#c8f031",
+    layout: "stack",
+    lead: OYUNDAL.home!,
+    screens: [OYUNDAL.home!, OYUNDAL.game!, OYUNDAL.table!, OYUNDAL.plate!],
+    detail: [],
+    /* The case study's chapters live in showcase.ts. */
+    sections: [],
+    link: { label: "oyundal.com", href: "https://oyundal.com" },
   },
   {
     slug: "dppano",
@@ -384,7 +415,7 @@ export const PROJECTS: Project[] = [
         label: { en: "Signed up", tr: "Kayıtlı kişi" },
         value: { en: "Around 2,000 people", tr: "Yaklaşık 2.000 kişi" },
       },
-      { label: { en: "Built by", tr: "Yapan" }, value: { en: "One person", tr: "Tek kişi" } },
+      { label: { en: "Built by", tr: "Yapan" }, value: { en: "Archon Soft", tr: "Archon Soft" } },
     ],
     role: {
       en: "Product, design and engineering",
@@ -480,14 +511,14 @@ export const PROJECTS: Project[] = [
       },
       {
         index: "05",
-        title: { en: "One person", tr: "Tek kişi" },
+        title: { en: "Archon Soft", tr: "Archon Soft" },
         body: {
           en: [
-            "Product decisions, interface, client, server, data, authentication, notifications, release. One person, one head, no handovers — which is the only reason a product this wide could be defined and shipped in the time it was.",
+            "Product decisions, interface, client, server, data, authentication, notifications, release. One studio, no handovers. That is the only reason a product this wide could be defined and shipped in the time it was.",
             "It is live, people are using it, and it is early. That is the honest description, and it is a better one than a chart.",
           ],
           tr: [
-            "Ürün kararları, arayüz, istemci, sunucu, veri, kimlik doğrulama, bildirimler, yayın. Tek kişi, tek kafa, hiç devir teslim yok — bu kadar geniş bir ürünün bu sürede tanımlanıp yayınlanabilmesinin tek sebebi de bu.",
+            "Ürün kararları, arayüz, istemci, sunucu, veri, kimlik doğrulama, bildirimler, yayın. Hepsi tek stüdyoda, devir teslim olmadan. Bu kadar geniş bir ürünün bu sürede tanımlanıp yayınlanabilmesinin tek sebebi de bu.",
             "Canlı, insanlar kullanıyor ve daha çok erken. Dürüst tarif bu; bir grafikten daha iyi bir tarif.",
           ],
         },
@@ -517,7 +548,7 @@ export const PROJECTS: Project[] = [
         label: { en: "Scope", tr: "Kapsam" },
         value: { en: "Storefront and admin", tr: "Vitrin ve yönetim" },
       },
-      { label: { en: "Built by", tr: "Yapan" }, value: { en: "One person", tr: "Tek kişi" } },
+      { label: { en: "Built by", tr: "Yapan" }, value: { en: "Archon Soft", tr: "Archon Soft" } },
     ],
     role: {
       en: "Product, design and engineering",

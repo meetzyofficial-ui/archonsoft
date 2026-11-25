@@ -30,7 +30,7 @@ export function PageHeader({
   children?: ReactNode;
 }) {
   return (
-    <section data-scheme="black" className="bg-[var(--color-black)] pt-[var(--header-h)] text-[var(--fg)]">
+    <section data-scheme="black" className="forge pt-[var(--header-h)] text-[var(--fg)]">
       <div className="frame grid gap-8 py-14 md:grid-cols-12 md:items-end md:py-24">
         <h1 className="text-display max-w-[16ch] md:col-span-8" aria-label={`${title}: ${lead} ${accent}`}>
           {lead} <span className="text-[var(--color-orange)]">{accent}</span>
