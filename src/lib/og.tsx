@@ -17,7 +17,9 @@ export const OG_CONTENT_TYPE = "image/png";
 
 const font = (file: string) => readFileSync(join(process.cwd(), "src/assets/og", file));
 
-const MARK = `data:image/png;base64,${readFileSync(join(process.cwd(), "src/assets/og/archon-mark.png")).toString("base64")}`;
+/* Read when a card is drawn, never at import: pages import this module for its
+   size and alt, on servers that do not carry the file. */
+const mark = () => `data:image/png;base64,${readFileSync(join(process.cwd(), "src/assets/og/archon-mark.png")).toString("base64")}`;
 
 /* The share card is the one place the site is still night: a card has to hold
    its own against whatever timeline it lands in, and a near-white card on a
@@ -68,7 +70,7 @@ export function renderOgImage({ eyebrow, title, accent, meta }: OgCard) {
         >
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={MARK} width="66" height="42" alt="" />
+            <img src={mark()} width="66" height="42" alt="" />
             <span>Archonsoft</span>
           </div>
           <span style={{ color: MUTE }}>{eyebrow}</span>
