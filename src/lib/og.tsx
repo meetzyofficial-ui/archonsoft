@@ -17,7 +17,7 @@ export const OG_CONTENT_TYPE = "image/png";
 
 const font = (file: string) => readFileSync(join(process.cwd(), "src/assets/og", file));
 
-const MARK = `data:image/png;base64,${readFileSync(join(process.cwd(), "src/assets/brand/archon-mark.png")).toString("base64")}`;
+const MARK = `data:image/png;base64,${readFileSync(join(process.cwd(), "src/assets/og/archon-mark.png")).toString("base64")}`;
 
 /* The share card is the one place the site is still night: a card has to hold
    its own against whatever timeline it lands in, and a near-white card on a
