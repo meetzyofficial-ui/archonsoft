@@ -20,11 +20,11 @@ const font = (file: string) => readFileSync(join(process.cwd(), "src/assets/og",
 /* The share card is the one place the site is still night: a card has to hold
    its own against whatever timeline it lands in, and a near-white card on a
    near-white feed is invisible. The palette is the site's ink scheme. */
-const INK = "#101722";
-const PAPER = "#fbfcff";
-const ACCENT = "#e5a184";
-const LINE = "rgba(251,252,255,0.16)";
-const MUTE = "rgba(251,252,255,0.52)";
+const INK = "#0c0c0d";
+const PAPER = "#e3e5e6";
+const ACCENT = "#ff5a00";
+const LINE = "rgba(227,229,230,0.16)";
+const MUTE = "rgba(227,229,230,0.52)";
 
 export type OgCard = {
   eyebrow: string;
@@ -53,27 +53,15 @@ export function renderOgImage({ eyebrow, title, accent, meta }: OgCard) {
           position: "relative",
         }}
       >
-        <div
-          style={{
-            position: "absolute",
-            left: 32,
-            top: 32,
-            right: 32,
-            bottom: 32,
-            border: `1px solid ${LINE}`,
-            display: "flex",
-          }}
-        />
+        <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 24, backgroundColor: ACCENT, display: "flex" }} />
 
         <div
           style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            fontFamily: "Mono",
-            fontSize: 19,
-            letterSpacing: 3,
-            textTransform: "uppercase",
+            fontFamily: "Display",
+            fontSize: 24,
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
@@ -82,7 +70,7 @@ export function renderOgImage({ eyebrow, title, accent, meta }: OgCard) {
             <svg width="30" height="26" viewBox="0 0 34 29.4">
               <rect x="0" y="0" width="34" height="7.4" fill={PAPER} />
               <rect x="0" y="11" width="24.5" height="7.4" fill={PAPER} />
-              <rect x="0" y="22" width="15" height="7.4" fill={PAPER} />
+              <rect x="0" y="22" width="15" height="7.4" fill={ACCENT} />
             </svg>
             <span>Archonsoft</span>
           </div>
@@ -107,28 +95,12 @@ export function renderOgImage({ eyebrow, title, accent, meta }: OgCard) {
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-          <div style={{ display: "flex", alignItems: "flex-end", height: 12 }}>
-            {Array.from({ length: 49 }, (_, i) => (
-              <div
-                key={i}
-                style={{
-                  width: 1,
-                  height: i % 4 === 0 ? 12 : 6,
-                  backgroundColor: LINE,
-                  marginRight: 21,
-                  display: "flex",
-                }}
-              />
-            ))}
-          </div>
           <div
             style={{
               display: "flex",
               justifyContent: "space-between",
-              fontFamily: "Mono",
-              fontSize: 19,
-              letterSpacing: 3,
-              textTransform: "uppercase",
+              fontFamily: "Display",
+              fontSize: 24,
               color: MUTE,
               borderTop: `1px solid ${LINE}`,
               paddingTop: 18,
@@ -143,8 +115,7 @@ export function renderOgImage({ eyebrow, title, accent, meta }: OgCard) {
     {
       ...OG_SIZE,
       fonts: [
-        { name: "Display", data: font("Newsreader-Regular.ttf"), style: "normal", weight: 400 },
-        { name: "Mono", data: font("GeistMono-Regular.ttf"), style: "normal", weight: 400 },
+        { name: "Display", data: font("Geist-Medium.ttf"), style: "normal", weight: 400 },
       ],
     },
   );

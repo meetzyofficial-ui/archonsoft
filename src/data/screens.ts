@@ -41,6 +41,21 @@ import agHistory from "@/assets/work/aracimgo/03-history.jpg";
 import agWorkOrders from "@/assets/work/aracimgo/04-work-orders.jpg";
 import agPlateSearch from "@/assets/work/aracimgo/05-plate-search.jpg";
 import agWhy from "@/assets/work/aracimgo/06-why.jpg";
+import agSite from "@/assets/work/aracimgo/site.jpg";
+import agPanel from "@/assets/work/aracimgo/panel.jpg";
+import agPanelOrder from "@/assets/work/aracimgo/panel-work-order.jpg";
+import agAppDiscover from "@/assets/work/aracimgo/app-discover.jpg";
+import agAppToday from "@/assets/work/aracimgo/app-today.jpg";
+import agAppOrder from "@/assets/work/aracimgo/app-work-order.jpg";
+import agAppPassport from "@/assets/work/aracimgo/app-passport.jpg";
+
+import oySite from "@/assets/work/oyundal/site.jpg";
+import oyGames from "@/assets/work/oyundal/games.jpg";
+import oyHome from "@/assets/work/oyundal/app-home.jpg";
+import oyGame from "@/assets/work/oyundal/app-game.jpg";
+import oyTable from "@/assets/work/oyundal/app-table.jpg";
+import oyPanel from "@/assets/work/oyundal/panel.jpg";
+import mzSite from "@/assets/work/meetzy/site.jpg";
 
 
 /**
@@ -272,46 +287,28 @@ export const DPPANO: Record<string, Screen> = {
  * customer's data.
  */
 export const ARACIMGO: Record<string, Screen> = {
-  overview: {
-    image: agOverview,
-    caption: {
-      en: "AracımGo — run the service from one place: today's work orders, customers and vehicles",
-      tr: "AracımGo — oto servisini tek yerden yönet: günün iş emirleri, müşteriler ve araçlar",
-    },
-  },
-  customers: {
-    image: agCustomers,
-    caption: {
-      en: "Customer management: the customer, their vehicle and the last job on one card",
-      tr: "Müşteri yönetimi: müşteri, aracı ve son işlem tek kartta",
-    },
-  },
-  history: {
-    image: agHistory,
-    caption: {
-      en: "Vehicle history: every job on one car, year by year",
-      tr: "Araç geçmişi: bir araçta yapılan her işlem, yıl yıl",
-    },
-  },
-  workOrders: {
-    image: agWorkOrders,
-    caption: {
-      en: "Work orders: which car is in progress, waiting or done, on one screen",
-      tr: "İş emirleri: hangi araç devam ediyor, bekliyor ya da bitti — tek ekranda",
-    },
-  },
-  plateSearch: {
-    image: agPlateSearch,
-    caption: {
-      en: "Plate search: type the plate, get the customer and the vehicle's history",
-      tr: "Plaka ile arama: plakayı yaz, müşteriye ve araç geçmişine ulaş",
-    },
-  },
-  why: {
-    image: agWhy,
-    caption: {
-      en: "Why AracımGo: customer records, vehicle history and work orders — out of the notebook, into the system",
-      tr: "Neden AracımGo: müşteri kayıtları, araç geçmişi ve iş emirleri — defterden sisteme",
-    },
-  },
+  overview: { image: agOverview, caption: { en: "AracımGo app: find a workshop near you", tr: "AracımGo uygulaması: yakındaki ustayı bul" } },
+  customers: { image: agCustomers, caption: { en: "Write to the workshop directly, in the app", tr: "Servise uygulamadan doğrudan yaz" } },
+  history: { image: agHistory, caption: { en: "The vehicle passport: every service on record", tr: "Araç karnesi: yapılan her bakım kayıtta" } },
+  workOrders: { image: agWorkOrders, caption: { en: "For mechanics: the whole day on one screen", tr: "Ustalar için: bütün gün tek ekranda" } },
+  plateSearch: { image: agPlateSearch, caption: { en: "Online booking with the workshop", tr: "Servisten online randevu" } },
+  why: { image: agWhy, caption: { en: "The same workshop, managed from the computer", tr: "Aynı servis, bilgisayardan yönetiliyor" } },
+  site: { image: agSite, caption: { en: "aracımgo.com, November 2026", tr: "aracımgo.com, Kasım 2026" } },
+  panel: { image: agPanel, caption: { en: "The workshop panel: today at a glance", tr: "Servis paneli: günün özeti" } },
+  panelOrder: { image: agPanelOrder, caption: { en: "A work order with parts and labour", tr: "Parça ve işçilikle bir iş emri" } },
+  appDiscover: { image: agAppDiscover, caption: { en: "Driver app: find a service", tr: "Sürücü uygulaması: servis bul" } },
+  appToday: { image: agAppToday, caption: { en: "Mechanic app: today", tr: "Usta uygulaması: bugün" } },
+  appOrder: { image: agAppOrder, caption: { en: "Mechanic app: a work order", tr: "Usta uygulaması: iş emri" } },
+  appPassport: { image: agAppPassport, caption: { en: "Driver app: vehicle passport", tr: "Sürücü uygulaması: araç karnesi" } },
 };
+
+export const OYUNDAL: Record<string, Screen> = {
+  site: { image: oySite, caption: { en: "oyundal.com, November 2026", tr: "oyundal.com, Kasım 2026" } },
+  games: { image: oyGames, caption: { en: "The catalogue of 37 games", tr: "37 oyunluk katalog" } },
+  home: { image: oyHome, caption: { en: "What a guest sees after scanning the QR", tr: "QR okutulduktan sonra misafirin gördüğü ekran" } },
+  game: { image: oyGame, caption: { en: "A game, opened in the browser", tr: "Tarayıcıda açılan bir oyun" } },
+  table: { image: oyTable, caption: { en: "Choosing the table", tr: "Masa seçimi" } },
+  panel: { image: oyPanel, caption: { en: "Owner panel: report across branches (sample data)", tr: "İşletme paneli: şube raporu (örnek veri)" } },
+};
+
+export const MEETZY_SITE: Screen = { image: mzSite, caption: { en: "meetzy.tr, November 2026", tr: "meetzy.tr, Kasım 2026" } };

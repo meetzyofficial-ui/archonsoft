@@ -110,7 +110,7 @@ export function FieldExperiment({ locale }: { locale: Locale }) {
     const styles = getComputedStyle(document.documentElement);
     const draw = () => {
       const base = styles.getPropertyValue("--color-paper").trim() || "#ffffff";
-      const accent = styles.getPropertyValue("--color-blue-ink").trim() || "#4f86ff";
+      const accent = styles.getPropertyValue("--color-orange-deep").trim() || "#b23a00";
       context.clearRect(0, 0, width, height);
 
       let moving = false;

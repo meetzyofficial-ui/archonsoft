@@ -24,13 +24,13 @@ export function SectionRule({
     <Reveal
       variant="none"
       className={cn(
-        "hairline-t mono-micro flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2 pt-3 text-[var(--fg-mute)]",
+        "flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2 border-t-2 border-[var(--fg)] pt-3 text-[1.0625rem] font-bold text-[var(--fg)]",
         className,
       )}
     >
       <span className="reveal-fade">{label}</span>
       {aside ? (
-        <span className="reveal-fade text-right" style={{ transitionDelay: "90ms" }}>
+        <span className="reveal-fade text-right font-normal text-[var(--fg-mute)]" style={{ transitionDelay: "90ms" }}>
           {aside}
         </span>
       ) : null}
@@ -62,9 +62,9 @@ export function Band({
   as?: "section" | "div" | "footer" | "header";
 }) {
   const padding = {
-    tight: "py-16 md:py-24",
-    regular: "py-24 md:py-36",
-    loose: "py-32 md:py-44",
+    tight: "py-12 md:py-20",
+    regular: "py-16 md:py-28",
+    loose: "py-16 md:py-28",
   }[size];
 
   return (

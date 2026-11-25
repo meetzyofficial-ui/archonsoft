@@ -46,7 +46,7 @@ const ABOUT = {
     note: "Being one person is the constraint and the argument. It is why scope has to be honest, and why nothing gets lost in a handover.",
     spanTitle: "What that actually covers",
     spanBody:
-      "Deciding what the product is. Drawing it. Building the client. Building the server. Modelling the data. Accounts and permissions. The admin the business will live in. Getting it live and keeping it there. Two products on this site went through every one of those steps with the same pair of hands.",
+      "Deciding what the product is. Drawing it. Building the client. Building the server. Modelling the data. Accounts and permissions. The admin the business will live in. Getting it live and keeping it there. Every product on this site went through every one of those steps with the same pair of hands.",
     principles: "Principles",
     principlesAside: "How the work runs",
     process: "Process",
@@ -62,7 +62,7 @@ const ABOUT = {
     note: "Tek kişi olmak hem kısıt hem argüman. Kapsamın dürüst olmak zorunda olmasının ve devir teslimde hiçbir şeyin kaybolmamasının sebebi bu.",
     spanTitle: "Bu aslında neyi kapsıyor",
     spanBody:
-      "Ürünün ne olduğuna karar vermek. Çizmek. İstemciyi kurmak. Sunucuyu kurmak. Veriyi modellemek. Hesaplar ve izinler. İşletmenin içinde yaşayacağı yönetim paneli. Yayına almak ve orada tutmak. Bu sitedeki iki ürün de bu adımların hepsinden aynı ellerle geçti.",
+      "Ürünün ne olduğuna karar vermek. Çizmek. İstemciyi kurmak. Sunucuyu kurmak. Veriyi modellemek. Hesaplar ve izinler. İşletmenin içinde yaşayacağı yönetim paneli. Yayına almak ve orada tutmak. Bu sitedeki ürünlerin hepsi bu adımların hepsinden aynı ellerle geçti.",
     principles: "İlkeler",
     principlesAside: "İş nasıl yürüyor",
     process: "Süreç",
@@ -128,9 +128,6 @@ export default async function AboutPage({ params }: Params) {
                   delay={index * 50}
                   className="grid gap-4 py-8 md:grid-cols-12 md:gap-8 md:py-10"
                 >
-                  <span className="mono-label text-[var(--accent)] md:col-span-1">
-                    {principle.index}
-                  </span>
                   <h3 className="text-quote md:col-span-4">{t(principle.title, locale)}</h3>
                   <p className="max-w-[54ch] text-[var(--fg-dim)] md:col-span-6 md:col-start-7">
                     {t(principle.body, locale)}

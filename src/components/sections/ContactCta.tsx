@@ -53,11 +53,10 @@ export function ContactCta({
               <Reveal
                 key={item.label}
                 delay={i * 70}
-                className="hairline-t grid grid-cols-[2.5rem_1fr] gap-x-4 py-5 sm:grid-cols-[2.5rem_11rem_1fr] sm:gap-x-8"
+                className="hairline-t grid gap-x-4 py-5 sm:grid-cols-[11rem_1fr] sm:gap-x-8"
               >
-                <span className="mono-label text-[var(--fg-mute)]">{`0${i + 1}`}</span>
                 <dt className="font-medium">{item.label}</dt>
-                <dd className="col-start-2 text-[var(--fg-dim)] sm:col-start-3">{item.value}</dd>
+                <dd className="text-[var(--fg-dim)]">{item.value}</dd>
               </Reveal>
             ))}
           </dl>

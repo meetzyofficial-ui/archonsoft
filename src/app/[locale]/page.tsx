@@ -3,10 +3,8 @@ import { notFound } from "next/navigation";
 
 import { Opening } from "@/components/site/Opening";
 import { ProjectShowcase } from "@/components/projects/ProjectShowcase";
-import { LabsBand } from "@/components/sections/LabsBand";
-import { ProductEcosystem } from "@/components/sections/ProductEcosystem";
 import { ServiceSection } from "@/components/services/ServiceSection";
-import { DesignEngineering } from "@/components/site/DesignEngineering";
+import { HowWeWork } from "@/components/site/HowWeWork";
 import { WorldEntry } from "@/components/site/WorldEntry";
 import { dict } from "@/i18n/dictionary";
 import { isLocale, type Locale } from "@/lib/i18n";
@@ -24,22 +22,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   };
 }
 
-/**
- * The home page, in seven movements, each with one job.
- *
- * What the studio does (the opening), what it makes for itself (its own
- * products, AracımGo first — the studio as a maker of products that run,
- * not only of software for others), what a visitor can have built — shown,
- * not listed, and ending in the contact form (the service explorer), the proof
- * (selected projects, staged), how it works (design × engineering), what else
- * it can build (Archon Labs, ten running concepts), and the door out of the
- * website into the world. Contact is the close, in the footer every page ends
- * on.
- *
- * Two chapters were removed in the creative-tech rebuild because they said
- * the same thing twice: the studio statement and the old selected-work list,
- * whose claim now lives in the projects themselves.
- */
+/** Hero, the work, what can be ordered, how it goes, and the door to the world. */
 export default async function HomePage({ params }: Params) {
   const { locale: raw } = await params;
   if (!isLocale(raw)) notFound();
@@ -49,11 +32,9 @@ export default async function HomePage({ params }: Params) {
   return (
     <>
       <Opening locale={locale} copy={copy} />
-      <ProductEcosystem locale={locale} copy={copy} />
-      <ServiceSection locale={locale} copy={copy} />
       <ProjectShowcase locale={locale} copy={copy} />
-      <DesignEngineering copy={copy} />
-      <LabsBand locale={locale} copy={copy} />
+      <ServiceSection locale={locale} copy={copy} />
+      <HowWeWork locale={locale} copy={copy} />
       <WorldEntry locale={locale} copy={copy} />
     </>
   );

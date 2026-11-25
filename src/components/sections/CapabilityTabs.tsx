@@ -73,14 +73,6 @@ export function CapabilityTabs({ locale, copy }: { locale: Locale; copy: Copy })
               <span className="flex items-baseline gap-5 py-5 md:gap-8 md:py-7">
                 <span
                   className={cn(
-                    "mono-label transition-colors duration-500",
-                    selected ? "text-[var(--accent)]" : "text-[var(--fg-mute)]",
-                  )}
-                >
-                  {capability.index}
-                </span>
-                <span
-                  className={cn(
                     "display text-sub transition-[color,transform] duration-[600ms] ease-[var(--ease-out-expo)]",
                     selected
                       ? "translate-x-1.5 text-[var(--fg)]"

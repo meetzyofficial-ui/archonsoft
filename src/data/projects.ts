@@ -114,80 +114,71 @@ export const PROJECTS: Project[] = [
     slug: "aracimgo",
     name: "AracımGo",
     domains: ["products", "systems"],
-    category: { en: "Automotive · Service management", tr: "Otomotiv · Servis Yönetimi" },
+    category: { en: "Automotive platform", tr: "Otomotiv platformu" },
     summary: {
-      en: "Car service management, in one place: customers, vehicles, work orders and a digital history for every car.",
-      tr: "Oto servis yönetimi, tek yerde: müşteriler, araçlar, iş emirleri ve her araç için dijital geçmiş.",
+      en: "A vehicle passport and service marketplace for drivers; the software the workshop runs on.",
+      tr: "Sürücü için araç karnesi ve servis pazaryeri; usta için işini yürüttüğü program.",
     },
     standfirst: {
-      en: "AracımGo is a service-management product for car and motorcycle workshops, built and run by Archon Soft. Customers, vehicles, work orders and every job ever done on a car live in one system instead of in a notebook and the mechanic's memory. It is live, on the web and on the phone.",
-      tr: "AracımGo, oto ve motosiklet servisleri için Archon Soft'un geliştirip yürüttüğü bir servis yönetimi ürünü. Müşteriler, araçlar, iş emirleri ve bir araçta yapılmış her işlem; defterde ve ustanın hafızasında değil, tek bir sistemde duruyor. Canlıda — web'de ve telefonda.",
+      en: "AracımGo puts the driver, the car and the mechanic on the same record. Drivers find a workshop, see the starting price and book a time. Workshops run work orders, bookings, customers and their team from the phone or the computer. Every job they finish is written to the car's passport.",
+      tr: "AracımGo sürücüyü, aracı ve ustayı aynı kayıtta buluşturuyor. Sürücü servis buluyor, başlangıç fiyatını görüyor, randevu alıyor. Servis; iş emrini, randevuyu, müşteriyi ve ekibini telefondan ya da bilgisayardan yönetiyor. Biten her iş aracın karnesine yazılıyor.",
     },
     statement: {
-      en: "The notebook forgets. AracımGo remembers.",
-      tr: "Defter unutur. AracımGo aklında tutar.",
+      en: "The plate can change. The car's history stays.",
+      tr: "Plaka değişir. Aracın geçmişi kaybolmaz.",
     },
     facts: [
       { label: { en: "Status", tr: "Durum" }, value: { en: "Live", tr: "Canlı" } },
-      { label: { en: "For", tr: "Kullanıcı" }, value: { en: "Car and motorcycle workshops", tr: "Oto ve motosiklet servisleri" } },
+      { label: { en: "For", tr: "Kullanıcı" }, value: { en: "Drivers and workshops", tr: "Araç sahipleri ve servisler" } },
       { label: { en: "Interface", tr: "Arayüz dili" }, value: { en: "Turkish", tr: "Türkçe" } },
     ],
-    role: {
-      en: "Product, design, engineering and operation",
-      tr: "Ürün, tasarım, geliştirme ve işletim",
-    },
-    system: {
-      en: "Customers, vehicles, work orders, vehicle history",
-      tr: "Müşteriler, araçlar, iş emirleri, araç geçmişi",
-    },
-    platform: {
-      en: "Mobile app and web panel",
-      tr: "Mobil uygulama ve web paneli",
-    },
-    accent: "#10B395",
-    /* The product's own plates are tall; they stand as handsets. */
+    role: { en: "Product, design, engineering and operation", tr: "Ürün, tasarım, geliştirme ve işletim" },
+    system: { en: "Vehicle passport, marketplace, workshop software", tr: "Araç karnesi, pazaryeri, servis programı" },
+    platform: { en: "Mobile app and web panel", tr: "Mobil uygulama ve web paneli" },
+    accent: "#D4FF3A",
     layout: "stack",
     lead: ARACIMGO.overview!,
-    /* The four jobs first: the world hangs the first four over the station. */
+    /* The first four also hang over AracımGo's station in the world. */
     screens: [ARACIMGO.customers!, ARACIMGO.history!, ARACIMGO.workOrders!, ARACIMGO.plateSearch!, ARACIMGO.overview!, ARACIMGO.why!],
-    detail: [],
+    detail: [ARACIMGO.panel!, ARACIMGO.panelOrder!],
     sections: [
       {
         index: "01",
-        title: { en: "What happens in a workshop", tr: "Serviste ne oluyor?" },
+        title: { en: "The problem", tr: "Sorun" },
         body: {
-          en: [
-            "A car comes back after a year and nobody remembers what was done to it. The customer's number is in one notebook, the job in another, and which car is waiting for a part lives in the head of whoever took it in.",
-          ],
-          tr: [
-            "Bir araç bir yıl sonra geri geliyor ve üzerinde ne yapıldığını kimse hatırlamıyor. Müşterinin numarası bir defterde, yapılan iş başka birinde; hangi aracın parça beklediği ise aracı kabul eden kişinin aklında.",
-          ],
+          en: ["A car changes hands and its history is gone. The driver cannot tell who to trust or what it will cost. The mechanic keeps the customer in one notebook and the job in another."],
+          tr: ["Araç el değiştiriyor, geçmişi kayboluyor. Sürücü kime güveneceğini ve ne ödeyeceğini bilmiyor. Usta müşteriyi bir deftere, yaptığı işi başka bir deftere yazıyor."],
         },
       },
       {
         index: "02",
-        title: { en: "One system for the service", tr: "Servis için tek sistem" },
+        title: { en: "For the driver", tr: "Araç sahibi için" },
         body: {
-          en: [
-            "AracımGo keeps the customer, the vehicle and every job done on it together. Work orders show which car is in progress, waiting or finished; typing a plate brings back the customer and the vehicle's whole history in seconds.",
-          ],
-          tr: [
-            "AracımGo müşteriyi, aracı ve araçta yapılan her işi bir arada tutar. İş emirleri hangi aracın devam ettiğini, beklediğini ya da bittiğini gösterir; plakayı yazmak, müşteriyi ve aracın tüm geçmişini saniyeler içinde getirir.",
-          ],
+          en: ["Search by service, price and location. See the starting price before going. Book a time, write to the workshop, and keep every service in a passport that cannot be edited afterwards and can be shared when the car is sold."],
+          tr: ["Hizmete, fiyata ve konuma göre servis arıyor. Gitmeden başlangıç fiyatını görüyor, randevu alıyor, servise yazıyor. Yapılan her bakım sonradan değiştirilemeyen karneye işleniyor; araç satılırken bu karne paylaşılabiliyor."],
         },
       },
       {
         index: "03",
-        title: { en: "Live", tr: "Canlıda" },
+        title: { en: "For the workshop", tr: "Servis için" },
         body: {
-          en: [
-            "AracımGo is live at aracımgo.com — a product Archon Soft designed, built and runs, not a commission.",
-          ],
-          tr: [
-            "AracımGo aracımgo.com adresinde canlıda — Archon Soft'un tasarlayıp geliştirdiği ve yürüttüğü bir ürün, sipariş üzerine yapılmış bir iş değil.",
-          ],
+          en: ["Scan the plate, open the work order, add parts and labour, get the customer's approval for extra work. Bookings, messages, staff, stock and accounts are in the same place, on the phone and on the computer."],
+          tr: ["Plakayı tarıyor, iş emrini açıyor, parça ve işçiliği yazıyor, ek iş için müşterinin onayını alıyor. Randevu, mesaj, ekip, stok ve cari aynı yerde; hem telefonda hem bilgisayarda."],
         },
       },
+      {
+        index: "04",
+        title: { en: "Live", tr: "Yayında" },
+        body: {
+          en: ["AracımGo is our own product. We designed it, built it and run it at aracımgo.com."],
+          tr: ["AracımGo kendi ürünümüz. Biz tasarladık, biz geliştirdik, aracımgo.com adresinde biz işletiyoruz."],
+        },
+      },
+    ],
+    stack: [
+      { label: { en: "Mobile", tr: "Mobil" }, value: { en: "Flutter", tr: "Flutter" } },
+      { label: { en: "Web", tr: "Web" }, value: { en: "Next.js", tr: "Next.js" } },
+      { label: { en: "Data", tr: "Veri" }, value: { en: "PostgreSQL", tr: "PostgreSQL" } },
     ],
     link: { label: "aracımgo.com", href: ARACIMGO_URL },
   },
@@ -404,6 +395,7 @@ export const PROJECTS: Project[] = [
       tr: "Keşif, profiller, katılma talepleri",
     },
     platform: { en: "Mobile app", tr: "Mobil uygulama" },
+    link: { label: "meetzy.tr", href: "https://meetzy.tr" },
     accent: "#F0483C",
     /* Four handset plates and a product about people: a column of moments.
        The App Store set leads, here and in the world; the captures follow. */

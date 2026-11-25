@@ -64,7 +64,7 @@ export function CapabilityMap({ locale, copy }: { locale: Locale; copy: Copy }) 
                         onMouseEnter={hasPointer ? () => setActiveId(item.id) : undefined}
                         onFocus={() => setActiveId(item.id)}
                         className={cn(
-                          "group/cat flex cursor-pointer items-baseline gap-2 rounded-full border px-2.5 py-1.5 text-left transition-colors duration-300",
+                          "group/cat flex cursor-pointer items-baseline gap-2 border px-2.5 py-1.5 text-left transition-colors duration-300",
                           "lg:w-full lg:gap-3 lg:rounded-none lg:border-0 lg:px-0 lg:py-2",
                           selected
                             ? "border-[var(--accent)] lg:border-0"

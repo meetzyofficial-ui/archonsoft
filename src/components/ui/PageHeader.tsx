@@ -1,6 +1,4 @@
 import type { ReactNode } from "react";
-import { Reveal } from "@/components/motion/Reveal";
-import { SectionRule } from "@/components/ui/primitives";
 
 /**
  * The masthead every top-level route opens with.
@@ -19,7 +17,6 @@ import { SectionRule } from "@/components/ui/primitives";
  */
 export function PageHeader({
   title,
-  aside,
   lead,
   accent,
   standfirst,
@@ -33,25 +30,14 @@ export function PageHeader({
   children?: ReactNode;
 }) {
   return (
-    <section
-      data-scheme="paper"
-      data-band="paper"
-      className="pt-[calc(4rem+3rem)] pb-16 md:pt-[calc(4rem+5rem)] md:pb-24"
-    >
-      <div className="frame">
-        <SectionRule label={title} aside={aside} />
-
-        <div className="mt-10 grid gap-10 md:mt-14 md:grid-cols-12 md:items-end md:gap-8">
-          <Reveal variant="rise" priority className="md:col-span-7">
-            <h1 className="text-section max-w-[16ch]">
-              {lead} <span className="text-[var(--fg-mute)]">{accent}</span>
-            </h1>
-          </Reveal>
-
-          <Reveal variant="rise" priority className="md:col-span-4 md:col-start-9">
-            <p className="text-[var(--fg-mute)]">{standfirst}</p>
-            {children}
-          </Reveal>
+    <section data-scheme="black" className="bg-[var(--color-black)] pt-[var(--header-h)] text-[var(--fg)]">
+      <div className="frame grid gap-8 py-14 md:grid-cols-12 md:items-end md:py-24">
+        <h1 className="text-display max-w-[16ch] md:col-span-8" aria-label={`${title}: ${lead} ${accent}`}>
+          {lead} <span className="text-[var(--color-orange)]">{accent}</span>
+        </h1>
+        <div className="md:col-span-4">
+          <p className="text-lead text-[var(--fg-dim)]">{standfirst}</p>
+          {children}
         </div>
       </div>
     </section>

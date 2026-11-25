@@ -319,7 +319,15 @@ export function ArchonWorld({
     };
   }, []);
 
+  /* "Ana site" sits exactly where the header's world button was, so the
+     second half of a double click would close what the first half opened. */
+  const openedAt = useRef(0);
+  useEffect(() => {
+    openedAt.current = performance.now();
+  }, []);
+
   const exit = useCallback(() => {
+    if (performance.now() - openedAt.current < 900) return;
     setLeaving(true);
     stopSound();
     if (document.pointerLockElement) document.exitPointerLock?.();

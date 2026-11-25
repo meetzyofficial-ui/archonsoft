@@ -138,14 +138,6 @@ export function SystemBand({ locale, copy }: { locale: Locale; copy: Copy }) {
                 >
                   <span
                     className={cn(
-                      "mono-label",
-                      last ? "text-[var(--accent)]" : "text-[var(--fg-mute)]",
-                    )}
-                  >
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <span
-                    className={cn(
                       "display truncate text-[0.9375rem] tracking-[-0.02em] lg:text-[1.0625rem]",
                       last ? "text-[var(--accent)]" : "text-[var(--fg)]",
                     )}
@@ -164,7 +156,7 @@ export function SystemBand({ locale, copy }: { locale: Locale; copy: Copy }) {
             <SystemStack
               locale={locale}
               notes={{}}
-              accent="var(--color-blue-ink)"
+              accent="var(--color-orange-deep)"
               productName={copy.stack.layers}
               label={copy.stack.layers}
               openLabel={copy.stack.open}
@@ -234,7 +226,6 @@ export function ProcessBand({
             >
               <div className={detailed ? "md:col-span-4" : ""}>
                 <div className="flex items-baseline gap-3">
-                  <span className="mono-label text-[var(--accent)]">{stage.index}</span>
                   <h3 className="display text-quote">{t(stage.title, locale)}</h3>
                   <Icon
                     name={stage.icon}

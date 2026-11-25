@@ -84,6 +84,22 @@ const WORLD: Piece = {
   facts: world.facts.slice(0, 3),
 };
 
+/* Oyundal is live but has no station in the world, so it is not in PROJECTS. */
+const oyundal = getShowcase("oyundal")!;
+const OYUNDAL_PIECE: Piece = {
+  slug: oyundal.slug,
+  name: { en: oyundal.title, tr: oyundal.title },
+  index: "",
+  provenance: "shipped",
+  sector: oyundal.category,
+  statement: oyundal.tagline,
+  accent: oyundal.accent,
+  domains: ["products", "systems"],
+  path: projectPath(oyundal.slug),
+  screens: oyundal.hero.slice(0, 2).map((media) => ({ image: media.image, caption: media.alt })),
+  facts: oyundal.facts.slice(0, 3),
+};
+
 const CONCEPTS: Piece[] = LABS.map((lab) => ({
   slug: lab.slug,
   name: CONCEPT_TITLES[lab.slug] ?? { en: lab.name, tr: lab.name },
@@ -100,7 +116,7 @@ const CONCEPTS: Piece[] = LABS.map((lab) => ({
 }));
 
 /** Shipped first. What is live outranks what is possible, always. */
-export const COLLECTION: Piece[] = [...SHIPPED, WORLD, ...CONCEPTS].map((piece, i) => ({
+export const COLLECTION: Piece[] = [...SHIPPED, OYUNDAL_PIECE, WORLD, ...CONCEPTS].map((piece, i) => ({
   ...piece,
   index: String(i + 1).padStart(2, "0"),
 }));

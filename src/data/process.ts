@@ -105,7 +105,7 @@ export const PROCESS: Stage[] = [
     },
     output: {
       en: "Working software you can use before it is finished.",
-      tr: "Bitmeden önce kullanabildiğin, çalışan yazılım.",
+      tr: "Bitmeden önce kullanılabilen, çalışan yazılım.",
     },
     yours: {
       en: "Looking at it weekly and reacting. Nothing else.",
@@ -165,7 +165,7 @@ export const PROCESS: Stage[] = [
     },
     output: {
       en: "A running product, and every account belonging to you.",
-      tr: "Çalışan bir ürün ve sana ait olan her hesap.",
+      tr: "Çalışan bir ürün ve size ait olan her hesap.",
     },
     yours: {
       en: "Deciding when. The technical readiness is my problem.",
@@ -195,7 +195,7 @@ export const PROCESS: Stage[] = [
     },
     output: {
       en: "A product that gets better for a reason you can point at.",
-      tr: "Gösterebileceğin bir sebeple iyileşen bir ürün.",
+      tr: "Gerçek kullanıma göre iyileşen bir ürün.",
     },
     yours: {
       en: "Deciding what is worth the next round.",

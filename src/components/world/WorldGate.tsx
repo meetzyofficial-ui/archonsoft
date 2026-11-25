@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ArchonWorld } from "@/components/world/ArchonWorld";
 import type { Copy } from "@/i18n/dictionary";
 import type { Locale } from "@/lib/i18n";
-import { OPEN_WORLD_EVENT, WORLD_DISMISSED_KEY } from "@/components/world/openWorld";
+import { OPEN_WORLD_EVENT } from "@/components/world/openWorld";
 import type { WorldPayload } from "@/lib/worldPayload";
 import { WORLD_OPEN_ATTRIBUTE } from "@/lib/worldOpen";
 
@@ -15,14 +15,9 @@ export type WorldCopy = Copy["world"];
  * Decides whether Archon World opens, how, and gives it a way back in.
  *
  * The world is an experience layer, never a gate in the other sense: the site
- * underneath is complete without it, and this component's whole job is to make
- * sure nobody is ever on the wrong side of it. It opens once per session, it
- * closes on Escape or on "Main site", and once closed it leaves a single quiet
- * control to open it again.
- *
- * Two things stop it opening at all — no WebGL, or a visitor who has already
- * dismissed it — and in both cases the ordinary home page is simply what
- * loads, which is why none of this needed a fallback design of its own.
+ * underneath is complete without it. The site is what loads; the world opens
+ * only when it is asked for, from a control or from `/world`, and closes on
+ * Escape or on "Main site".
  */
 function hasWebGL(): boolean {
   try {
@@ -68,7 +63,7 @@ export function WorldGate({
      route. */
   const isHome = pathname === `/${locale}` || pathname === `/${locale}/`;
 
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const [input, setInput] = useState<{ touch: boolean; compact: boolean }>({ touch: true, compact: true });
 
   useEffect(() => {
@@ -85,22 +80,21 @@ export function WorldGate({
       asked = false;
     }
 
-    let dismissed = false;
-    try {
-      dismissed = window.sessionStorage.getItem(WORLD_DISMISSED_KEY) === "1";
-    } catch {
-      dismissed = false;
-    }
-    if ((dismissed && !asked) || !capable) setOpen(false);
+    if (asked && capable) setOpen(true);
   }, []);
 
   const close = useCallback(() => {
-    try {
-      window.sessionStorage.setItem(WORLD_DISMISSED_KEY, "1");
-    } catch {
-      /* A private window simply reopens the world next time. */
-    }
     setOpen(false);
+    /* Coming back from a `/?world` link, so a reload stays on the site. */
+    try {
+      const url = new URL(window.location.href);
+      if (url.searchParams.has("world")) {
+        url.searchParams.delete("world");
+        window.history.replaceState(window.history.state, "", url);
+      }
+    } catch {
+      /* The address simply keeps its parameter. */
+    }
   }, []);
 
   /* Anywhere on the site can ask for the world back — the invitation band, the
@@ -108,7 +102,10 @@ export function WorldGate({
      the visitor may already be standing on the home page and there is then no
      navigation for React to react to. */
   useEffect(() => {
-    const onAsk = () => setOpen(true);
+    const onAsk = () => {
+      setInput(pickInput());
+      setOpen(true);
+    };
     window.addEventListener(OPEN_WORLD_EVENT, onAsk);
     return () => window.removeEventListener(OPEN_WORLD_EVENT, onAsk);
   }, []);

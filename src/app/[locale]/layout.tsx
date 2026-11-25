@@ -3,11 +3,7 @@ import { notFound } from "next/navigation";
 import localFont from "next/font/local";
 import "../globals.css";
 
-import { Cursor } from "@/components/chrome/Cursor";
-import { Preloader } from "@/components/chrome/Preloader";
 import { SmoothScroll } from "@/components/chrome/SmoothScroll";
-import { Atmosphere } from "@/components/site/Atmosphere";
-import { LogoField } from "@/components/site/LogoField";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { StudioClosing } from "@/components/site/StudioClosing";
 import { WorldMount } from "@/components/world/WorldMount";
@@ -21,24 +17,7 @@ import { CONTACT_EMAIL, SITE } from "@/lib/site";
  * request reaching here already carries a locale prefix.
  */
 
-/**
- * The type system, in three files.
- *
- * Newsreader sets every statement, Instrument Sans sets every interface, and
- * Geist Mono sets every piece of data. The first two are self-hosted `@font-face`
- * declarations in `globals.css` and preloaded by hand below — they are static
- * paths, so there is nothing to look up and nothing that can silently stop
- * being emitted.
- *
- * Only the mono comes through Next's loader, because only the mono is still a
- * package dependency. Two weights, not the twelve the family ships: the rest
- * were being downloaded to render glyphs nobody asks for. `adjustFontFallback`
- * stays on by default, so a swap changes the face and not the layout.
- *
- * The paths are written out because Next's font loader requires literals: it
- * reads them at build time to fingerprint and emit the files, so a template
- * string it cannot evaluate is a build error rather than a runtime one.
- */
+/** Archivo is self-hosted in globals.css; only the mono comes through the loader. */
 const GeistMono = localFont({
   src: [
     {
@@ -54,7 +33,7 @@ const GeistMono = localFont({
   ],
   variable: "--font-geist-mono",
   display: "swap",
-  preload: true,
+  preload: false,
 });
 
 export function generateStaticParams() {
@@ -108,8 +87,8 @@ export async function generateMetadata({
 }
 
 export const viewport: Viewport = {
-  themeColor: "#05070b",
-  colorScheme: "dark",
+  themeColor: "#0c0c0d",
+  colorScheme: "light",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -150,36 +129,13 @@ export default async function LocaleLayout({
       suppressHydrationWarning
     >
       <head>
-        {/* The two faces that set the page. The display serif decides the
-            largest contentful paint on every route, and the grotesk carries
-            every paragraph under it, so both are fetched with the document
-            rather than after the stylesheet has been parsed. */}
-        <link
-          rel="preload"
-          href="/fonts/newsreader-latin.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preload"
-          href="/fonts/instrument-sans-latin.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
+        <link rel="preload" href="/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         {/* Runs before paint, so the class is gone before the first frame and
             no reveal ever flashes in its resting state. */}
         <script
           dangerouslySetInnerHTML={{
             __html:
-              `document.documentElement.classList.remove('no-js');` +
-              // Archon World is server-rendered so it is the first thing
-              // painted. A visitor who already dismissed it this session gets
-              // it stamped away before the first frame rather than seeing it
-              // flash and vanish.
-              `try{if(sessionStorage.getItem('archon-world-dismissed')==='1')` +
-              `document.documentElement.setAttribute('data-world','off')}catch(e){}`,
+              `document.documentElement.classList.remove('no-js');`,
           }}
         />
       </head>
@@ -189,15 +145,7 @@ export default async function LocaleLayout({
           // Static, author-controlled JSON-LD. No user input reaches this.
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organisation) }}
         />
-        {/* The light the whole site sits in, and the form turning behind it.
-            Both are fixed, both are behind every page, and neither is part of
-            the load: the atmosphere is four CSS gradients and the sculpture
-            does not exist until the browser is idle. */}
-        <Atmosphere />
-        <LogoField />
-        <Preloader />
         <SmoothScroll />
-        <Cursor />
         <SiteHeader locale={locale} copy={copy} />
         <main id="main">{children}</main>
         <StudioClosing locale={locale} copy={copy} />

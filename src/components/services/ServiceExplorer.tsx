@@ -113,15 +113,10 @@ export function ServiceExplorer({
       id="services"
       data-band="paper"
       aria-labelledby="services-title"
-      className="relative scroll-mt-16 py-24 md:py-36"
+      className="relative scroll-mt-16 py-16 md:py-28"
     >
       <div className="frame">
-        <div className="hairline-t mono-micro flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2 pt-3 text-[var(--fg-mute)]">
-          <span>{c.label}</span>
-          <span>{c.aside}</span>
-        </div>
-
-        <div className="mt-8 grid gap-6 md:mt-12 md:grid-cols-12 md:items-end">
+        <div className="grid gap-6 md:grid-cols-12 md:items-end">
           <h2 id="services-title" className="text-section md:col-span-8">
             {c.title}
           </h2>
@@ -155,9 +150,6 @@ export function ServiceExplorer({
                     data-service={one.id}
                     className="service-tab group"
                   >
-                    <span className="service-tab__index mono-micro" style={{ fontVariantNumeric: "tabular-nums" }}>
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
                     <span className="service-tab__body">
                       <span className="service-tab__title">{t(one.title, locale)}</span>
                       <span className="service-tab__eyebrow mono-micro">{t(one.eyebrow, locale)}</span>
@@ -197,7 +189,7 @@ export function ServiceExplorer({
                 className="service-brief scroll-mt-24 outline-none"
               >
                 <div className="flex flex-wrap items-center justify-between gap-4">
-                  <button type="button" onClick={backToService} className="btn-raised btn-ghost mono-label">
+                  <button type="button" onClick={backToService} className="btn-raised btn-ghost">
                     <span aria-hidden="true">←</span> {c.back}
                   </button>
                   <span className="mono-micro text-[var(--fg-mute)]">
@@ -273,18 +265,14 @@ function ServicePanel({
       className="service-panel outline-none"
     >
       <div key={open ? "open" : "closed"} className={cn(open && "service-enter")}>
-        <p className="mono-micro text-[var(--accent)]">{t(service.eyebrow, locale)}</p>
-        <h3 className="text-head mt-4 max-w-[22ch]">{t(service.headline, locale)}</h3>
+        <h3 className="text-head max-w-[26ch]">{t(service.headline, locale)}</h3>
         <p className="mt-5 max-w-[56ch] text-lead text-[var(--fg-dim)]">{t(service.description, locale)}</p>
 
         <div className="mt-9">
           <p className="mono-micro text-[var(--fg-mute)]">{c.capabilities}</p>
           <ul className="service-capabilities mt-4">
-            {service.capabilities.map((capability, i) => (
+            {service.capabilities.map((capability) => (
               <li key={capability.en} className="service-capability">
-                <span className="mono-micro text-[var(--accent)]" style={{ fontVariantNumeric: "tabular-nums" }}>
-                  {String(i + 1).padStart(2, "0")}
-                </span>
                 <span>{t(capability, locale)}</span>
               </li>
             ))}
@@ -309,7 +297,7 @@ function ServicePanel({
             <button
               type="button"
               onClick={() => onExplore(0)}
-              className="btn-raised btn-ghost mono-label"
+              className="btn-raised btn-ghost"
               data-service-explore=""
             >
               {c.explore}
@@ -322,10 +310,9 @@ function ServicePanel({
             <button
               type="button"
               onClick={() => openWorldAtDepartment(service.world.department, service.world.service)}
-              className="btn-raised btn-world mono-label"
+              className="btn-raised btn-world"
               data-world-trigger=""
             >
-              <span aria-hidden="true" className="btn-world__eye" />
               {c.worldCta}
             </button>
           ) : null}
@@ -393,7 +380,7 @@ function ServicePanel({
               event.preventDefault();
               onBrief();
             }}
-            className="btn-raised mono-label mt-6"
+            className="btn-raised"
             data-service-lead={service.id}
           >
             {c.cta}

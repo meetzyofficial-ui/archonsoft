@@ -135,14 +135,6 @@ export function SystemStack({
                 aria-pressed={lifted}
                 className="group/layer flex w-full cursor-pointer items-baseline gap-4 py-3.5 text-left md:gap-6"
               >
-                <span
-                  className={cn(
-                    "mono-label shrink-0 transition-colors duration-300",
-                    lifted ? "text-[var(--accent)]" : "text-[var(--fg-mute)]",
-                  )}
-                >
-                  {layer.index}
-                </span>
                 <span className="min-w-0 flex-1">
                   <span
                     className={cn(

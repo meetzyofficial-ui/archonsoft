@@ -59,7 +59,6 @@ export default async function PrivacyPage({ params }: Params) {
             {page.sections.map((section, index) => (
               <li key={section.title} className="hairline-t" id={section.id}>
                 <Reveal delay={index * 40} className="grid gap-4 py-8 md:grid-cols-12 md:gap-8 md:py-10">
-                  <span className="mono-label text-[var(--accent)] md:col-span-1">{String(index + 1).padStart(2, "0")}</span>
                   <h2 className="text-quote md:col-span-4">{section.title}</h2>
                   <div className="flex max-w-[60ch] flex-col gap-4 text-[var(--fg-dim)] md:col-span-6 md:col-start-7">
                     {section.body.map((paragraph) => (

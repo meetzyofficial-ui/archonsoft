@@ -90,14 +90,6 @@ export function LabsExplorer({
                       : "hover:border-[var(--line-strong)]",
                   )}
                 >
-                  <span
-                    className={cn(
-                      "mono-label transition-colors duration-300",
-                      selected ? "text-[var(--accent)]" : "text-[var(--fg-mute)]",
-                    )}
-                  >
-                    {candidate.index}
-                  </span>
                   <span className="min-w-0">
                     <span
                       className={cn(

@@ -46,18 +46,12 @@ export function WorkRow({
     >
       <Link
         href={localePath(locale, piece.path)}
-        data-cursor-label={shipped ? copy.work.read : copy.work.openConcept}
+       
         className="frame block py-12 md:py-16"
       >
         {/* 01 — the rule and the record on it. */}
         <ScrollFrame enter={0.4}>
           <div className="hairline-t mono-micro rise-copy flex flex-wrap items-center gap-x-8 gap-y-2 pt-3 text-[var(--fg-mute)]">
-            <span
-              className={shipped ? "text-[var(--accent)]" : undefined}
-              style={{ fontVariantNumeric: "tabular-nums" }}
-            >
-              {piece.index}
-            </span>
             <span>{t(piece.sector, locale)}</span>
             <span className="sm:ml-auto">
               {shipped ? copy.provenance.shipped : copy.provenance.concept}

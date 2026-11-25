@@ -113,6 +113,6 @@ export const STUDIO_FACTS: { label: Localized; value: Localized }[] = [
   },
   {
     label: { en: "Live products", tr: "Canlı ürün" },
-    value: { en: "Two", tr: "İki" },
+    value: { en: "Six", tr: "Altı" },
   },
 ];

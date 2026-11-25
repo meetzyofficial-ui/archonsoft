@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
+import { LanguageSwitch } from "@/components/chrome/LanguageSwitch";
 import type { Copy } from "@/i18n/dictionary";
 import { useEscape, useFocusTrap, useScrollLock } from "@/lib/hooks";
 import { localePath, type Locale } from "@/lib/i18n";
@@ -65,7 +66,7 @@ export function SiteMenu({
   onClose: () => void;
   locale: Locale;
   copy: Copy;
-  items: { label: string; href: string; index: string }[];
+  items: { label: string; href: string }[];
 }) {
   const pathname = usePathname();
 
@@ -92,29 +93,18 @@ export function SiteMenu({
     <div
       id="site-menu"
       ref={panelRef}
-      data-scheme="paper"
+      data-scheme="black"
       aria-hidden={!open}
       className={cn(
-        "pointer-events-auto fixed inset-0 z-[88] flex flex-col bg-[var(--color-night)]",
+        "pointer-events-auto fixed inset-0 z-[88] flex flex-col bg-[var(--color-black)]",
         "transition-[clip-path,opacity] duration-[800ms] ease-[var(--ease-in-out-quart)]",
         open
           ? "pointer-events-auto opacity-100 [clip-path:inset(0_0_0%_0)]"
           : "pointer-events-none opacity-0 [clip-path:inset(0_0_100%_0)]",
       )}
     >
-      {/* The menu is a room in the same building: the same atmosphere is
-          behind it, just thicker. */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse 80% 60% at 78% 18%, color-mix(in oklab, var(--color-cyan) 10%, transparent), transparent 68%)," +
-            "radial-gradient(ellipse 60% 50% at 10% 92%, color-mix(in oklab, #3b5bdb 12%, transparent), transparent 70%)",
-        }}
-      />
 
-      <div className="frame h-16 shrink-0" />
+      <div className="h-[var(--header-h)] shrink-0" />
 
       <nav
         aria-label={copy.nav.mobile}
@@ -131,21 +121,12 @@ export function SiteMenu({
                   tabIndex={open ? 0 : -1}
                   aria-current={active ? "page" : undefined}
                   onClick={onClose}
-                  className="group/nav flex items-baseline gap-6 py-3.5 md:gap-10"
+                  className="group/nav flex items-baseline gap-6 py-2 md:gap-10"
                   style={settle(index)}
                 >
                   <span
                     className={cn(
-                      "mono-micro w-7 shrink-0 self-start pt-3",
-                      active ? "text-[var(--accent)]" : "text-[var(--fg-mute)]",
-                    )}
-                    style={{ fontVariantNumeric: "tabular-nums" }}
-                  >
-                    {item.index}
-                  </span>
-                  <span
-                    className={cn(
-                      "text-head transition-transform duration-[700ms] ease-[var(--ease-out-expo)] md:group-hover/nav:translate-x-3",
+                      "text-section group-hover/nav:text-[var(--color-orange)]",
                       active ? "text-[var(--accent)]" : "text-[var(--fg)]",
                     )}
                   >
@@ -159,10 +140,10 @@ export function SiteMenu({
             <WorldNavLink
               locale={locale}
               label={copy.world.nav}
-              labelClassName="text-head transition-transform duration-[700ms] ease-[var(--ease-out-expo)] md:group-hover/nav:translate-x-3"
+              labelClassName="text-section group-hover/nav:text-[var(--color-orange)]"
               onClick={onClose}
               tabIndex={open ? 0 : -1}
-              className="group/nav flex items-baseline gap-6 py-3.5 text-[var(--fg)] md:gap-10"
+              className="group/nav flex items-baseline gap-6 py-2 text-[var(--fg)] md:gap-10"
               style={settle(items.length)}
             />
           </li>
@@ -184,7 +165,10 @@ export function SiteMenu({
             {copy.nav.start}
           </Link>
         )}
-        <span className="mono-label text-[var(--fg-mute)]">{copy.hero.location}</span>
+        <span className={open ? "sm:hidden" : "invisible sm:hidden"}>
+          <LanguageSwitch locale={locale} label={copy.nav.language} />
+        </span>
+        <span className="mono-label hidden text-[var(--fg-mute)] sm:block">{copy.hero.location}</span>
       </div>
     </div>
   );

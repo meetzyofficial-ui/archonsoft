@@ -81,14 +81,6 @@ export function SelfSelect({ locale, copy }: { locale: Locale; copy: Copy }) {
               <span className="flex items-baseline gap-4 py-4 md:gap-7 md:py-5">
                 <span
                   className={cn(
-                    "mono-label transition-colors duration-500",
-                    selected ? "text-[var(--accent)]" : "text-[var(--fg-mute)]",
-                  )}
-                >
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <span
-                  className={cn(
                     "display text-quote transition-[color,transform] duration-[600ms] ease-[var(--ease-out-expo)]",
                     selected
                       ? "translate-x-1.5 text-[var(--fg)]"

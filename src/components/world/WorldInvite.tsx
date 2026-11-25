@@ -1,7 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState, type CSSProperties } from "react";
+import gate from "@/assets/world/gate.jpg";
 import { openWorld } from "@/components/world/openWorld";
 import { localePath, type Locale } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -42,10 +44,11 @@ export function useEnterWorld(locale: Locale) {
   return useCallback(
     (event?: { preventDefault: () => void }) => {
       event?.preventDefault();
+      /* On the home page the gate is already listening. From anywhere else the
+         event still reaches it, since it lives in the layout, and the push
+         brings the page it shows on. */
       openWorld();
-      /* `push` on the page you are already on is a no-op in Next, which is
-         exactly what we want: the event above has already told the gate. */
-      router.push(localePath(locale));
+      if (window.location.pathname !== localePath(locale)) router.push(localePath(locale));
     },
     [locale, router],
   );
@@ -79,7 +82,7 @@ export function WorldNavLink({
 
   return (
     <a
-      href={localePath(locale)}
+      href={`${localePath(locale)}?world`}
       tabIndex={tabIndex}
       style={style}
       onClick={(event) => {
@@ -115,29 +118,20 @@ export function WorldEnterButton({
   const able = useWebGL();
   if (!able) return null;
 
-  /* The one control on the site with light of its own — the same raised
-     surface as every other action, with a cyan edge and an eye. */
   return (
     <a
-      href={localePath(locale)}
+      href={`${localePath(locale)}?world`}
       onClick={enter}
       data-world-trigger=""
-      className={cn("btn-raised btn-world mono-label", className)}
+      className={cn("btn-raised btn-world", className)}
     >
-      <span aria-hidden="true" className="btn-world__eye" />
       {label}
       <span aria-hidden="true" className="arrow-rule" />
     </a>
   );
 }
 
-/**
- * The way in, at the centre of the header.
- *
- * Centred because it is the one thing the header offers that no other site
- * does, and raised because it is the only control that leaves the document.
- * On a phone the label shortens to one word and the eye stays.
- */
+/** The way in, as the loudest thing in the header. */
 export function WorldHeaderButton({
   locale,
   label,
@@ -151,16 +145,11 @@ export function WorldHeaderButton({
   const able = useWebGL();
   if (!able) return null;
   return (
-    <a
-      href={localePath(locale)}
-      onClick={enter}
-      data-world-trigger=""
-      aria-label={label}
-      className="btn-raised btn-world mono-label !min-h-[2.375rem] !gap-2.5 !px-3.5 !py-2 sm:!px-4"
-    >
-      <span aria-hidden="true" className="btn-world__eye" />
+    <a href={`${localePath(locale)}?world`} onClick={enter} data-world-trigger="" aria-label={label} className="world-block group">
+      <Image src={gate} alt="" sizes="84px" className="world-block__shot" />
       <span className="hidden sm:inline">{label}</span>
       <span className="sm:hidden">{shortLabel}</span>
+      <span aria-hidden="true" className="arrow-rule" />
     </a>
   );
 }

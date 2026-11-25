@@ -21,7 +21,6 @@ export function LabNotes({
         <li key={note.index} className="hairline-b">
           <Reveal delay={index * 60} className="grid gap-5 py-8 md:grid-cols-12 md:gap-8 md:py-10">
             <div className="flex items-baseline justify-between gap-4 md:col-span-2 md:block">
-              <span className="mono-label text-[var(--accent)]">{note.index}</span>
               <span className="mono-label mt-0 block text-[var(--fg-mute)] md:mt-3">
                 {t(note.field, locale)}
               </span>

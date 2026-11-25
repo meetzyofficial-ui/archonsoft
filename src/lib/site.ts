@@ -25,7 +25,7 @@ export const SITE = {
  * the interface routes people to the contact form instead of a broken link.
  */
 export const CONTACT_EMAIL: string | null =
-  process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || null;
+  process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || "info@archonsoft.tr";
 
 export type NavItem = {
   label: string;

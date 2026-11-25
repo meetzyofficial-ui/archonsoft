@@ -16,7 +16,7 @@ const en = {
     tagline: "We build what comes next.",
     description:
       "Archon Soft is a one-person product and technology studio in Ankara. Meetzy, a live social app, and Erden Davetiye, a live commerce system — product, design, frontend, backend and admin, built end to end.",
-    home: { title: "Archon Soft — We build the whole system." },
+    home: { title: "Archon Soft — Apps, websites and custom software" },
     work: {
       title: "Work",
       description:
@@ -74,15 +74,14 @@ const en = {
     system: "System",
     studio: "Product & technology studio",
     location: "Ankara, Turkey",
-    lead: "Ideas into products,",
-    leadAccent: "products into systems.",
-    standfirst:
-      "Web, mobile, AI and custom software — taken from the first decision to a product that runs, by one studio.",
-    ctaWork: "Explore projects",
+    lead: "We build apps, websites",
+    leadAccent: "and the systems behind them.",
+    standfirst: "We are a software studio in Ankara. AracımGo, Oyundal, Meetzy and DP Pano are ours, and all of them are live. Yours can be next.",
+    ctaWork: "See the work",
     /* Printed on the rule above the first project, at the foot of the
        opening. It is the only thing that says what comes next. */
     nextLabel: "First up",
-    ctaContact: "Start a project",
+    ctaContact: "Tell us about your project",
     assembling: "Assembling",
     liveProduct: "Live product",
     proofFacts: "Live for about three months · around 2,000 signups · built by one person",
@@ -182,12 +181,12 @@ const en = {
   explorer: {
     label: "What we build",
     aside: "Choose, and see what it could become",
-    title: "What do you want to build?",
-    body: "Choose what you need. See what it could look like — and where we have already built it.",
+    title: "What do you need built?",
+    body: "Choose one and see what it involves and where we have done it before.",
     listLabel: "Services",
     capabilities: "What we can build with it",
     technology: "Stack",
-    realWork: "Built by us",
+    realWork: "Where we did it",
     concepts: "Explored in Archon Labs",
     conceptBadge: "Concept",
     explore: "Explore examples",
@@ -209,9 +208,9 @@ const en = {
   showcase: {
     label: "Selected projects",
     aside: "Live, and built end to end",
-    statement: "Work you can",
+    statement: "Five jobs you can open and use.",
     statementAccent: "open.",
-    body: "Real products, running today — each one defined, designed, engineered and shipped by the same studio.",
+    body: "None of them is a mock-up. Follow the links, they all work.",
     explore: "Explore project",
     exploreShort: "Explore",
     enterWorld: "Enter the world",
@@ -238,29 +237,21 @@ const en = {
     redacted: "App captures: users’ names and faces removed",
     indexLead: "Products that are",
     indexAccent: "running.",
-    indexBody:
-      "Five live pieces of work, from AracımGo — our own service-management product — and a social app people use every week to a world you can walk through in the browser. Below them, the whole archive, including ten concept products built in the open.",
+    indexBody: "Six live projects, from a car-service platform to café games. Below them is the full archive, including the concepts we built to try an idea.",
     archiveLabel: "The whole archive",
     archiveAside: "Filter by domain and status",
     worldNote: "Opens Archon World, on this site",
   },
 
-  products: {
-    label: "Our products",
-    aside: "Built by Archon Soft, in use",
-    statement: "We don’t only write software.",
-    statementAccent: "We build real products for real problems.",
-    body: "Archon Soft turns an idea into a product — and runs it. AracımGo is the newest: a service-management system for workshops, live today.",
-    live: "Live",
-    featured: "Newest live product",
-    inspect: "See the product",
-    open: "Open AracımGo",
-    more: "Case study",
+
+  how: {
+    title: "How a job goes, and what you get at each step.",
+    more: "The process in detail",
   },
 
   chrome: {
-    world: "Enter world",
-    worldShort: "World",
+    world: "Enter the world",
+    worldShort: "Enter world",
   },
 
   capabilities: {
@@ -576,10 +567,9 @@ const en = {
     index: "05",
     bandLabel: "Archon World",
     bandAside: "A place, not a page",
-    bandStatement: "The same work,",
-    bandAccent: "somewhere you can walk.",
-    bandBody:
-      "Everything on this site also exists as a place: seven platforms over a cosmic sea, joined by bridges, that you walk as the Archon explorer. The gate is the Archon mark at the size of architecture; through it each shipped product has its own station, with its real screens hanging over it and two or three people who will tell you about it, in text and out loud. Beyond them the ten concepts, the layers a system is made of, an archive, and a walkway above it all.",
+    bandStatement: "Our work,",
+    bandAccent: "as a place you can walk.",
+    bandBody: "Archon World runs in your browser. Every product has its own station with its real screens, and there is someone at each one to tell you about it.",
     bandFacts: [
       "Seven islands",
       "Three project stations, with guides",
@@ -711,9 +701,9 @@ const en = {
     motionValue: "CSS transitions, Lenis",
     backToTop: "Back to top",
     /* The last sentence the page says, at the size of the page. */
-    closing: "Let’s build something.",
+    closing: "Tell us what you need.",
     rights: "All rights reserved",
-    start: "Start a project",
+    start: "Tell us about your project",
   },
 
   notFound: {
@@ -747,11 +737,11 @@ const tr: Dictionary = {
     tagline: "Sıradakini biz kuruyoruz.",
     description:
       "Web, mobil uygulama, yapay zekâ ve özel yazılım çözümleri geliştiriyoruz. Fikrinizi tasarımdan çalışan ürüne kadar uçtan uca hayata geçiriyoruz.",
-    home: { title: "Archon Soft — Fikri ürüne, ürünü sisteme dönüştürüyoruz." },
+    home: { title: "Archon Soft — Uygulama, web sitesi ve özel yazılım" },
     work: {
       title: "İşler",
       description:
-        "Canlı ürünler, yalnızca doğrulanmış olan üzerinden anlatıldı: oto servisler için ArchonSoft'un kendi servis yönetimi ürünü AracımGo; birlikte gidecek birini bulmak için bir sosyal uygulama olan Meetzy; okulun ekranlarını tek panelden yöneten DP Pano; ve bir vitrin ile arkasındaki yönetim sistemi olan Erden Davetiye.",
+        "Canlı ürünler, yalnızca doğrulanmış olan üzerinden anlatıldı: araç sahiplerini ve servisleri buluşturan AracımGo; kafeler için QR ile masada oyun Oyundal; birlikte gidecek birini bulmak için bir sosyal uygulama olan Meetzy; okulun ekranlarını tek panelden yöneten DP Pano; ve bir vitrin ile arkasındaki yönetim sistemi olan Erden Davetiye.",
     },
     capabilities: {
       title: "Yetkinlikler",
@@ -805,13 +795,12 @@ const tr: Dictionary = {
     system: "Sistem",
     studio: "Ürün ve teknoloji stüdyosu",
     location: "Ankara, Türkiye",
-    lead: "Fikri ürüne,",
-    leadAccent: "ürünü sisteme dönüştürüyoruz.",
-    standfirst:
-      "Web, mobil uygulama, yapay zekâ ve özel yazılım — ilk karardan çalışan ürüne kadar, tek stüdyoda.",
-    ctaWork: "Projeleri keşfet",
+    lead: "Uygulamanızı, sitenizi,",
+    leadAccent: "sisteminizi yapıyoruz.",
+    standfirst: "Ankara’da bir yazılım stüdyosuyuz. AracımGo, Oyundal, Meetzy ve DP Pano’yu biz yaptık, hepsi yayında. Sıradaki sizinki olsun.",
+    ctaWork: "İşlerimize bakın",
     nextLabel: "İlk sırada",
-    ctaContact: "Projeye başla",
+    ctaContact: "Projenizi anlatın",
     assembling: "Kuruluyor",
     liveProduct: "Canlı ürün",
     proofFacts: "Yaklaşık üç aydır canlı · 2.000 civarı kayıt · tek kişi tarafından kuruldu",
@@ -900,12 +889,12 @@ const tr: Dictionary = {
   explorer: {
     label: "Ne inşa ediyoruz",
     aside: "Seç ve neye dönüşebileceğini gör",
-    title: "Ne geliştirmek istiyorsunuz?",
-    body: "İhtiyacınızı seçin. Nasıl görünebileceğini — ve daha önce nerede kurduğumuzu — görün.",
+    title: "Ne yaptırmak istiyorsunuz?",
+    body: "Birini seçin; neleri kapsadığını ve daha önce nerede yaptığımızı görün.",
     listLabel: "Hizmetler",
     capabilities: "Bununla neler yapabiliriz",
     technology: "Altyapı",
-    realWork: "Bizim kurduğumuz",
+    realWork: "Nerede yaptık",
     concepts: "Archon Labs'ta keşfedildi",
     conceptBadge: "Konsept",
     explore: "Örnekleri keşfet",
@@ -927,9 +916,9 @@ const tr: Dictionary = {
   showcase: {
     label: "Seçili projeler",
     aside: "Canlı ve uçtan uca kuruldu",
-    statement: "Açıp",
+    statement: "Açıp kullanabileceğiniz beş iş.",
     statementAccent: "inceleyebileceğin işler.",
-    body: "Bugün çalışan gerçek ürünler — her biri aynı stüdyo tarafından tanımlandı, tasarlandı, geliştirildi ve yayına alındı.",
+    body: "Hiçbiri maket değil. Linklere basın, hepsi çalışıyor.",
     explore: "Projeyi incele",
     exploreShort: "İncele",
     enterWorld: "Dünyaya gir",
@@ -956,29 +945,21 @@ const tr: Dictionary = {
     redacted: "Uygulama ekranları: kullanıcı isimleri ve yüzleri kaldırıldı",
     indexLead: "Çalışan",
     indexAccent: "ürünler.",
-    indexBody:
-      "Kendi servis yönetimi ürünümüz AracımGo'dan ve her hafta kullanılan bir sosyal uygulamadan tarayıcıda içinde yürüyebildiğin bir dünyaya, beş canlı iş. Altında tüm arşiv — açıkça inşa edilmiş on konsept ürün dahil.",
+    indexBody: "Oto servis platformundan kafe oyunlarına altı canlı iş. Altında, bir fikri denemek için yaptığımız konseptler dahil bütün arşiv.",
     archiveLabel: "Tüm arşiv",
     archiveAside: "Alana ve duruma göre filtrele",
     worldNote: "Archon Dünyası'nı bu sitede açar",
   },
 
-  products: {
-    label: "Ürünlerimiz",
-    aside: "ArchonSoft'un geliştirdiği, kullanımda",
-    statement: "ArchonSoft olarak yalnızca yazılım geliştirmiyoruz.",
-    statementAccent: "Gerçek problemlere gerçek ürünler geliştiriyoruz.",
-    body: "ArchonSoft fikri ürüne dönüştürür — ve onu yürütür. En yenisi AracımGo: servisler için bir servis yönetimi sistemi, bugün canlıda.",
-    live: "Canlı",
-    featured: "En yeni canlı ürün",
-    inspect: "Ürünü incele",
-    open: "AracımGo'yu Aç",
-    more: "Vaka çalışması",
+
+  how: {
+    title: "İş nasıl ilerler, her adımda elinize ne geçer.",
+    more: "Sürecin ayrıntısı",
   },
 
   chrome: {
     world: "Dünyaya git",
-    worldShort: "Dünya",
+    worldShort: "Dünyaya git",
   },
 
   capabilities: {
@@ -1291,10 +1272,9 @@ const tr: Dictionary = {
     index: "05",
     bandLabel: "Archon Dünyası",
     bandAside: "Sayfa değil, bir yer",
-    bandStatement: "Aynı iş,",
-    bandAccent: "yürüyebileceğin bir yerde.",
-    bandBody:
-      "Bu sitedeki her şey bir yer olarak da var: kozmik bir denizin üzerinde köprülerle bağlı yedi platform; içinde Archon kâşifi olarak yürürsün. Kapı, mimari ölçekte Archon markası; içinden geçince yayındaki her ürünün kendi istasyonu var — gerçek ekranları üstünde asılı, yanında onu yazıyla ve sesli anlatan iki üç kişi. Ötesinde on konsept, bir sistemin katmanları, bir arşiv ve hepsinin üstünde bir geçit.",
+    bandStatement: "İşlerimizi",
+    bandAccent: "içinde yürüyerek gezin.",
+    bandBody: "Archon Dünyası tarayıcınızda çalışıyor. Ürünlerimizin kendi istasyonları, gerçek ekranları ve başlarında anlatan rehberleri var.",
     bandFacts: [
       "Yedi ada",
       "Üç proje istasyonu, rehberleriyle",
@@ -1389,7 +1369,7 @@ const tr: Dictionary = {
       },
       aracimgo: {
         answer:
-          "AracımGo, oto servislerin müşteri, araç ve servis süreçlerini tek yerden yönetmesini sağlayan ArchonSoft ürünüdür.",
+          "AracımGo, araç sahipleriyle oto servisleri buluşturan, yapılan her bakımı aracın dijital karnesine işleyen ArchonSoft ürünüdür.",
         live: "Canlıda — hemen açabilirsin.",
         open: "AracımGo'yu aç",
         visit: "Beni oraya götür",
@@ -1420,9 +1400,9 @@ const tr: Dictionary = {
     motion: "Hareket",
     motionValue: "CSS geçişleri, Lenis",
     backToTop: "Başa dön",
-    closing: "Hadi bir şey kuralım.",
+    closing: "Ne lazım, anlatın.",
     rights: "Tüm hakları saklıdır",
-    start: "Projeye başla",
+    start: "Projenizi anlatın",
   },
 
   notFound: {

@@ -21,7 +21,7 @@ import { QUALITY, qualityStore } from "@/components/world/systems/quality";
  * painted it is painted again, once, when it has.
  */
 
-const FACE = '"Instrument Sans", "Helvetica Neue", Helvetica, Arial, sans-serif';
+const FACE = '"Archivo", "Helvetica Neue", Helvetica, Arial, sans-serif';
 const MONO = 'ui-monospace, "SF Mono", Menlo, Consolas, monospace';
 
 export type BoardContent = {

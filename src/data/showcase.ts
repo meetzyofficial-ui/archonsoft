@@ -1,7 +1,7 @@
 import type { StaticImageData } from "next/image";
 import type { Localized, LocalizedList } from "@/lib/i18n";
 import { PROJECTS, type CaseSection, type Fact, type Project } from "@/data/projects";
-import { ARACIMGO, DPPANO, ERDEN, MEETZY, type Screen } from "@/data/screens";
+import { ARACIMGO, DPPANO, ERDEN, MEETZY, MEETZY_SITE, OYUNDAL, type Screen } from "@/data/screens";
 
 import worldGate from "@/assets/work/world/01-gate.jpg";
 import worldMeetzy from "@/assets/work/world/02-meetzy-station.jpg";
@@ -149,21 +149,15 @@ function fromProject(
 
 const byslug = (slug: string) => PROJECTS.find((one) => one.slug === slug)!;
 
-/**
- * AracımGo — Archon Soft's own product, live. Its case study is the one page
- * told as a product story rather than a write-up (`AracimGoStory`), in the
- * product's own cream-and-emerald language; this entry is what every other
- * surface — the home spread, the index, the next-project link — reads.
- */
 const aracimgo = fromProject(byslug("aracimgo"), {
-  category: { en: "SaaS · Automotive · Service management", tr: "SaaS · Otomotiv · Servis Yönetimi" },
+  category: { en: "Mobile app and web platform", tr: "Mobil uygulama ve web platformu" },
   tagline: {
-    en: "Car service management. In one place.",
-    tr: "Oto servis yönetimi. Tek yerde.",
+    en: "The car's passport, the driver's service marketplace, the mechanic's software.",
+    tr: "Aracın karnesi, sürücünün servis pazaryeri, ustanın programı.",
   },
   shortDescription: {
-    en: "Manage customers, vehicles, work orders and a digital history for every car in one system.",
-    tr: "Müşteri, araç, iş emri ve dijital araç geçmişini tek bir sistemde yönetin.",
+    en: "Drivers find a workshop and book. Workshops run the whole day from one place. Every finished job is written to the car's passport.",
+    tr: "Sürücü servis bulup randevu alıyor. Servis bütün günü tek yerden yürütüyor. Biten her iş aracın karnesine yazılıyor.",
   },
   services: [
     { en: "Product", tr: "Ürün" },
@@ -173,12 +167,94 @@ const aracimgo = fromProject(byslug("aracimgo"), {
     { en: "Server & data", tr: "Sunucu ve veri" },
   ],
   tags: [
-    { en: "SaaS", tr: "SaaS" },
-    { en: "Automotive", tr: "Otomotiv" },
-    { en: "Live product", tr: "Canlı ürün" },
+    { en: "Mobile app", tr: "Mobil uygulama" },
+    { en: "Marketplace", tr: "Pazaryeri" },
+    { en: "Business software", tr: "İşletme programı" },
   ],
-  hero: [ARACIMGO.overview!, ARACIMGO.customers!, ARACIMGO.history!].map(media),
+  hero: [ARACIMGO.site!, ARACIMGO.appDiscover!, ARACIMGO.appToday!].map(media),
 });
+
+/**
+ * Oyundal — every line is taken from what oyundal.com itself says (checked
+ * 2026-11-25) or from the product's own repository.
+ */
+const oyundal: ShowcaseProject = {
+  slug: "oyundal",
+  title: "Oyundal",
+  category: { en: "Web platform for cafés", tr: "Kafeler için web platformu" },
+  tagline: {
+    en: "Guests scan the QR on the table and play together. No app to download.",
+    tr: "Misafir masadaki QR'ı okutuyor, uygulama indirmeden birlikte oynuyor.",
+  },
+  shortDescription: {
+    en: "37 games behind one QR code, from backgammon and okey to party games. The owner sets up rewards and follows every branch from one panel.",
+    tr: "Tek QR'da 37 oyun; tavladan okeye, bilgi yarışmasından parti oyunlarına. İşletme ödülleri ve bütün şubeleri tek panelden yönetiyor.",
+  },
+  description: {
+    en: "Oyundal turns the time spent at a café table into a reason to stay and come back. Guests scan the branch's QR code, choose their table and play together in the browser, each on their own phone. Winners show a single-use reward code at the till. The owner sees which tables are playing, runs campaigns and manages branches and staff from one panel.",
+    tr: "Oyundal, kafede masada geçen zamanı kalmak ve geri gelmek için bir sebebe çeviriyor. Misafirler şubenin QR'ını okutuyor, masasını seçiyor ve tarayıcıda birlikte oynuyor; herkes kendi telefonundan. Kazanan, tek kullanımlık ödül kodunu kasada gösteriyor. İşletme hangi masada oynandığını görüyor, kampanya kuruyor, şubelerini ve ekibini tek panelden yönetiyor.",
+  },
+  statement: {
+    en: "Coffee lasts an hour. The game lasts one more.",
+    tr: "Kahve bir saat sürer. Oyun bir saat daha.",
+  },
+  status: "live",
+  year: "2026",
+  role: { en: "Product, brand, design, engineering and operation", tr: "Ürün, marka, tasarım, geliştirme ve işletim" },
+  platform: { en: "Browser, phone and desktop", tr: "Tarayıcı; telefon ve masaüstü" },
+  services: [
+    { en: "Product", tr: "Ürün" },
+    { en: "Brand", tr: "Marka" },
+    { en: "Game design", tr: "Oyun tasarımı" },
+    { en: "Real-time multiplayer", tr: "Gerçek zamanlı çok oyunculu" },
+    { en: "Owner panel", tr: "İşletme paneli" },
+  ],
+  tags: [
+    { en: "Real time", tr: "Gerçek zamanlı" },
+    { en: "Games", tr: "Oyun" },
+    { en: "Business panel", tr: "İşletme paneli" },
+  ],
+  hero: [OYUNDAL.site!, OYUNDAL.home!, OYUNDAL.game!].map(media),
+  gallery: [OYUNDAL.home!, OYUNDAL.table!, OYUNDAL.game!].map(media),
+  interludes: [OYUNDAL.games!, OYUNDAL.panel!].map(media),
+  facts: [
+    { label: { en: "Status", tr: "Durum" }, value: { en: "Live", tr: "Canlı" } },
+    { label: { en: "Games", tr: "Oyun" }, value: { en: "37", tr: "37" } },
+    { label: { en: "To play", tr: "Oynamak için" }, value: { en: "No download, no sign-up", tr: "İndirme yok, üyelik yok" } },
+  ],
+  idea: {
+    index: "01",
+    title: { en: "The problem", tr: "Sorun" },
+    body: {
+      en: ["Box games wear out, lose pieces and need staff to hand them out and collect them. And they tell the café nothing about who played, when, or whether they came back."],
+      tr: ["Kutu oyunları eskiyor, parçaları kayboluyor, dağıtıp toplaması personele kalıyor. Üstelik kim oynadı, ne zaman oynadı, geri geldi mi; kafeye hiçbir şey söylemiyor."],
+    },
+  },
+  product: [
+    {
+      index: "02",
+      title: { en: "At the table", tr: "Masada" },
+      body: {
+        en: ["One QR per branch. Guests pick their table, open a game and invite the people sitting with them. Teams can form, and tables can play against each other."],
+        tr: ["Her şubeye tek QR. Misafir masasını seçiyor, oyunu açıyor, yanındakileri odaya çağırıyor. Takım kurulabiliyor, masalar birbirine karşı yarışabiliyor."],
+      },
+    },
+    {
+      index: "03",
+      title: { en: "Behind the counter", tr: "Kasanın arkasında" },
+      body: {
+        en: ["Live use by table, campaigns with a ceiling the owner sets, single-use reward codes checked by staff, and a report for every branch."],
+        tr: ["Masa masa canlı kullanım, tavanını işletmenin belirlediği kampanyalar, personelin doğruladığı tek kullanımlık ödül kodları ve her şube için rapor."],
+      },
+    },
+  ],
+  technologies: [
+    { label: { en: "Application", tr: "Uygulama" }, value: { en: "Next.js, React, TypeScript", tr: "Next.js, React, TypeScript" } },
+    { label: { en: "Data and real time", tr: "Veri ve canlı akış" }, value: { en: "Supabase, PostgreSQL", tr: "Supabase, PostgreSQL" } },
+  ],
+  link: { label: "oyundal.com", href: "https://oyundal.com" },
+  accent: "#2416C9",
+};
 
 const meetzy = fromProject(byslug("meetzy"), {
   category: { en: "Mobile · Social product", tr: "Mobil · Sosyal ürün" },
@@ -187,8 +263,8 @@ const meetzy = fromProject(byslug("meetzy"), {
     tr: "Birlikte gidecek insanları bulduran sosyal planlama uygulaması.",
   },
   shortDescription: {
-    en: "The event is the excuse; the product's real job is the match. Designed and built end to end, live for about three months, with around 2,000 people signed up.",
-    tr: "Etkinlik bahane, ürünün asıl işi eşleştirme. Uçtan uca tasarlanıp geliştirildi; yaklaşık üç aydır canlı ve 2.000 civarında kişi kaydoldu.",
+    en: "The event is the excuse; the product's real job is the match. Designed and built end to end. Around 2,000 people signed up.",
+    tr: "Etkinlik bahane, ürünün asıl işi eşleştirme. Uçtan uca biz tasarlayıp geliştirdik; 2.000 civarında kişi kaydoldu.",
   },
   services: [
     { en: "Product decisions", tr: "Ürün kararları" },
@@ -203,7 +279,7 @@ const meetzy = fromProject(byslug("meetzy"), {
     { en: "Product", tr: "Ürün" },
     { en: "Platform", tr: "Platform" },
   ],
-  hero: [MEETZY.problem!, MEETZY.plan!, MEETZY.real!].map(media),
+  hero: [MEETZY_SITE, MEETZY.problem!, MEETZY.plan!].map(media),
 });
 
 const dppano = fromProject(byslug("dppano"), {
@@ -238,8 +314,8 @@ const erden = fromProject(byslug("erden"), {
     tr: "Bir davetiye atölyesi; vitrini ve arkasındaki yönetim sistemiyle yeniden kuruldu.",
   },
   shortDescription: {
-    en: "A storefront that lets a couple choose with confidence, and the admin the atelier runs on — orders, designs, products, coupons, customers, reviews and analytics.",
-    tr: "Çiftin gönül rahatlığıyla seçtiği bir vitrin ve atölyenin işini üzerinden yürüttüğü yönetim paneli — sipariş, tasarım, ürün, kupon, müşteri, yorum ve analitik.",
+    en: "A storefront that lets a couple choose with confidence, and the admin the atelier runs on: orders, designs, products, coupons, customers, reviews and analytics.",
+    tr: "Çiftin gönül rahatlığıyla seçtiği bir vitrin ve atölyenin işini üzerinden yürüttüğü yönetim paneli: sipariş, tasarım, ürün, kupon, müşteri, yorum ve analitik.",
   },
   services: [
     { en: "Product", tr: "Ürün" },
@@ -397,7 +473,7 @@ const world: ShowcaseProject = {
 
 /** The order is editorial: Archon Soft's newest live product, the product
     people use every week, then the place, then the rest. */
-export const SHOWCASE: ShowcaseProject[] = [aracimgo, meetzy, world, dppano, erden];
+export const SHOWCASE: ShowcaseProject[] = [aracimgo, oyundal, meetzy, dppano, erden, world];
 
 export const getShowcase = (slug: string): ShowcaseProject | undefined =>
   SHOWCASE.find((project) => project.slug === slug);

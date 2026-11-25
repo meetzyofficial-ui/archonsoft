@@ -110,7 +110,6 @@ export default async function LabsPage({ params }: Params) {
                   className="reveal-fade group/card flex h-full flex-col py-6 pr-6 transition-colors duration-500 hover:bg-[color-mix(in_oklab,var(--color-cyan)_6%,transparent)] md:py-7"
                 >
                   <div className="flex items-baseline gap-3">
-                    <span className="mono-label text-[var(--fg-mute)]">{lab.index}</span>
                     <span
                       aria-hidden="true"
                       className="size-1.5 translate-y-[-0.15em] rounded-full bg-[var(--accent)]"

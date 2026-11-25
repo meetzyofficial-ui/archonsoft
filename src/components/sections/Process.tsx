@@ -33,9 +33,6 @@ export function Process({
                 delay={i * 70}
                 className="grid gap-x-8 gap-y-3 py-7 md:grid-cols-12 md:py-9"
               >
-                <span className="mono-micro reveal-fade text-[var(--accent)] md:col-span-1">
-                  {phase.index}
-                </span>
                 <h3 className="text-sub reveal-fade md:col-span-4">{t(phase.title, locale)}</h3>
                 <p className="reveal-fade max-w-[52ch] text-[var(--fg-mute)] md:col-span-6 md:col-start-7">
                   {t(phase.body, locale)}

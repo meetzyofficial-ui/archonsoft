@@ -89,13 +89,10 @@ export function ActionButton({
     return (
       <button
         className={cn(
-          "group/action mono-label inline-flex h-12 items-center gap-4 border border-[var(--fg)] px-6",
-          "text-[var(--fg)] transition-colors duration-500 ease-[var(--ease-out-expo)]",
-          "hover:bg-[var(--fg)] hover:text-[var(--bg)]",
+          "btn-raised group/action mono-label",
           "disabled:pointer-events-none disabled:opacity-40",
           className,
         )}
-        style={{ borderRadius: "var(--radius-hair)" }}
         {...rest}
       >
         <span>{children}</span>
