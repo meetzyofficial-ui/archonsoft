@@ -27,7 +27,7 @@ import { WORLD_OBSTACLES } from "@/data/world-obstacles";
  * What changed is the camera. It used to *be* the visitor — a first-person
  * eye at 1.7m. Now the visitor is a body in the world, the Archon explorer,
  * and the camera hangs behind and above it, over the right shoulder, and
- * follows with a little damping. The mouse still turns the view, and the body
+ * follows with a little damping. Holding the mouse and dragging turns the view, and the body
  * still moves relative to where the view points, so the controls feel the
  * same; the difference is that you can see who you are and how far your feet
  * are from the edge of the platform.
@@ -48,7 +48,7 @@ const TELEPORT_IN = 0.46;
 /* Rates per second for an exponential approach, tuned to feel at 60 fps as the old per-frame steps did. */
 const ACCELERATION = 50;
 const DAMPING = 12;
-const LOOK = 0.0021;
+const DRAG_LOOK = 0.0046;
 /*
  * The stick: direct. Its magnitude maps linearly to pace from a brisk
  * minimum to a fast walk at the rim, and holding the rim for a tenth of a
@@ -73,8 +73,8 @@ const TOUCH_CAM_EASE = 12;
    over a few frames so a finger's pixel steps never read as jitter. */
 const TOUCH_LOOK = 0.0038;
 const TOUCH_LOOK_EASE = 26;
-const PITCH_MIN = -0.55;
-const PITCH_MAX = 0.62;
+const PITCH_MIN = -0.95;
+const PITCH_MAX = 0.95;
 
 /** How far off centre something can be and still be what you are looking at. */
 const CONE = 0.62;
@@ -165,7 +165,6 @@ export function Explorer({ active }: { active: boolean }) {
     floor: 0,
     walked: 0,
     keys: new Set<string>(),
-    locked: false,
     /* The camera's eased position and aim. */
     camReady: false,
     reveal: 0,
@@ -189,33 +188,67 @@ export function Explorer({ active }: { active: boolean }) {
     rim: 0,
   });
 
-  /* Looking. Pointer lock is requested by the canvas. */
+  /* Looking: hold the mouse and drag, from anywhere on the canvas. A press
+     that does not travel is a click, and uses what is in front of the visitor.
+     The wheel brings the camera nearer or further. */
   useEffect(() => {
     if (!active) return;
     const canvas = gl.domElement;
     const here = state.current;
+    let held = -1;
+    let travel = 0;
+    let lastX = 0;
+    let lastY = 0;
+    canvas.style.cursor = "grab";
 
-    const onMove = (event: MouseEvent) => {
-      if (!here.locked) return;
-      here.yaw -= event.movementX * LOOK;
-      here.pitch = THREE.MathUtils.clamp(here.pitch + event.movementY * LOOK, PITCH_MIN, PITCH_MAX);
+    const onDown = (event: PointerEvent) => {
+      if (event.pointerType !== "mouse" || held !== -1) return;
+      held = event.pointerId;
+      travel = 0;
+      lastX = event.clientX;
+      lastY = event.clientY;
+      canvas.setPointerCapture?.(event.pointerId);
+      canvas.style.cursor = "grabbing";
     };
-    const onLock = () => {
-      here.locked = document.pointerLockElement === canvas;
-      if (!here.locked) here.keys.clear();
+    const onMove = (event: PointerEvent) => {
+      if (event.pointerId !== held) return;
+      const dx = event.clientX - lastX;
+      const dy = event.clientY - lastY;
+      lastX = event.clientX;
+      lastY = event.clientY;
+      travel += Math.abs(dx) + Math.abs(dy);
+      here.turnX += dx * DRAG_LOOK;
+      here.turnY += dy * DRAG_LOOK;
     };
-    const onClick = () => {
-      if (!here.locked) canvas.requestPointerLock?.();
+    const onUp = (event: PointerEvent) => {
+      if (event.pointerId !== held) return;
+      held = -1;
+      canvas.style.cursor = "grab";
+      if (event.type === "pointerup" && travel < 5) {
+        const focus = focusStore.get();
+        if (focus) interactables.get(focus.id)?.activate();
+      }
     };
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      here.camBack = THREE.MathUtils.clamp(here.camBack + event.deltaY * 0.006, 4, 11);
+    };
+    const onMenu = (event: Event) => event.preventDefault();
 
-    document.addEventListener("mousemove", onMove);
-    document.addEventListener("pointerlockchange", onLock);
-    canvas.addEventListener("click", onClick);
+    canvas.addEventListener("pointerdown", onDown);
+    canvas.addEventListener("pointermove", onMove);
+    canvas.addEventListener("pointerup", onUp);
+    canvas.addEventListener("pointercancel", onUp);
+    canvas.addEventListener("wheel", onWheel, { passive: false });
+    canvas.addEventListener("contextmenu", onMenu);
     return () => {
-      document.removeEventListener("mousemove", onMove);
-      document.removeEventListener("pointerlockchange", onLock);
-      canvas.removeEventListener("click", onClick);
-      if (document.pointerLockElement === canvas) document.exitPointerLock?.();
+      canvas.style.cursor = "";
+      canvas.removeEventListener("pointerdown", onDown);
+      canvas.removeEventListener("pointermove", onMove);
+      canvas.removeEventListener("pointerup", onUp);
+      canvas.removeEventListener("pointercancel", onUp);
+      canvas.removeEventListener("wheel", onWheel);
+      canvas.removeEventListener("contextmenu", onMenu);
     };
   }, [active, gl]);
 
@@ -256,21 +289,16 @@ export function Explorer({ active }: { active: boolean }) {
     };
     const onUp = (event: KeyboardEvent) => here.keys.delete(event.key.toLowerCase());
     const onBlur = () => here.keys.clear();
-    const onPointerDown = (event: MouseEvent) => {
-      if (here.locked && event.button === 0) activate();
-    };
 
     window.addEventListener("keydown", onDown);
     window.addEventListener("keyup", onUp);
     window.addEventListener("blur", onBlur);
-    gl.domElement.addEventListener("mousedown", onPointerDown);
     return () => {
       window.removeEventListener("keydown", onDown);
       window.removeEventListener("keyup", onUp);
       window.removeEventListener("blur", onBlur);
-      gl.domElement.removeEventListener("mousedown", onPointerDown);
     };
-  }, [active, gl]);
+  }, [active]);
 
   /* A test hook: turn the view without a pointer lock. Only ever read by the
      headless QA harness, which has no mouse to lock. */
@@ -317,6 +345,12 @@ export function Explorer({ active }: { active: boolean }) {
       const [dx, dy] = touchInput.takeLook();
       here.turnX += dx * TOUCH_LOOK * touchInput.lookScale;
       here.turnY += dy * TOUCH_LOOK * touchInput.lookScale;
+      if (touchInput.jump) {
+        touchInput.jump = false;
+        if (!here.airborne && here.windup <= 0 && !here.teleport) here.windup = JUMP_WINDUP;
+      }
+    }
+    {
       /* Eased: most of the pending turn this frame, the rest over the next
          few, independent of the frame rate. */
       const k = 1 - Math.exp(-TOUCH_LOOK_EASE * delta);
@@ -327,10 +361,6 @@ export function Explorer({ active }: { active: boolean }) {
         here.turnY *= 1 - k;
         if (Math.abs(here.turnX) < 1e-5) here.turnX = 0;
         if (Math.abs(here.turnY) < 1e-5) here.turnY = 0;
-      }
-      if (touchInput.jump) {
-        touchInput.jump = false;
-        if (!here.airborne && here.windup <= 0 && !here.teleport) here.windup = JUMP_WINDUP;
       }
     }
     const stick = touchInput.active ? Math.min(1, Math.hypot(touchInput.x, touchInput.y)) : 0;
@@ -461,6 +491,7 @@ export function Explorer({ active }: { active: boolean }) {
         here.vz = 0;
         body.floor = here.floor;
         body.facing = here.yaw;
+        here.camBack = CAM_BACK;
         here.camReady = false;
         here.settle = 3;
         teleportStore.set({ current: tp.to.id, phase: 0, direction: "in" });

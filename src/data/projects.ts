@@ -207,7 +207,7 @@ export const PROJECTS: Project[] = [
     accent: "#c8f031",
     layout: "stack",
     lead: OYUNDAL.home!,
-    screens: [OYUNDAL.home!, OYUNDAL.game!, OYUNDAL.table!, OYUNDAL.plate!],
+    screens: [OYUNDAL.plate1!, OYUNDAL.plate2!, OYUNDAL.plate3!, OYUNDAL.plate4!],
     detail: [],
     /* The case study's chapters live in showcase.ts. */
     sections: [],
@@ -223,8 +223,8 @@ export const PROJECTS: Project[] = [
       tr: "Okuldaki ekranlar gün boyu boş durur; duyurular hâlâ mantar panoya iğnelenir.",
     },
     standfirst: {
-      en: "Smart boards and corridor screens sit idle all day while announcements are still pinned to a cork board. DP Pano turns those screens into one live school board fed from a single panel. An administrator enters the content once — twenty-six modules update on every screen in the building, each in its own layout, within seconds.",
-      tr: "Okullardaki akıllı tahtalar ve koridor ekranları gün boyu boş durur; duyurular ise hâlâ mantar panoya iğnelenir. DP Pano bu ekranları tek panelden beslenen canlı bir okul panosuna çevirir. İdareci içeriği bir kez girer — 26 modül, okuldaki her ekranda kendi düzeniyle, saniyeler içinde güncellenir.",
+      en: "Smart boards and corridor screens sit idle all day while announcements are still pinned to a cork board. DP Pano turns those screens into one live school board fed from a single panel. An administrator enters the content once — thirty modules update on every screen in the building, each in its own layout, within seconds.",
+      tr: "Okullardaki akıllı tahtalar ve koridor ekranları gün boyu boş durur; duyurular ise hâlâ mantar panoya iğnelenir. DP Pano bu ekranları tek panelden beslenen canlı bir okul panosuna çevirir. İdareci içeriği bir kez girer — 30 modül, okuldaki her ekranda kendi düzeniyle, saniyeler içinde güncellenir.",
     },
     statement: {
       en: "The board takes the place of the blank screen, not the lesson.",
@@ -233,7 +233,7 @@ export const PROJECTS: Project[] = [
     facts: [
       { label: { en: "Status", tr: "Durum" }, value: { en: "Live, in active development", tr: "Canlı, aktif geliştirmede" } },
       { label: { en: "Version", tr: "Sürüm" }, value: { en: "v1.53.0", tr: "v1.53.0" } },
-      { label: { en: "Modules", tr: "Modül" }, value: { en: "Twenty-six", tr: "Yirmi altı" } },
+      { label: { en: "Modules", tr: "Modül" }, value: { en: "Thirty", tr: "Otuz" } },
       { label: { en: "For", tr: "Kullanıcı" }, value: { en: "K-12 schools", tr: "K-12 okulları" } },
       { label: { en: "Interface", tr: "Arayüz dili" }, value: { en: "Turkish", tr: "Türkçe" } },
     ],
@@ -254,7 +254,7 @@ export const PROJECTS: Project[] = [
        in a column, and the whole argument is how much is on one screen. */
     layout: "bleed",
     lead: DPPANO.board!,
-    screens: [DPPANO.board!, DPPANO.staffroom!, DPPANO.canteen!, DPPANO.screens!],
+    screens: [DPPANO.plate1!, DPPANO.plate2!, DPPANO.plate3!, DPPANO.plate4!],
     detail: [
       DPPANO.layout!,
       DPPANO.timetable!,
@@ -265,7 +265,7 @@ export const PROJECTS: Project[] = [
     systemAreas: {
       title: { en: "What the system holds", tr: "Sistemin tuttuğu" },
       areas: [
-        { en: "Twenty-six board modules", tr: "Yirmi altı pano modülü" },
+        { en: "Thirty board modules", tr: "Otuz pano modülü" },
         { en: "Several screens per school, each with its own layout", tr: "Okul başına birden çok ekran, her biri kendi düzeniyle" },
         { en: "A layout editor: six regions, two rotating slots each", tr: "Düzen editörü: altı bölge, bölge başına iki dönüşümlü slot" },
         { en: "Push to screen over server-sent events", tr: "Sunucudan ekrana anlık iletim (SSE)" },
@@ -564,7 +564,7 @@ export const PROJECTS: Project[] = [
        type against pictures, offset, with a diagonal through it. */
     layout: "split",
     lead: ERDEN.home!,
-    screens: [ERDEN.home!, ERDEN.categories!, ERDEN.products!, ERDEN.admin!],
+    screens: [ERDEN.plate1!, ERDEN.plate2!, ERDEN.plate3!, ERDEN.plate4!],
     detail: [ERDEN.styles!, ERDEN.support!, ERDEN.navigation!],
     systemAreas: {
       title: { en: "The admin, area by area", tr: "Yönetim paneli, alan alan" },

@@ -216,7 +216,7 @@ const oyundal: ShowcaseProject = {
     { en: "Business panel", tr: "İşletme paneli" },
   ],
   hero: [OYUNDAL.site!, OYUNDAL.home!, OYUNDAL.game!].map(media),
-  gallery: [OYUNDAL.home!, OYUNDAL.table!, OYUNDAL.game!].map(media),
+  gallery: [OYUNDAL.plate1!, OYUNDAL.plate2!, OYUNDAL.plate3!, OYUNDAL.plate4!].map(media),
   interludes: [OYUNDAL.games!, OYUNDAL.panel!].map(media),
   facts: [
     { label: { en: "Status", tr: "Durum" }, value: { en: "Live", tr: "Canlı" } },
@@ -290,8 +290,8 @@ const dppano = fromProject(byslug("dppano"), {
     tr: "Okuldaki tüm ekranları tek panelden yöneten canlı okul panosu.",
   },
   shortDescription: {
-    en: "Idle smart boards and corridor screens become one live school board: twenty-six modules, each screen in its own layout, updated within seconds from one panel.",
-    tr: "Boş duran akıllı tahtalar ve koridor ekranları tek bir canlı okul panosuna dönüşüyor: 26 modül, her ekran kendi düzeniyle, tek panelden saniyeler içinde güncelleniyor.",
+    en: "Idle smart boards and corridor screens become one live school board: thirty modules, each screen in its own layout, updated within seconds from one panel.",
+    tr: "Boş duran akıllı tahtalar ve koridor ekranları tek bir canlı okul panosuna dönüşüyor: 30 modül, her ekran kendi düzeniyle, tek panelden saniyeler içinde güncelleniyor.",
   },
   services: [
     { en: "Product", tr: "Ürün" },
@@ -305,7 +305,7 @@ const dppano = fromProject(byslug("dppano"), {
     { en: "Real time", tr: "Gerçek zamanlı" },
     { en: "Scheduling", tr: "Çizelgeleme" },
   ],
-  hero: [DPPANO.board!, DPPANO.staffroom!, DPPANO.timetable!].map(media),
+  hero: [DPPANO.wide!, DPPANO.plate1!, DPPANO.plate2!].map(media),
 });
 
 const erden = fromProject(byslug("erden"), {
@@ -329,7 +329,7 @@ const erden = fromProject(byslug("erden"), {
     { en: "Admin", tr: "Yönetim" },
     { en: "Mobile first", tr: "Önce mobil" },
   ],
-  hero: [ERDEN.home!, ERDEN.products!, ERDEN.admin!].map(media),
+  hero: [ERDEN.wide!, ERDEN.home!, ERDEN.plate2!].map(media),
 });
 
 const scene = (image: StaticImageData, alt: Localized): ShowcaseMedia => ({ image, alt, kind: "scene" });
@@ -475,7 +475,7 @@ const world: ShowcaseProject = {
 
 /** The order is editorial: Archon Soft's newest live product, the product
     people use every week, then the place, then the rest. */
-export const SHOWCASE: ShowcaseProject[] = [aracimgo, oyundal, meetzy, dppano, erden, world];
+export const SHOWCASE: ShowcaseProject[] = [meetzy, oyundal, aracimgo, dppano, erden, world];
 
 export const getShowcase = (slug: string): ShowcaseProject | undefined =>
   SHOWCASE.find((project) => project.slug === slug);

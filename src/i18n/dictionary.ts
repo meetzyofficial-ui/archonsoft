@@ -76,7 +76,7 @@ const en = {
     location: "Ankara, Turkey",
     lead: "We build apps, websites",
     leadAccent: "and the systems behind them.",
-    standfirst: "We are a software studio in Ankara. AracımGo, Oyundal, Meetzy and DP Pano are ours, and all of them are live. Yours can be next.",
+    standfirst: "We are a software studio in Ankara. We built Meetzy, Oyundal, AracımGo and DP Pano, and all of them are live. Yours can be next.",
     ctaWork: "See the work",
     /* Printed on the rule above the first project, at the foot of the
        opening. It is the only thing that says what comes next. */
@@ -789,7 +789,7 @@ const tr: Dictionary = {
     location: "Ankara, Türkiye",
     lead: "Uygulamanızı, sitenizi,",
     leadAccent: "sisteminizi yapıyoruz.",
-    standfirst: "Ankara’da bir yazılım stüdyosuyuz. AracımGo, Oyundal, Meetzy ve DP Pano’yu biz yaptık, hepsi yayında. Sıradaki sizinki olsun.",
+    standfirst: "Ankara’da bir yazılım stüdyosuyuz. Meetzy, Oyundal, AracımGo ve DP Pano’yu biz yaptık, hepsi yayında. Sıradaki sizinki olsun.",
     ctaWork: "İşlerimize bakın",
     nextLabel: "İlk sırada",
     ctaContact: "Projenizi anlatın",

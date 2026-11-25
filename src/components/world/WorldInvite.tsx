@@ -39,6 +39,14 @@ export function useWebGL(): boolean {
   return able;
 }
 
+/** The world's code, fetched ahead: on intent, and once the page is idle. */
+let fetched = false;
+export function preloadWorld() {
+  if (fetched) return;
+  fetched = true;
+  void import("@/components/world/WorldScene");
+}
+
 export function useEnterWorld(locale: Locale) {
   const router = useRouter();
   return useCallback(
@@ -143,9 +151,24 @@ export function WorldHeaderButton({
 }) {
   const enter = useEnterWorld(locale);
   const able = useWebGL();
+  useEffect(() => {
+    /* Not on a metered or slow line: there it waits for the pointer. */
+    const line = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
+    if (line?.saveData || (line?.effectiveType && line.effectiveType !== "4g")) return;
+    const timer = window.setTimeout(preloadWorld, 3500);
+    return () => window.clearTimeout(timer);
+  }, []);
   if (!able) return null;
   return (
-    <a href={`${localePath(locale)}?world`} onClick={enter} data-world-trigger="" aria-label={label} className="world-block group">
+    <a
+      href={`${localePath(locale)}?world`}
+      onClick={enter}
+      onPointerEnter={preloadWorld}
+      onTouchStart={preloadWorld}
+      data-world-trigger=""
+      aria-label={label}
+      className="world-block group"
+    >
       <Image src={gate} alt="" sizes="84px" className="world-block__shot" />
       <span className="hidden sm:inline">{label}</span>
       <span className="sm:hidden">{shortLabel}</span>

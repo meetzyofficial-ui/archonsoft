@@ -97,7 +97,6 @@ export function WorldUI({
   const guide = useSyncExternalStore(guideStore.subscribe, guideStore.get, () => NO_GUIDE);
   const host = useSyncExternalStore(hostStore.subscribe, hostStore.get, () => NO_HOST);
   const teleport = useSyncExternalStore(teleportStore.subscribe, teleportStore.get, () => NO_TELEPORT);
-  const [locked, setLocked] = useState(false);
   const [announce, setAnnounce] = useState<string | null>(null);
   const seen = useSyncExternalStore(discovery.subscribe, discovery.get, () => EMPTY);
   const districtNames = useMemo(
@@ -109,12 +108,6 @@ export function WorldUI({
   useEffect(() => {
     discovery.setTotal(payload.total);
   }, [payload.total]);
-
-  useEffect(() => {
-    const onChange = () => setLocked(Boolean(document.pointerLockElement));
-    document.addEventListener("pointerlockchange", onChange);
-    return () => document.removeEventListener("pointerlockchange", onChange);
-  }, []);
 
   /* Entering a district names it, and counts as having discovered it. */
   useEffect(() => {
@@ -235,7 +228,7 @@ export function WorldUI({
       </div>
 
       {/* Centre: a hairline, and the prompt for what is in front of you. */}
-      {mode === "explore" && locked ? (
+      {mode === "explore" && !touch && focus ? (
         <div
           aria-hidden="true"
           className={cn(
@@ -424,7 +417,7 @@ export function WorldUI({
             {host.following ? (
               <p className={cn("mono-micro mt-1 text-[var(--accent)]", touch && "ml-40")}>{world.host.label} — {world.host.following}</p>
             ) : null}
-            {!locked && !touch ? (
+            {!touch ? (
               <p className="mono-micro mt-2 text-[var(--fg-dim)]">{payload.copy.look}</p>
             ) : null}
           </div>

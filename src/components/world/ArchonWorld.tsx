@@ -195,7 +195,6 @@ export function ArchonWorld({
   const [tourZone, setTourZone] = useState<ZoneId>("hub");
   const [leaving, setLeaving] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
-  const enterRef = useRef<HTMLButtonElement>(null);
 
   /* Real progress, not a bar on a timer. Every texture in the world goes
      through three's default loading manager, so this is the number of things
@@ -224,7 +223,7 @@ export function ArchonWorld({
       return;
     }
     if (failures >= 1) setSafe(true);
-    const timer = window.setTimeout(() => setMounted(true), 350);
+    const timer = window.setTimeout(() => setMounted(true), 60);
     return () => window.clearTimeout(timer);
   }, []);
   const contextLost = useCallback(() => {
@@ -372,34 +371,13 @@ export function ArchonWorld({
     return () => siblings.forEach((element) => element.removeAttribute("inert"));
   }, []);
 
-  /* The reveal begins once the scene reports itself ready and the first
-     textures have had a moment to land. */
+  /* Asking for the world is the way in: the moment it is built, the visitor
+     is standing in it. The language is in the top bar. */
   useEffect(() => {
     if (stage !== "opening" || !ready) return;
-    const timer = window.setTimeout(() => setStage("reveal"), reduced ? 0 : 500);
+    const timer = window.setTimeout(() => setStage("world"), 120);
     return () => window.clearTimeout(timer);
-  }, [ready, reduced, stage]);
-
-  /* What the camera is passing, named, as it comes down: a small line of
-     text keeping time with the sweep. */
-  const [beat, setBeat] = useState(-1);
-  useEffect(() => {
-    if (stage !== "reveal") return;
-    setBeat(0);
-    const timers = copy.revealing.map((_, i) => window.setTimeout(() => setBeat(i), 300 + i * 1150));
-    return () => timers.forEach((timer) => window.clearTimeout(timer));
-  }, [copy.revealing, stage]);
-
-  /* The language question waits for the sweep to have shown something. */
-  const [asking, setAsking] = useState(false);
-  useEffect(() => {
-    if (stage !== "reveal") return;
-    const timer = window.setTimeout(() => setAsking(true), reduced ? 0 : 7200);
-    return () => window.clearTimeout(timer);
-  }, [reduced, stage]);
-  useEffect(() => {
-    if (asking) enterRef.current?.focus();
-  }, [asking]);
+  }, [ready, stage]);
 
   const entered = stage === "world";
   const sceneMode: "explore" | "tour" | "overture" = entered ? mode : "overture";
@@ -494,7 +472,7 @@ export function ArchonWorld({
           <div
             className={cn(
               "flex flex-col items-center transition-all duration-[1400ms] ease-[var(--ease-out-expo)]",
-              stage === "opening" ? "translate-y-0 opacity-100" : asking ? "-translate-y-[10vh] scale-[0.5] opacity-0" : "translate-y-0 opacity-100",
+              stage === "opening" ? "translate-y-0 opacity-100" : "-translate-y-[6vh] scale-[0.7] opacity-0",
             )}
           >
             <ArchonIcon className="world-mark h-[clamp(3.5rem,9vw,7rem)] text-[var(--fg)]" />
@@ -509,67 +487,8 @@ export function ArchonWorld({
               {payload.copy.loading} · {String(Math.round(Math.max(0.02, progress) * 100)).padStart(3, "0")}
             </p>
             {/* What the camera is passing. */}
-            <ul
-              aria-hidden="true"
-              className={cn(
-                "mono-micro mt-4 flex flex-wrap justify-center gap-x-4 transition-opacity duration-700",
-                stage === "reveal" && !asking ? "opacity-100" : "opacity-0",
-              )}
-            >
-              {copy.revealing.map((word, i) => (
-                <li key={word} className={cn("transition-colors duration-700", i === beat ? "text-[var(--fg)]" : "text-[var(--fg-mute)] opacity-50")}>
-                  {word}
-                </li>
-              ))}
-            </ul>
           </div>
 
-          {/* The question, and the way in. */}
-          <div
-            className={cn(
-              "absolute inset-x-0 top-[46%] flex flex-col items-center transition-all duration-[1100ms] ease-[var(--ease-out-expo)]",
-              asking && !entered ? "pointer-events-auto translate-y-0 opacity-100" : "pointer-events-none translate-y-6 opacity-0",
-            )}
-          >
-            <p className="text-sub text-center text-[var(--fg)]">{copy.tagline}</p>
-            <p className="mono-micro mt-6 text-[var(--fg-mute)]">{copy.chooseLanguage}</p>
-            <div className="mt-4 flex items-center gap-3" role="radiogroup" aria-label={copy.language}>
-              {(["tr", "en"] as Locale[]).map((one) => (
-                <button
-                  key={one}
-                  type="button"
-                  role="radio"
-                  aria-checked={lang === one}
-                  data-lang={one}
-                  lang={one}
-                  onClick={() => chooseLang(one)}
-                  className={cn(
-                    "mono-label min-w-[9rem] cursor-pointer border px-6 py-3 transition-colors duration-300",
-                    lang === one
-                      ? "border-[var(--fg)] bg-[var(--fg)] text-[var(--color-ink)]"
-                      : "border-[var(--line-strong)] text-[var(--fg-dim)] hover:border-[var(--fg)] hover:text-[var(--fg)]",
-                  )}
-                >
-                  {copies[one].languageName}
-                </button>
-              ))}
-            </div>
-            <button
-              ref={enterRef}
-              type="button"
-              data-enter
-              onClick={() => setStage("world")}
-              className="mono-label group/enter link-rule mt-10 inline-flex cursor-pointer items-center gap-4 text-[var(--fg)] [--link-pad:15px]"
-            >
-              {copy.enterWorld}
-              <span
-                aria-hidden="true"
-                className="relative block h-px w-12 bg-current transition-[width] duration-[700ms] ease-[var(--ease-out-expo)] group-hover/enter:w-20"
-              >
-                <span className="absolute -top-[3px] right-0 block size-[7px] rotate-45 border-t border-r border-current" />
-              </span>
-            </button>
-          </div>
         </div>
 
         <div className="frame pb-8">

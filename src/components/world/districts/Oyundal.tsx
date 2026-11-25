@@ -133,7 +133,7 @@ export function OyundalCafe({
       {installation ? (
         <Station
           installation={installation}
-          index={8}
+          index={4}
           at={STATION_AT}
           turn={Math.PI}
           texture={texture}

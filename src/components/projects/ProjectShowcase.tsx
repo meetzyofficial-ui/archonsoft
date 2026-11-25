@@ -10,8 +10,7 @@ import { cn } from "@/lib/utils";
 /**
  * The work, each product on its own colour.
  *
- * Three full-width panels, then two side by side. The pictures are the live
- * products. The world has its own section on the home page and only joins
+ * One full-width panel each, in the order of the showcase. The world has its own section on the home page and only joins
  * this list on the projects page.
  */
 export function ProjectShowcase({
@@ -26,8 +25,7 @@ export function ProjectShowcase({
   id?: string;
 }) {
   const c = copy.showcase;
-  const wide = SHOWCASE.filter((one) => ["aracimgo", "oyundal", "meetzy"].includes(one.slug));
-  const pair = SHOWCASE.filter((one) => ["dppano", "erden"].includes(one.slug));
+  const list = SHOWCASE.filter((one) => !one.world);
   const world = SHOWCASE.find((one) => one.world);
 
   return (
@@ -38,14 +36,9 @@ export function ProjectShowcase({
           <p className="text-lead text-[var(--fg-dim)] md:col-span-4">{c.body}</p>
         </div>
       ) : null}
-      {wide.map((project, i) => (
+      {list.map((project, i) => (
         <Panel key={project.slug} project={project} locale={locale} copy={copy} wide flip={i % 2 === 1} />
       ))}
-      <div className="work-pair">
-        {pair.map((project) => (
-          <Panel key={project.slug} project={project} locale={locale} copy={copy} />
-        ))}
-      </div>
       {!heading && world ? <Panel project={world} locale={locale} copy={copy} wide /> : null}
     </section>
   );
@@ -96,7 +89,7 @@ function Panel({
       </div>
       <div className="work-panel__art">
         {screen ? (
-          <figure className="panel-window">
+          <figure className={cn("panel-window", ["meetzy", "dppano", "erden"].includes(project.slug) && "panel-window--alone")}>
             <Image src={screen.image} alt={t(screen.alt, locale)} placeholder="blur" sizes="(min-width: 900px) 64vw, 118vw" />
           </figure>
         ) : null}
@@ -108,7 +101,7 @@ function Panel({
               </figure>
             ))}
           </div>
-        ) : phone && project.slug !== "meetzy" ? (
+        ) : phone && !["meetzy", "dppano", "erden"].includes(project.slug) ? (
           <figure className="panel-phone">
             <Image src={phone.image} alt={t(phone.alt, locale)} placeholder="blur" sizes="(min-width: 900px) 16vw, 33vw" />
           </figure>

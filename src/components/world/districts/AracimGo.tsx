@@ -208,7 +208,7 @@ export function AracimGoHub({
       {installation ? (
         <Station
           installation={installation}
-          index={7}
+          index={3}
           at={STATION_AT}
           turn={Math.PI / 2}
           texture={texture}

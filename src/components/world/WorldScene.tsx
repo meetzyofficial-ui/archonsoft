@@ -315,7 +315,7 @@ const STAGE = {
   crowd: 35,
   animals: 37,
 } as const;
-const LAST_STAGE = Math.max(STAGE.animals, STAGE.displays + 24, STAGE.offices + 2 * 10) + 2;
+const LAST_STAGE = Math.max(STAGE.animals, STAGE.displays + 36) + 1;
 
 type WorldProps = {
   payload: WorldPayload;
@@ -614,7 +614,7 @@ function Boot({
       for (const one of textures) {
         const image = one.image as { width?: number; height?: number } | undefined;
         const size = (image?.width ?? 256) * (image?.height ?? 256);
-        if (texels > 0 && texels + size > 2_000_000) {
+        if (texels > 0 && texels + size > (compact ? 2_000_000 : 9_000_000)) {
           await frames(1);
           if (cancelled) return;
           texels = 0;

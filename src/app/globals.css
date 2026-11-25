@@ -693,40 +693,52 @@ main [data-band="paper"] + [data-band="paper"]:not(.keep-pad) {
   padding-top: var(--header-h);
   overflow: hidden;
 }
-.hero-wall {
+.hero-posters {
   display: flex;
-  align-items: flex-end;
-  gap: clamp(0.6rem, 1.2vw, 1.25rem);
-  width: max-content;
-  min-width: 100%;
-  justify-content: center;
-  margin-left: 50%;
-  transform: translateX(-50%);
-  height: clamp(15rem, 36vw, 35rem);
+  gap: clamp(0.75rem, 1.3vw, 1.5rem);
+  margin-top: clamp(2.25rem, 3.6vw, 3.75rem);
+  padding: 0 var(--spacing-gutter) clamp(2.5rem, 4vw, 4rem);
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: var(--spacing-gutter);
 }
-.hero-wall figure {
-  position: relative;
+.hero-posters li {
   flex: none;
-  margin: 0;
+  width: clamp(9.5rem, 40vw, 13rem);
+  scroll-snap-align: start;
+}
+.hero-poster {
+  display: block;
   overflow: hidden;
-  background: #222;
+  aspect-ratio: 9 / 14;
+  border-radius: 12px;
+  transition: transform 400ms var(--ease-out-expo);
 }
-.hero-wall__screen {
-  width: clamp(20rem, 47vw, 52rem);
-  height: 100%;
-}
-.hero-wall__phone {
-  width: clamp(8.5rem, 17vw, 18.5rem);
-  height: 88%;
-}
-.hero-wall__phone--tall {
-  height: 100%;
-}
-.hero-wall img {
+.hero-poster img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: top;
+}
+@media (hover: hover) {
+  .hero-poster:hover {
+    transform: translateY(-8px);
+  }
+}
+@media (min-width: 900px) {
+  .hero-posters {
+    max-width: 1760px;
+    margin-inline: auto;
+    overflow: visible;
+  }
+  .hero-posters li {
+    flex: 1 1 0;
+    width: auto;
+    max-width: 15rem;
+  }
+  .hero-posters {
+    justify-content: space-between;
+  }
 }
 
 /* Brushed steel. Used where the page changes hands, never behind text
@@ -845,9 +857,16 @@ main [data-band="paper"] + [data-band="paper"]:not(.keep-pad) {
     top: 12%;
     width: 112%;
   }
+  .work-panel--wide .panel-window--alone {
+    top: 50%;
+    transform: translateY(-50%);
+  }
   .work-panel--flip .panel-window {
     left: auto;
     right: 0;
+  }
+  .work-panel--flip .panel-window--alone {
+    width: 94%;
   }
   .work-panel--wide .panel-phone {
     right: auto;

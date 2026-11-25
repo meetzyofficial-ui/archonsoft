@@ -270,9 +270,9 @@ export const SERVICES: Service[] = [
       L("Platform migration", "Platform geçişi"),
     ],
     hero: [
-      shot(ERDEN.home!, ERDEN_CTX),
-      shot(ERDEN.products!, ERDEN_CTX),
-      shot(ERDEN.categories!, ERDEN_CTX),
+      shot(ERDEN.plate2!, ERDEN_CTX),
+      shot(ERDEN.plate1!, ERDEN_CTX),
+      shot(ERDEN.plate3!, ERDEN_CTX),
     ],
     gallery: [
       shot(ERDEN.home!, ERDEN_CTX),

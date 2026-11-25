@@ -366,8 +366,8 @@ const BOARDS_DISPLAYS: Display[] = [
     turn: -Math.PI / 2 - 0.4,
     size: [1.5, 1],
     subject: { kind: "note", title: { en: "The panel", tr: "Panel" }, body: {
-      en: "Every screen in this hall is fed from one place. Twenty-six modules, six regions per screen, two rotating slots per region — entered once, and on every board within seconds.",
-      tr: "Bu koridordaki her ekran tek bir yerden beslenir. Yirmi altı modül, ekran başına altı bölge, bölge başına iki dönüşümlü slot — bir kez girilir, saniyeler içinde her panoda.",
+      en: "Every screen in this hall is fed from one place. Thirty modules, six regions per screen, two rotating slots per region — entered once, and on every board within seconds.",
+      tr: "Bu koridordaki her ekran tek bir yerden beslenir. Otuz modül, ekran başına altı bölge, bölge başına iki dönüşümlü slot — bir kez girilir, saniyeler içinde her panoda.",
     } },
   },
   {

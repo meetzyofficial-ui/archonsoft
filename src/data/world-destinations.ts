@@ -48,23 +48,9 @@ export const WORLD_DESTINATIONS: Destination[] = [
     yaw: 0,
   },
   {
-    id: "dppano",
+    id: "meetzy",
     number: 2,
     key: "2",
-    name: { en: "DP Pano", tr: "DP Pano" },
-    subtitle: category("dppano"),
-    description: {
-      en: "The hall of screens: DP Pano's real boards, and the people who built it.",
-      tr: "Ekranlar koridoru: DP Pano'nun gerçek ekranları ve onu yapan ekip.",
-    },
-    zone: "boards",
-    at: [40, 0, -66],
-    yaw: face([40, -66], [62, -66]),
-  },
-  {
-    id: "meetzy",
-    number: 3,
-    key: "3",
     name: { en: "Meetzy", tr: "Meetzy" },
     subtitle: category("meetzy"),
     description: {
@@ -72,50 +58,8 @@ export const WORLD_DESTINATIONS: Destination[] = [
       tr: "Yayın holünün batısında Meetzy istasyonu.",
     },
     zone: "shipped",
-    at: [-2, 0, -36],
-    yaw: face([-2, -36], [-14, -44]),
-  },
-  {
-    id: "erden",
-    number: 4,
-    key: "4",
-    name: { en: "Erden Davetiye", tr: "Erden Davetiye" },
-    subtitle: category("erden"),
-    description: {
-      en: "Erden Davetiye's station on the east side of the shipped hall.",
-      tr: "Yayın holünün doğusunda Erden Davetiye istasyonu.",
-    },
-    zone: "shipped",
-    at: [2, 0, -36],
-    yaw: face([2, -36], [14, -44]),
-  },
-  {
-    id: "gallery",
-    number: 5,
-    key: "5",
-    name: { en: "Gallery", tr: "Galeri" },
-    subtitle: { en: "The walkway above the hub", tr: "Meydanın üstündeki geçit" },
-    description: {
-      en: "Nine metres up: the whole plaza in one look, and the museum hanging over the water.",
-      tr: "Dokuz metre yukarıda: tüm meydan tek bakışta ve suyun üzerinde asılı müze.",
-    },
-    zone: "gallery",
-    at: [-24.5, GALLERY, 2],
-    yaw: 0,
-  },
-  {
-    id: "systems",
-    number: 6,
-    key: "6",
-    name: { en: "Systems", tr: "Sistemler" },
-    subtitle: { en: "What runs behind an interface", tr: "Bir arayüzün arkasında ne çalışır" },
-    description: {
-      en: "The systems island: the layers a product is made of, on one wall of panels.",
-      tr: "Sistemler adası: bir ürünün katmanları, tek bir panel duvarında.",
-    },
-    zone: "systems",
-    at: [-50, 0, 8],
-    yaw: face([-50, 8], [-73, 0]),
+    at: [-1, 0, -40],
+    yaw: face([-1, -40], [-14, -44]),
   },
   {
     /* Set down just inside the service hub's door, clear of the entrance
@@ -123,8 +67,8 @@ export const WORLD_DESTINATIONS: Destination[] = [
        the hall so the plates, the station and the project wall are the
        first thing in view. */
     id: "aracimgo",
-    number: 7,
-    key: "7",
+    number: 3,
+    key: "3",
     name: { en: "AracımGo", tr: "AracımGo" },
     subtitle: category("aracimgo"),
     description: {
@@ -137,8 +81,8 @@ export const WORLD_DESTINATIONS: Destination[] = [
   },
   {
     id: "oyundal",
-    number: 8,
-    key: "8",
+    number: 4,
+    key: "4",
     name: { en: "Oyundal", tr: "Oyundal" },
     subtitle: category("oyundal"),
     description: {
@@ -148,6 +92,62 @@ export const WORLD_DESTINATIONS: Destination[] = [
     zone: "oyundal",
     at: [62, 0, 41.5],
     yaw: face([62, 41.5], [67, 48]),
+  },
+  {
+    id: "dppano",
+    number: 5,
+    key: "5",
+    name: { en: "DP Pano", tr: "DP Pano" },
+    subtitle: category("dppano"),
+    description: {
+      en: "The hall of screens: DP Pano's real boards, and the people who built it.",
+      tr: "Ekranlar koridoru: DP Pano'nun gerçek ekranları ve onu yapan ekip.",
+    },
+    zone: "boards",
+    at: [45, 0, -63.4],
+    yaw: face([45, -63.4], [62, -66]),
+  },
+  {
+    id: "erden",
+    number: 6,
+    key: "6",
+    name: { en: "Erden Davetiye", tr: "Erden Davetiye" },
+    subtitle: category("erden"),
+    description: {
+      en: "Erden Davetiye's station on the east side of the shipped hall.",
+      tr: "Yayın holünün doğusunda Erden Davetiye istasyonu.",
+    },
+    zone: "shipped",
+    at: [1, 0, -40],
+    yaw: face([1, -40], [14, -44]),
+  },
+  {
+    id: "gallery",
+    number: 7,
+    key: "7",
+    name: { en: "Gallery", tr: "Galeri" },
+    subtitle: { en: "The walkway above the hub", tr: "Meydanın üstündeki geçit" },
+    description: {
+      en: "Nine metres up: the whole plaza in one look, and the museum hanging over the water.",
+      tr: "Dokuz metre yukarıda: tüm meydan tek bakışta ve suyun üzerinde asılı müze.",
+    },
+    zone: "gallery",
+    at: [-24.5, GALLERY, 2],
+    yaw: 0,
+  },
+  {
+    id: "systems",
+    number: 8,
+    key: "8",
+    name: { en: "Systems", tr: "Sistemler" },
+    subtitle: { en: "What runs behind an interface", tr: "Bir arayüzün arkasında ne çalışır" },
+    description: {
+      en: "The systems island: the layers a product is made of, on one wall of panels.",
+      tr: "Sistemler adası: bir ürünün katmanları, tek bir panel duvarında.",
+    },
+    zone: "systems",
+    at: [-50, 0, 8],
+    yaw: face([-50, 8], [-73, 0]),
   },
 ];
 

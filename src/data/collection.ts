@@ -3,7 +3,7 @@ import type { IconName } from "@/components/labs/Icon";
 import { PROJECTS } from "@/data/projects";
 import type { Screen } from "@/data/screens";
 import { CONCEPT_TITLES } from "@/data/labs/titles";
-import { getShowcase, projectPath } from "@/data/showcase";
+import { SHOWCASE, getShowcase, projectPath } from "@/data/showcase";
 import type { Localized } from "@/lib/i18n";
 
 /**
@@ -53,7 +53,9 @@ export type Piece = {
   layers?: Localized[];
 };
 
-const SHIPPED: Piece[] = PROJECTS.map((project) => ({
+/* The archive follows the same order as the panels. */
+const rank = (slug: string) => SHOWCASE.findIndex((one) => one.slug === slug);
+const SHIPPED: Piece[] = [...PROJECTS].sort((a, b) => rank(a.slug) - rank(b.slug)).map((project) => ({
   slug: project.slug,
   name: { en: project.name, tr: project.name },
   index: "",

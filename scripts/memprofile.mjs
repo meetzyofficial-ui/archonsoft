@@ -86,7 +86,7 @@ for (const [tag, viewport, phone] of [
   const page = await ctx.newPage();
   await page.bringToFront();
   await page.goto(BASE + "/tr?world", { waitUntil: "domcontentloaded" });
-  await page.waitForFunction(() => document.querySelector(".world-overlay")?.getAttribute("data-stage") === "reveal", null, { timeout: 90000 });
+  await page.waitForFunction(() => document.querySelector(".world-overlay")?.getAttribute("data-stage") === "world", null, { timeout: 90000 });
   const atReady = await page.evaluate(measure);
   await page.waitForTimeout(5000);
   const inReveal = await page.evaluate(measure);

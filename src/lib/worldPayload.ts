@@ -169,7 +169,7 @@ export function buildWorld(locale: Locale): WorldPayload {
       open: locale === "tr" ? "Projeyi aç" : "Open project",
       read: locale === "tr" ? "Oku" : "Read",
       back: locale === "tr" ? "Dünyaya dön" : "Back to the world",
-      look: locale === "tr" ? "Bakmak için tıkla" : "Click to look around",
+      look: locale === "tr" ? "Basılı tut ve sürükle: etrafa bak · Tekerlek: yakınlaş" : "Hold and drag to look · Wheel to zoom",
       move: locale === "tr" ? "W A S D — YÜRÜ · SHIFT — KOŞ · E — İNCELE" : "W A S D — MOVE · SHIFT — RUN · E — INSPECT",
       exit: locale === "tr" ? "Ana site" : "Main site",
       sound: locale === "tr" ? "Ses" : "Sound",

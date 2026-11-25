@@ -687,7 +687,7 @@ export function Shipped({
 
       {/* Erden — 03 — on the east. */}
       {erden ? (
-        <Station installation={erden} index={3} at={[14, 0, -44]} turn={-Math.PI / 2} texture={texture} facing={-Math.PI / 2} />
+        <Station installation={erden} index={6} at={[14, 0, -44]} turn={-Math.PI / 2} texture={texture} facing={-Math.PI / 2} />
       ) : null}
     </group>
   );
@@ -716,12 +716,12 @@ export function Boards({
       {installation ? (
         <Station
           installation={installation}
-          index={1}
+          index={5}
           at={[62, 0, -66]}
           turn={-Math.PI / 2}
           texture={texture}
           facing={-Math.PI / 2}
-          spacing={7.2}
+          spacing={3.4}
           photoHeight={3.8}
           height={4.4}
         />

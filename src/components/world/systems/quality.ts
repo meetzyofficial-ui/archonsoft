@@ -59,7 +59,7 @@ export const QUALITY: Record<Tier, QualityProfile> = {
      pixels when the panel fills the screen, and the world's textures fit
      in under three hundred megabytes instead of more than a gigabyte with
      their canvases (scripts/memprofile.mjs). */
-  desktop: { dpr: { start: 1.5, min: 1.0, max: 2.0 }, textureScale: 1, anisotropy: 16, reflections: 128, panelDensity: 830, panelMax: 2560, screenScale: 2, textureMax: 4096, signMax: 2560 },
+  desktop: { dpr: { start: 1.5, min: 1.0, max: 2.0 }, textureScale: 1, anisotropy: 16, reflections: 128, panelDensity: 620, panelMax: 1792, screenScale: 1.5, textureMax: 2048, signMax: 1536 },
   high: { dpr: { start: 2.0, min: 1.3, max: 2.0 }, textureScale: 1, anisotropy: 16, reflections: 128, panelDensity: 720, panelMax: 2048, screenScale: 1.5, textureMax: 960, signMax: 1152 },
   medium: { dpr: { start: 1.6, min: 1.15, max: 1.75 }, textureScale: 1, anisotropy: 8, reflections: 64, panelDensity: 620, panelMax: 2048, screenScale: 1.5, textureMax: 960, signMax: 1152 },
   low: { dpr: { start: 1.25, min: 0.95, max: 1.35 }, textureScale: 0.85, anisotropy: 8, reflections: 64, panelDensity: 520, panelMax: 1536, screenScale: 1.25, textureMax: 864, signMax: 1088 },

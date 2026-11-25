@@ -54,8 +54,21 @@ import oyGames from "@/assets/work/oyundal/games.jpg";
 import oyHome from "@/assets/work/oyundal/app-home.jpg";
 import oyGame from "@/assets/work/oyundal/app-game.jpg";
 import oyTable from "@/assets/work/oyundal/app-table.jpg";
-import oyPlate from "@/assets/work/oyundal/plate-games.jpg";
 import oyPanel from "@/assets/work/oyundal/panel.jpg";
+import dpPlate1 from "@/assets/work/dppano/plate-1.jpg";
+import dpPlate2 from "@/assets/work/dppano/plate-2.jpg";
+import dpPlate3 from "@/assets/work/dppano/plate-3.jpg";
+import dpPlate4 from "@/assets/work/dppano/plate-4.jpg";
+import erPlate1 from "@/assets/work/erden/plate-1.jpg";
+import erPlate2 from "@/assets/work/erden/plate-2.jpg";
+import erPlate3 from "@/assets/work/erden/plate-3.jpg";
+import erPlate4 from "@/assets/work/erden/plate-4.jpg";
+import oyPlate1 from "@/assets/work/oyundal/plate-1.jpg";
+import oyPlate2 from "@/assets/work/oyundal/plate-2.jpg";
+import oyPlate3 from "@/assets/work/oyundal/plate-3.jpg";
+import oyPlate4 from "@/assets/work/oyundal/plate-4.jpg";
+import dpWide from "@/assets/work/dppano/wide.jpg";
+import erWide from "@/assets/work/erden/wide.jpg";
 import mzSite from "@/assets/work/meetzy/site.jpg";
 
 
@@ -187,6 +200,11 @@ export const ERDEN: Record<string, Screen> = {
     },
     redacted: true,
   },
+  wide: { image: erWide, caption: { en: "Erden Davetiye: the storefront", tr: "Erden Davetiye vitrini" } },
+  plate1: { image: erPlate1, caption: { en: "Designing the invitation together", tr: "Davetiyeyi birlikte tasarlamak" } },
+  plate2: { image: erPlate2, caption: { en: "Choosing by style", tr: "Tarza göre seçim" } },
+  plate3: { image: erPlate3, caption: { en: "A model made your own", tr: "Modeli kendi adınıza çevirmek" } },
+  plate4: { image: erPlate4, caption: { en: "The atelier's admin", tr: "Atölyenin yönetim paneli" } },
 };
 
 /**
@@ -276,6 +294,11 @@ export const DPPANO: Record<string, Screen> = {
       tr: "Modül bazlı yetki matrisi ile personel hesapları",
     },
   },
+  wide: { image: dpWide, caption: { en: "DP Pano on the board, in the canteen and on the phone", tr: "DP Pano: tahtada, kantinde ve telefonda" } },
+  plate1: { image: dpPlate1, caption: { en: "The smart board becomes the school board", tr: "Akıllı tahta okulun panosu oluyor" } },
+  plate2: { image: dpPlate2, caption: { en: "Written once, on every screen at once", tr: "Bir kez yaz, her ekranda anında" } },
+  plate3: { image: dpPlate3, caption: { en: "The timetable, generated", tr: "Kendiliğinden hazırlanan ders programı" } },
+  plate4: { image: dpPlate4, caption: { en: "Duty rota and its printout", tr: "Nöbet dağılımı ve çıktısı" } },
 };
 
 /**
@@ -309,8 +332,11 @@ export const OYUNDAL: Record<string, Screen> = {
   home: { image: oyHome, caption: { en: "What a guest sees after scanning the QR", tr: "QR okutulduktan sonra misafirin gördüğü ekran" } },
   game: { image: oyGame, caption: { en: "A game, opened in the browser", tr: "Tarayıcıda açılan bir oyun" } },
   table: { image: oyTable, caption: { en: "Choosing the table", tr: "Masa seçimi" } },
-  plate: { image: oyPlate, caption: { en: "37 games behind one QR", tr: "Tek QR'da 37 oyun" } },
   panel: { image: oyPanel, caption: { en: "Owner panel: report across branches (sample data)", tr: "İşletme paneli: şube raporu (örnek veri)" } },
+  plate1: { image: oyPlate1, caption: { en: "Oyundal at the table", tr: "Masada Oyundal" } },
+  plate2: { image: oyPlate2, caption: { en: "37 games behind one QR", tr: "Tek QR'da 37 oyun" } },
+  plate3: { image: oyPlate3, caption: { en: "Scan, choose the table, play", tr: "QR'ı okut, masanı seç, oyna" } },
+  plate4: { image: oyPlate4, caption: { en: "Every branch in one panel", tr: "Bütün şubeler tek panelde" } },
 };
 
 export const MEETZY_SITE: Screen = { image: mzSite, caption: { en: "meetzy.tr, November 2026", tr: "meetzy.tr, Kasım 2026" } };

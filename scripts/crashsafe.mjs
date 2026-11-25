@@ -71,7 +71,7 @@ const waitStage = (page, want, timeout = 60000) =>
     requestAnimationFrame(tick);
   });
   await page.goto(BASE + "/tr?world", { waitUntil: "domcontentloaded" });
-  const revealed = await waitStage(page, "reveal", 90000);
+  const revealed = await waitStage(page, "world", 90000);
   check("throttled phone: loading reaches the reveal", revealed);
   const memory = await page.evaluate(() => {
     const scene = window.__archonScene();
@@ -107,7 +107,7 @@ const waitStage = (page, want, timeout = 60000) =>
 {
   const { ctx, page, errors } = await phone({ pending: true, failures: 0 });
   await page.goto(BASE + "/tr?world", { waitUntil: "domcontentloaded" });
-  const revealed = await waitStage(page, "reveal", 90000);
+  const revealed = await waitStage(page, "world", 90000);
   const quality = await page.evaluate(() => window.__archonQuality?.());
   check("after one killed start: the world starts in the safe tier", revealed && quality?.tier === "safe" && quality?.safe === true && quality?.dpr <= 1.25, JSON.stringify(quality));
   await enterWorld(page, "tr", 2500);
@@ -130,7 +130,7 @@ const waitStage = (page, want, timeout = 60000) =>
   check("the fallback offers TEKRAR DENE", /TEKRAR DENE/i.test(await page.locator("[data-world-retry]").innerText().catch(() => "")));
   await page.screenshot({ path: ".qa/final5/crashsafe-fallback.png" });
   await page.locator("[data-world-retry]").tap();
-  const revealed = await waitStage(page, "reveal", 90000);
+  const revealed = await waitStage(page, "world", 90000);
   const quality = await page.evaluate(() => window.__archonQuality?.());
   check("TEKRAR DENE builds the world, in the safe tier", revealed && (await fallback.count()) === 0 && quality?.tier === "safe", JSON.stringify(quality));
   check("fallback: no page errors", errors.length === 0, errors.slice(0, 2).join(" | "));
@@ -144,7 +144,7 @@ const waitStage = (page, want, timeout = 60000) =>
   await page.waitForFunction(() => window.__archonScene?.(), null, { timeout: 30000 });
   await page.goto(BASE + "/tr/about", { waitUntil: "domcontentloaded" });
   await page.goto(BASE + "/tr?world", { waitUntil: "domcontentloaded" });
-  await waitStage(page, "reveal", 90000);
+  await waitStage(page, "world", 90000);
   const quality = await page.evaluate(() => window.__archonQuality?.());
   check("a reload mid-start is not counted: full tier again", quality?.tier === "high" && !quality?.safe, JSON.stringify(quality));
   await ctx.close();
