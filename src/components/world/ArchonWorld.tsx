@@ -69,17 +69,18 @@ export const WORLD_LANG_KEY = "archon-world-lang";
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-function readLang(): Locale {
+function readLang(): Locale | null {
   try {
     const stored = window.localStorage.getItem(WORLD_LANG_KEY);
     if (stored && isLocale(stored)) return stored;
   } catch {
-    /* A private window: Turkish, as always by default. */
+    /* A private window: the language of the page it was opened from. */
   }
-  return "tr";
+  return null;
 }
 
 export function ArchonWorld({
+  locale,
   copies,
   payloads,
   touch,
@@ -104,11 +105,11 @@ export function ArchonWorld({
   const [ready, setReady] = useState(false);
   const [open, setOpen] = useState<PreparedDisplay | null>(null);
 
-  /* The language. Turkish until the browser says otherwise. */
-  const [lang, setLang] = useState<Locale>("tr");
+  /* The language: the one chosen here before, or the page's own. */
+  const [lang, setLang] = useState<Locale>(locale);
   useEffect(() => {
-    setLang(readLang());
-  }, []);
+    setLang(readLang() ?? locale);
+  }, [locale]);
   const chooseLang = useCallback((next: Locale) => {
     setLang(next);
     try {

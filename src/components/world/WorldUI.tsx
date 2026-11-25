@@ -135,7 +135,7 @@ export function WorldUI({
       {/* Top. */}
       <div className="frame pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between pt-6">
         <div className="pointer-events-auto">
-          <p className="mono-micro text-[var(--fg-mute)]">{world.label}</p>
+          <p className="mono-micro hidden text-[var(--fg-mute)] sm:block">{world.label}</p>
           <p
             aria-live="polite"
             className={cn(
@@ -147,7 +147,7 @@ export function WorldUI({
           </p>
         </div>
 
-        <div className="pointer-events-auto flex flex-wrap items-center justify-end gap-x-5 gap-y-2 whitespace-nowrap">
+        <div className="pointer-events-auto flex flex-wrap items-center justify-end gap-x-3 gap-y-2 whitespace-nowrap max-sm:shrink-0 max-sm:bg-[rgba(8,8,10,0.72)] max-sm:pl-3 sm:gap-x-5">
           {mode === "explore" ? (
             <p
               data-pose={`${pose.x},${pose.z},${pose.level}`}
@@ -173,7 +173,7 @@ export function WorldUI({
                   /* Preferences are a courtesy. */
                 }
               }}
-              className="mono-label link-rule [--link-pad:15px] text-[var(--fg-mute)] transition-colors hover:text-[var(--fg)]"
+              className="hidden sm:inline-block mono-label link-rule [--link-pad:15px] text-[var(--fg-mute)] transition-colors hover:text-[var(--fg)]"
             >
               {world.look} {world.lookLevels[look]}
             </button>
@@ -183,7 +183,7 @@ export function WorldUI({
               type="button"
               onClick={() => voiceStore.enable(!voice.enabled)}
               aria-pressed={voice.enabled}
-              className="mono-label link-rule [--link-pad:15px] text-[var(--fg-mute)] transition-colors hover:text-[var(--fg)]"
+              className="hidden sm:inline-block mono-label link-rule [--link-pad:15px] text-[var(--fg-mute)] transition-colors hover:text-[var(--fg)]"
             >
               {payload.copy.voice} {voice.enabled ? world.on : world.off}
             </button>
@@ -220,7 +220,7 @@ export function WorldUI({
           <button
             type="button"
             onClick={onExit}
-            className="mono-label link-rule [--link-pad:15px] text-[var(--fg-mute)] transition-colors hover:text-[var(--fg)]"
+            className="mono-label bg-[var(--color-orange)] px-3.5 py-3.5 text-[var(--color-black)] transition-colors hover:bg-white"
           >
             {payload.copy.exit} →
           </button>
