@@ -301,7 +301,9 @@ export class FirestoreRepo implements Repo {
     if (res.ok) return;
     if (res.status === 409 || res.status === 400) throw new StoreError("EXISTS", "Kayıt zaten var.");
     if (res.status === 404) throw new StoreError("MISSING", "Kayıt bulunamadı.");
-    throw new StoreError("BACKEND", `Kayıt yazılamadı (${res.status}).`);
+    /* Google's own reason (an API switched off, a missing role) says what to fix; it holds no secret. */
+    const why = ((await res.json().catch(() => null)) as { error?: { status?: string; message?: string } } | null)?.error;
+    throw new StoreError("BACKEND", `Kayıt yazılamadı (${res.status}${why?.status ? ` ${why.status}` : ""}). ${(why?.message ?? "").slice(0, 160)}`);
   }
 
   create(c: Collection, doc: Doc) {

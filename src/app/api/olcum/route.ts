@@ -67,7 +67,7 @@ export async function POST(request: Request) {
     return new Response(null, { status: 204, headers: { "x-olcum": kept ? "kaydedildi" : "depo-yok" } });
   } catch (error) {
     /* The reason, never the credentials: the store's own messages carry only a status code. */
-    const reason = error instanceof Error ? error.message.slice(0, 120) : "bilinmiyor";
+    const reason = error instanceof Error ? error.message.slice(0, 260) : "bilinmiyor";
     console.error("[olcum] write failed:", reason);
     return new Response(null, { status: 204, headers: { "x-olcum": `hata: ${encodeURIComponent(reason)}` } });
   }
