@@ -49,7 +49,7 @@ export async function POST(request: Request) {
   }
   const at = new Date();
   try {
-    await saveVisit({
+    const kept = await saveVisit({
       id,
       at: `${dayOf(at)}T${new Intl.DateTimeFormat("tr-TR", { timeZone: "Europe/Istanbul", hour: "2-digit", minute: "2-digit", second: "2-digit" }).format(at)}`,
       s: text(body.s, 24),
@@ -64,8 +64,11 @@ export async function POST(request: Request) {
       scroll: whole(body.scroll, 100),
       events,
     });
-  } catch {
-    console.error("[olcum] write failed");
+    return new Response(null, { status: 204, headers: { "x-olcum": kept ? "kaydedildi" : "depo-yok" } });
+  } catch (error) {
+    /* The reason, never the credentials: the store's own messages carry only a status code. */
+    const reason = error instanceof Error ? error.message.slice(0, 120) : "bilinmiyor";
+    console.error("[olcum] write failed:", reason);
+    return new Response(null, { status: 204, headers: { "x-olcum": `hata: ${encodeURIComponent(reason)}` } });
   }
-  return done;
 }
